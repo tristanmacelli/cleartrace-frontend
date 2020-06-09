@@ -1,0 +1,9 @@
+src/
+public/
+
+babel.config.js
+.eslintrc.js
+.gitignore
+.broswerslistrc
+
+*.sh
