@@ -52,7 +52,7 @@
             </div>
             <tr>
               <td>
-                <input type="submit" id="userBtn" value="Sign Up" />
+                <input type="submit" id="newUserBtn" value="Sign Up" />
               </td>
             </tr>
           </tbody>
@@ -150,7 +150,7 @@ export default {
   margin-bottom: 1em;
 }
 
-#userBtn {
+#newUserBtn {
   color: white;
   background-color: #69a74e;
   font: 400 13.3333 Arial;

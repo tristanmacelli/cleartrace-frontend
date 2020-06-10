@@ -114,24 +114,4 @@ h1 {
 #nav a:first-of-type {
   padding: unset;
 }
-
-#login {
-  float: right;
-  display: block;
-  margin-left: 6em;
-  margin-right: 6em;
-  padding: 0.5em 0 0;
-}
-
-#login input {
-  margin-right: 0.8em;
-}
-
-input[type="text"],
-input[type="password"] {
-  border-radius: 3px;
-  border: 0;
-  border-color: rgb(189, 199, 216);
-  padding: 4px 4px;
-}
 </style>
