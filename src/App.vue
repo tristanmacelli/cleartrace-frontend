@@ -9,7 +9,9 @@
           <h1>Slack Clone</h1>
         </router-link>
         <router-link v-if="authenticated" to="/home">Home</router-link>
-        <router-link v-if="authenticated" to="/account">Account</router-link>
+        <router-link v-if="authenticated" to="/account">{{
+          firstname
+        }}</router-link>
         <Login v-if="!authenticated"></Login>
         <Logout v-if="authenticated"></Logout>
       </div>
@@ -27,7 +29,8 @@ export default {
   name: "app",
   data() {
     return {
-      authenticated: false
+      authenticated: false,
+      firstname: "Account"
     };
   },
   components: {
@@ -42,6 +45,9 @@ export default {
   mounted() {
     EventBus.$on("toggle-authentication", () => {
       this.toggleAuth();
+    });
+    EventBus.$on("display-user-firstname", name => {
+      this.firstname = name;
     });
   }
 };
