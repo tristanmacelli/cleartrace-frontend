@@ -2,11 +2,7 @@
   <div id="app">
     <div class="fixed container">
       <div id="nav">
-        <router-link
-          @toggle-authentication="toggleAuth"
-          v-if="!authenticated"
-          to="/"
-        >
+        <router-link v-if="!authenticated" to="/">
           <h1>Slack Clone</h1>
         </router-link>
         <router-link v-if="authenticated" to="/home">
@@ -14,14 +10,8 @@
         </router-link>
         <router-link v-if="authenticated" to="/home">Home</router-link>
         <router-link v-if="authenticated" to="/account">Account</router-link>
-        <Login
-          @toggle-authentication="toggleAuth"
-          v-if="!authenticated"
-        ></Login>
-        <Logout
-          @toggle-authentication="toggleAuth"
-          v-if="authenticated"
-        ></Logout>
+        <Login v-if="!authenticated"></Login>
+        <Logout v-if="authenticated"></Logout>
       </div>
     </div>
     <router-view />
@@ -31,6 +21,7 @@
 <script>
 import Login from "@/components/Login.vue";
 import Logout from "@/components/Logout.vue";
+import EventBus from "@/event-bus";
 
 export default {
   name: "app",
@@ -47,6 +38,11 @@ export default {
     toggleAuth() {
       this.authenticated = !this.authenticated;
     }
+  },
+  mounted() {
+    EventBus.$on("toggle-authentication", () => {
+      this.toggleAuth();
+    });
   }
 };
 </script>

@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import EventBus from "@/event-bus";
+
 export default {
   name: "login",
   data() {
@@ -77,7 +79,7 @@ export default {
       // let sessionToken = ""; //xhr.getResponseHeader('authorization')
       // localStorage.setItem("auth", sessionToken);
       // console.log("Success");
-      this.$emit("toggle-authentication");
+      EventBus.$emit("toggle-authentication");
       this.$router.push({ path: "/home" });
     }
   }

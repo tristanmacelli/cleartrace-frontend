@@ -15,8 +15,11 @@ export default {
     HelloWorld
   },
   created: function() {
-    console.log("Getting User");
-    // let sessionToken = localStorage.getItem("auth")
+    // console.log("Getting User");
+    // let sessionToken = localStorage.getItem("auth");
+    // if (!sessionToken) {
+    //   this.$router.push({ path: "/" });
+    // }
     // request_user(auth.display_user_first_name, sessionToken)
     // new WebSocket("wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken)
   }
