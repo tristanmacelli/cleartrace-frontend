@@ -120,7 +120,11 @@ h1 {
   display: block;
   margin-left: 6em;
   margin-right: 6em;
-  padding: 1.5em 0;
+  padding: 0.5em 0 0;
+}
+
+#login input {
+  margin-right: 0.8em;
 }
 
 input[type="text"],
@@ -129,6 +133,5 @@ input[type="password"] {
   border: 0;
   border-color: rgb(189, 199, 216);
   padding: 4px 4px;
-  margin-bottom: 4px;
 }
 </style>

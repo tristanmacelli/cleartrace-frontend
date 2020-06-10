@@ -6,7 +6,7 @@
       <form id="createuser" v-on:submit.prevent="SignUp" accept-charset="UTF-8">
         <table cellspacing="0" role="presentation">
           <tbody>
-            <tr>
+            <tr id="names">
               <td>
                 <input
                   type="text"
@@ -44,6 +44,12 @@
                 />
               </td>
             </tr>
+            <div>
+              <p>
+                By clicking Sign Up, you agree to our
+                <a href="/legal/terms">Terms of Service</a>.
+              </p>
+            </div>
             <tr>
               <td>
                 <input type="submit" id="userBtn" value="Sign Up" />
@@ -120,6 +126,28 @@ export default {
   padding: 0.6em 1.8em;
   border-radius: 6px;
   width: fit-content;
+}
+
+.raised td {
+  display: unset;
+  margin-right: 0.3em;
+}
+
+#names input {
+  display: unset;
+  width: 13.2em;
+}
+
+#email,
+#pass {
+  width: 94%;
+}
+
+.raised input[type="text"],
+.raised input[type="password"] {
+  width: 2em;
+  height: 2em;
+  margin-bottom: 1em;
 }
 
 #userBtn {

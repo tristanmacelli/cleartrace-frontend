@@ -85,6 +85,12 @@ export default {
 <style scoped>
 label {
   color: white;
+  font-size: 0.8em;
+}
+
+#emailSess,
+#passSess {
+  width: 10rem;
 }
 
 #sessBtn {
@@ -96,5 +102,6 @@ label {
   color: white;
   border: 1px solid #1a3666;
   margin-bottom: 5px;
+  cursor: pointer;
 }
 </style>
