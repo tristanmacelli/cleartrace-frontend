@@ -11,25 +11,23 @@ export default {
   name: "logOut",
   methods: {
     async SignOut() {
-      // let url = "https://slack.api.tristanmacelli.com/v1/sessions/mine";
-      // let sessionToken = localStorage.getItem("auth");
-      // sessionToken = "";
+      let url = "https://slack.api.tristanmacelli.com/v1/sessions/mine";
+      let sessionToken = localStorage.getItem("auth");
 
-      // // send a get request with the above data
-      // let resp = await fetch(url, {
-      //   method: "DELETE",
-      //   headers: {
-      //     Authorization: sessionToken
-      //   }
-      // });
-      // if (!resp.ok) {
-      //   let message = "Error: " + resp.status.toString();
-      //   alert(message);
-      // }
+      // send a get request with the above data
+      let resp = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: sessionToken
+        }
+      });
+      if (!resp.ok) {
+        let message = "Error: " + resp.status.toString();
+        alert(message);
+      }
       // let response = await resp.json();
       // console.log(response);
-      // localStorage.removeItem("auth");
-      // console.log("Success");
+      localStorage.removeItem("auth");
       EventBus.$emit("toggle-authentication");
       if (this.$router.currentRoute != "/") {
         this.$router.push({ path: "/" });

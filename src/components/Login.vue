@@ -42,45 +42,41 @@ export default {
   methods: {
     // Creating a new session based on the form values
     async SignIn() {
-      // console.log("Entered Authenticate");
-      // let url = "https://slack.api.tristanmacelli.com/v1/sessions";
+      let url = "https://slack.api.tristanmacelli.com/v1/sessions";
       let email = this.LogInEmail;
       let password = this.LogInPass;
       if (!email || !password) {
         alert("Error: Invalid Credentials");
         return;
       }
-      // console.log(email);
-      // console.log(password);
 
-      // let body = {
-      //   Email: email,
-      //   Password: password
-      // };
-      // console.log("Pre-fetch");
-      // // send a get request with the above data
-      // let resp = await fetch(url, {
-      //   method: "POST",
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify(body)
-      // });
-      // console.log("Post-fetch");
-      // if (!resp.ok) {
-      //   let message = "Error: " + resp.status.toString();
-      //   alert(message);
-      // }
-      // console.log("Request was OK");
+      let body = {
+        Email: email,
+        Password: password
+      };
+      // send a get request with the above data
+      let resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        let message = "Error: " + resp.status.toString();
+        alert(message);
+      }
+      // This is the User
       // let response = await resp.json();
-      // console.log(response);
 
-      // let sessionToken = ""; //xhr.getResponseHeader('authorization')
-      // localStorage.setItem("auth", sessionToken);
-      // console.log("Success");
-      EventBus.$emit("toggle-authentication");
-      this.$router.push({ path: "/home" });
+      let hasAuth = resp.headers.has("authorization");
+      if (hasAuth) {
+        let sessionToken = resp.headers.get("authorization");
+        localStorage.setItem("auth", sessionToken);
+        EventBus.$emit("toggle-authentication");
+        this.$router.push({ path: "/home" });
+      }
     }
   }
 };
