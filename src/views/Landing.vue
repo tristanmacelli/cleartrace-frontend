@@ -1,5 +1,5 @@
 <template>
-  <div class="landing">
+  <div id="landing" class="main">
     <Signup @toggle-authentication="toggleAuth"></Signup>
   </div>
 </template>

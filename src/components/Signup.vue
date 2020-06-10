@@ -1,56 +1,58 @@
 <template>
-  <div id="signup" class="main">
-    <h3>Sign up</h3>
-    <p>It's easy!</p>
-    <form id="createuser" v-on:submit.prevent="SignUp" accept-charset="UTF-8">
-      <table cellspacing="0" role="presentation">
-        <tbody>
-          <tr>
-            <td>
-              <input
-                type="text"
-                v-model="NewFirstName"
-                id="firstname"
-                placeholder="First Name"
-              />
-            </td>
-            <td>
-              <input
-                type="text"
-                v-model="NewLastName"
-                id="lastname"
-                placeholder="Last Name"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input
-                type="text"
-                v-model="NewEmail"
-                id="email"
-                placeholder="Email"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input
-                type="password"
-                v-model="NewPassword"
-                id="pass"
-                placeholder="New Password"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input type="submit" id="userBtn" value="submit" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
+  <div id="signup">
+    <div class="raised">
+      <h3>Create an Account</h3>
+      <p>It's easy!</p>
+      <form id="createuser" v-on:submit.prevent="SignUp" accept-charset="UTF-8">
+        <table cellspacing="0" role="presentation">
+          <tbody>
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  v-model="NewFirstName"
+                  id="firstname"
+                  placeholder="First name"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  v-model="NewLastName"
+                  id="lastname"
+                  placeholder="Last name"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  v-model="NewEmail"
+                  id="email"
+                  placeholder="Email"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input
+                  type="password"
+                  v-model="NewPassword"
+                  id="pass"
+                  placeholder="New password"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="submit" id="userBtn" value="Sign Up" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -107,3 +109,32 @@ export default {
   }
 };
 </script>
+
+<style>
+#signup {
+  padding-left: 4em;
+}
+
+.raised {
+  background-color: #c5c5c5;
+  padding: 0.6em 1.8em;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+#userBtn {
+  color: white;
+  background-color: #69a74e;
+  font: 400 13.3333 Arial;
+  font-weight: bold;
+  border-radius: 6px;
+  border: 0;
+  padding: 0.8em 3.8em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  background: linear-gradient(#67ae55, #578843);
+  background-color: #69a74e;
+  box-shadow: inset 0 1px 1px #a4e388;
+  border-color: #3b6e22 #3b6e22 #2c5115;
+}
+</style>

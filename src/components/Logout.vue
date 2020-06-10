@@ -1,6 +1,6 @@
 <template>
   <div id="logout">
-    <button @click="SignOut" class="pull-right">Log Out</button>
+    <button id="logoutBtn" @click="SignOut" class="pull-right">Log Out</button>
   </div>
 </template>
 
@@ -38,12 +38,14 @@ export default {
 </script>
 
 <style scoped>
+#logoutBtn {
+  border-radius: 3px;
+}
+
 .pull-right {
   float: right;
   display: block;
-  margin-left: 6em;
-  margin-right: 6em;
-  padding: 1.5em 0;
+  margin: 2em 6em;
 }
 
 nav ul {

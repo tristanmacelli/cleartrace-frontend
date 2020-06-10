@@ -88,9 +88,13 @@ label {
 }
 
 #sessBtn {
-  background-color: #2e619e;
-  border-radius: 3px;
-  border-color: #2e619e;
+  background-color: #204a7e;
+  border-radius: 1.5px;
+  border: 0;
+  padding: 0.3em 0.8em;
+  font-weight: bold;
   color: white;
+  border: 1px solid #1a3666;
+  margin-bottom: 5px;
 }
 </style>

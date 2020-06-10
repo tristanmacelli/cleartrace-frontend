@@ -8,8 +8,8 @@
         <router-link v-if="authenticated" to="/home">
           <h1>Slack Clone</h1>
         </router-link>
-        <router-link v-if="authenticated" to="/home">Home</router-link>
-        <router-link v-if="authenticated" to="/account">{{
+        <router-link v-if="showHomeLink" to="/home">Home</router-link>
+        <router-link v-if="showAcctLink" to="/account">{{
           firstname
         }}</router-link>
         <Login v-if="!authenticated"></Login>
@@ -42,6 +42,15 @@ export default {
       this.authenticated = !this.authenticated;
     }
   },
+  computed: {
+    // a computed getter
+    showHomeLink: function() {
+      return this.authenticated && this.$router.currentRoute != "/home";
+    },
+    showAcctLink: function() {
+      return this.authenticated && this.$router.currentRoute != "/account";
+    }
+  },
   mounted() {
     EventBus.$on("toggle-authentication", () => {
       this.toggleAuth();
@@ -64,8 +73,12 @@ export default {
 .main {
   background-size: cover;
   height: 100vh;
-  background-color: #e8e8e8;
+  background-color: #e9ebee;
   padding-top: 120px;
+}
+
+body {
+  margin: unset;
 }
 
 .fixed {
@@ -75,7 +88,9 @@ export default {
   width: 100%;
 
   z-index: 1;
-  background-color: #1f4068;
+  background-color: #113969;
+  background-image: linear-gradient(#284b6b, #113969 50%);
+  border-bottom: 1px solid #133783;
 }
 
 .container {
@@ -92,15 +107,12 @@ h1 {
   float: left;
   margin-left: 6em;
   padding: 2em 0.4em;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-/* #nav a.router-link-exact-active {
-  color: #42b983;
-} */
-
-#nav a:hover {
-  background-color: #305f99;
-  text-decoration: none;
+#nav a:first-of-type {
+  padding: unset;
 }
 
 #login {
@@ -109,5 +121,14 @@ h1 {
   margin-left: 6em;
   margin-right: 6em;
   padding: 1.5em 0;
+}
+
+input[type="text"],
+input[type="password"] {
+  border-radius: 3px;
+  border: 0;
+  border-color: rgb(189, 199, 216);
+  padding: 4px 4px;
+  margin-bottom: 4px;
 }
 </style>
