@@ -19,7 +19,7 @@
               <input id="passSess" v-model="LogInPass" type="password" />
             </td>
             <td>
-              <input id="sessBtn" type="submit" value="Log In" />
+              <input id="logInBtn" type="submit" value="Log In" />
             </td>
           </tr>
         </tbody>
@@ -93,7 +93,7 @@ label {
   width: 10rem;
 }
 
-#sessBtn {
+#logInBtn {
   background-color: #204a7e;
   border-radius: 1.5px;
   border: 0;

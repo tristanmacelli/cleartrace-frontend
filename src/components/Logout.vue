@@ -40,6 +40,8 @@ export default {
 <style scoped>
 #logoutBtn {
   border-radius: 3px;
+  padding: 0.3em 0.8em;
+  cursor: pointer;
 }
 
 .pull-right {
