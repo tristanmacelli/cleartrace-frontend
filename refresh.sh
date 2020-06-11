@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-export TLSCERT=/etc/letsencrypt/live/slack.client.tristanmacelli.com/fullchain.pem
-export TLSKEY=/etc/letsencrypt/live/slack.client.tristanmacelli.com/privkey.pem
+export TLSCERT=/etc/letsencrypt/live/slack.tristanmacelli.com/fullchain.pem
+export TLSKEY=/etc/letsencrypt/live/slack.tristanmacelli.com/privkey.pem
 
 docker rm -f summaryClient
 
@@ -21,3 +21,9 @@ docker run -d \
 tristanmacelli/summaryclient
 
 docker ps
+
+sudo certbot certonly --standalone \
+-n \
+--agree-tos \
+--email tristanmacelli@gmail.com \
+-d slack.tristanmacelli.com

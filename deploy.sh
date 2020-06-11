@@ -7,6 +7,6 @@ docker push tristanmacelli/summaryclient
 chmod g+x ./refresh.sh
 
 echo "Starting Summary Client"
-ssh -i ~/.ssh/slack-clone-server.pem ec2-user@slack.client.tristanmacelli.com 'bash -s' < refresh.sh
+ssh -i ~/.ssh/slack-clone-server.pem ec2-user@slack.tristanmacelli.com 'bash -s' < refresh.sh
 
 docker image prune -f
