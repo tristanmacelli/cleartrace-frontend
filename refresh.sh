@@ -21,9 +21,3 @@ docker run -d \
 tristanmacelli/summaryclient
 
 docker ps
-
-sudo certbot certonly --standalone \
--n \
---agree-tos \
---email tristanmacelli@gmail.com \
--d slack.tristanmacelli.com

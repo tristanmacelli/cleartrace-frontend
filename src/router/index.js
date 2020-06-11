@@ -9,7 +9,10 @@ const routes = [
   {
     path: "/",
     name: "Log In",
-    component: Landing
+    component: Landing,
+    meta: {
+      title: "Slack Clone - Log In"
+    }
   },
   {
     path: "/home",
@@ -27,7 +30,17 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  routes
+  routes,
+  mode: "history"
+});
+
+const DEFAULT_TITLE = "Slack Clone";
+router.afterEach(to => {
+  // Use next tick to handle router history correctly
+  // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+  Vue.nextTick(() => {
+    document.title = to.meta.title || DEFAULT_TITLE;
+  });
 });
 
 export default router;
