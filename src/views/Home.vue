@@ -1,19 +1,29 @@
 <template>
   <div id="home" class="main">
     <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <MessageStream
+      channelID="5edc3d54ac409b000c9935b8"
+      channelName="General"
+      v-bind:user="user"
+    ></MessageStream>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+import MessageStream from "@/components/MessageStream.vue";
 import EventBus from "../event-bus.js";
 
 export default {
   name: "Home",
   components: {
-    HelloWorld
+    MessageStream
+  },
+  data() {
+    return {
+      connection: null,
+      user: null
+    };
   },
   created: function() {
     // console.log("Getting User");
@@ -22,9 +32,6 @@ export default {
       this.$router.push({ path: "/" });
     }
     this.request_user(this.display_user_first_name, sessionToken);
-    new WebSocket(
-      "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-    );
   },
   methods: {
     async request_user(display_user_fn, token) {
@@ -40,6 +47,7 @@ export default {
       }
       let response = await resp.json();
       display_user_fn(response);
+      this.user = response;
     },
 
     display_user_first_name(user) {

@@ -31,10 +31,13 @@ const routes = [
 
 const router = new VueRouter({
   routes,
-  mode: "history"
+  mode: "history" // Required for logic based on route change events
 });
 
 const DEFAULT_TITLE = "Slack Clone";
+
+// After every route change vue updates the page title based on a value provided
+// by the route object otherwise, if no value was provided, it uses DEFAULT_TITLE
 router.afterEach(to => {
   // Use next tick to handle router history correctly
   // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
