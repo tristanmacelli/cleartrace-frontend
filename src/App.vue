@@ -40,6 +40,10 @@ export default {
   methods: {
     toggleAuth() {
       this.authenticated = !this.authenticated;
+    },
+    handleConnectionClose() {
+      // Close WebSocket connection
+      // connection.close();
     }
   },
   computed: {
@@ -58,6 +62,13 @@ export default {
     EventBus.$on("display-user-firstname", name => {
       this.firstname = name;
     });
+  },
+  created: function() {
+    let sessionToken = localStorage.getItem("auth");
+    if (sessionToken && !this.authenticated) {
+      this.toggleAuth();
+    }
+    document.addEventListener("beforeunload", this.handleConnectionClose);
   }
 };
 </script>
