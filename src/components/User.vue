@@ -112,3 +112,13 @@ export default {
   }
 };
 </script>
+
+<style>
+#userInfo {
+  background-color: lightsteelblue;
+  border-radius: 2px;
+  width: 66vw;
+  padding: 1em;
+  margin: 0 3em;
+}
+</style>

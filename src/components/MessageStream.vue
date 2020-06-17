@@ -16,10 +16,15 @@
           <tbody>
             <tr>
               <td>
-                <input id="messageBody" v-model="NewBody" type="text" />
+                <input
+                  id="messageBody"
+                  v-model="NewBody"
+                  type="text"
+                  placeholder="Type a message..."
+                />
               </td>
               <td>
-                <input id="sendMsgBtn" type="submit" value="Send" />
+                <input id="sendMsgBtn" type="submit" value="" />
               </td>
             </tr>
           </tbody>
@@ -112,11 +117,15 @@ export default {
         alert("Error: ", resp.status);
       }
       let messages = await resp.json();
-      messages.forEach(message => {
-        console.log(message);
-        message = this.PreprocessMessage(message);
-        this.messageStream.push(message);
-      });
+      messages
+        .slice()
+        .reverse()
+        .forEach(message => {
+          console.log(message);
+          message = this.PreprocessMessage(message);
+          this.messageStream.push(message);
+        });
+      this.updateScroll();
     },
     async SendMessage() {
       var url =
@@ -146,6 +155,12 @@ export default {
       if (!resp.ok) {
         alert("Error: ", resp.status);
       }
+      this.NewBody = "";
+      this.updateScroll();
+    },
+    updateScroll() {
+      let element = document.getElementById("view-messages");
+      element.scrollTop = element.scrollHeight;
     },
     PreprocessMessage(message) {
       let newCreatedAt = new Date(message.createdAt);
@@ -171,3 +186,41 @@ export default {
   }
 };
 </script>
+
+<style>
+#messageStream {
+  margin-left: 3em;
+  width: 66vw;
+  background-color: lightsteelblue;
+  border-radius: 2px;
+}
+
+#view-messages {
+  padding: 2em;
+  overflow: scroll;
+  max-height: 70vh;
+}
+
+#send-message {
+  padding: 0.75em;
+  background-color: #e9ebee;
+  max-height: 10vh;
+  border: slategrey;
+  border-style: solid;
+  border-width: 0.05em;
+}
+
+#messageBody {
+  width: 60vw;
+}
+
+#sendMsgBtn {
+  /* https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 */
+  background: url("../assets/send.svg") no-repeat;
+  background-position: center center;
+  border-radius: 2px;
+  border: 0;
+  padding: 0.25em 2em;
+  cursor: pointer;
+}
+</style>

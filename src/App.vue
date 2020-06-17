@@ -83,9 +83,9 @@ export default {
 
 .main {
   background-size: cover;
-  height: 100vh;
   background-color: #e9ebee;
-  padding-top: 120px;
+  padding-top: 15vh;
+  height: 85vh;
 }
 
 body {

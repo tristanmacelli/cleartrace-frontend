@@ -1,6 +1,5 @@
 <template>
   <div id="home" class="main">
-    <img alt="Vue logo" src="../assets/logo.png" />
     <MessageStream
       channelID="5edc3d54ac409b000c9935b8"
       channelName="General"
