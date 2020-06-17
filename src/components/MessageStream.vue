@@ -193,12 +193,13 @@ export default {
   width: 66vw;
   background-color: lightsteelblue;
   border-radius: 2px;
+  float: left;
 }
 
 #view-messages {
   padding: 2em;
   overflow: scroll;
-  max-height: 70vh;
+  height: 70vh;
 }
 
 #send-message {

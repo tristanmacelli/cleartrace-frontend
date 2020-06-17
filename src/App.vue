@@ -81,11 +81,15 @@ export default {
   color: #2c3e50;
 }
 
+html {
+  background-color: #e9ebee;
+}
+
 .main {
   background-size: cover;
   background-color: #e9ebee;
   padding-top: 15vh;
-  height: 85vh;
+  height: 84vh;
 }
 
 body {

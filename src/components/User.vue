@@ -121,4 +121,11 @@ export default {
   padding: 1em;
   margin: 0 3em;
 }
+
+#userBtn {
+  border: 0;
+  border-radius: 2px;
+  padding: 0.3em 0.8em;
+  box-shadow: inset 0 1px 1px gray;
+}
 </style>

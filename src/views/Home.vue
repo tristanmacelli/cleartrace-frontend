@@ -1,27 +1,32 @@
 <template>
   <div id="home" class="main">
     <MessageStream
-      channelID="5edc3d54ac409b000c9935b8"
-      channelName="General"
+      v-bind:channelID="currentChannelID"
+      v-bind:channelName="currentChannelName"
       v-bind:user="user"
     ></MessageStream>
+    <Channels></Channels>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import MessageStream from "@/components/MessageStream.vue";
+import Channels from "@/components/Channels.vue";
 import EventBus from "../event-bus.js";
 
 export default {
   name: "Home",
   components: {
-    MessageStream
+    MessageStream,
+    Channels
   },
   data() {
     return {
       connection: null,
-      user: null
+      user: null,
+      currentChannelID: "5edc3d54ac409b000c9935b8",
+      currentChannelName: "General"
     };
   },
   created: function() {
