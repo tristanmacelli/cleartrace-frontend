@@ -125,6 +125,7 @@ export default {
   background-color: #c5c5c5;
   padding: 0.6em 1.8em;
   border-radius: 6px;
+  margin-top: 2em;
   width: fit-content;
 }
 

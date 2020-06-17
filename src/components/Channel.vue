@@ -1,6 +1,6 @@
 <template>
   <div class="channel">
-    <p>{{ name }}</p>
+    <p># {{ name }}</p>
   </div>
 </template>
 
@@ -22,6 +22,11 @@ export default {
 
 <style>
 .channel {
+  padding: 0.0007em 1em;
   cursor: pointer;
+}
+
+.channel:hover {
+  background-color: lightsteelblue;
 }
 </style>

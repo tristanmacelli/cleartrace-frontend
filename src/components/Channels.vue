@@ -1,5 +1,8 @@
 <template>
   <div id="channels">
+    <h3>
+      Your Channels:
+    </h3>
     <div
       is="channel"
       v-for="channel in channels"
@@ -54,9 +57,10 @@ export default {
 
 <style>
 #channels {
-  width: 25vw;
+  height: 88vh;
+  width: 29vw;
+  padding: 0 2em;
   float: left;
-  height: 70vh;
-  padding: 2em;
+  overflow: scroll;
 }
 </style>

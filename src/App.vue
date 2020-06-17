@@ -88,8 +88,8 @@ html {
 .main {
   background-size: cover;
   background-color: #e9ebee;
-  padding-top: 15vh;
-  height: 84vh;
+  padding-top: 11vh;
+  height: 88vh;
 }
 
 body {
@@ -101,6 +101,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
+  height: 10.8vh;
 
   z-index: 1;
   background-color: #113969;

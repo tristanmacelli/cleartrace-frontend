@@ -24,7 +24,12 @@
                 />
               </td>
               <td>
-                <input id="sendMsgBtn" type="submit" value="" />
+                <input
+                  id="sendMsgBtn"
+                  :disabled="disableSendMessage"
+                  type="submit"
+                  value=""
+                />
               </td>
             </tr>
           </tbody>
@@ -61,6 +66,11 @@ export default {
       messageStream: [],
       NewBody: ""
     };
+  },
+  computed: {
+    disableSendMessage() {
+      return this.NewBody.length == 0;
+    }
   },
   created: async function() {
     let date = new Date();
@@ -189,7 +199,6 @@ export default {
 
 <style>
 #messageStream {
-  margin-left: 3em;
   width: 66vw;
   background-color: lightsteelblue;
   border-radius: 2px;
@@ -207,6 +216,7 @@ export default {
   background-color: #e9ebee;
   max-height: 10vh;
   border: slategrey;
+  border-radius: 4px;
   border-style: solid;
   border-width: 0.05em;
 }
