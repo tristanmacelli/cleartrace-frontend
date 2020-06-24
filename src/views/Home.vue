@@ -50,12 +50,12 @@ export default {
         alert("Error: ", resp.status);
       }
       let response = await resp.json();
-      display_user_fn(response);
       this.user = response;
+      display_user_fn();
     },
 
-    display_user_first_name(user) {
-      EventBus.$emit("display-user-firstname", user.FirstName);
+    display_user_first_name() {
+      EventBus.$emit("display-user-firstname", this.user.FirstName);
     }
   }
 };
