@@ -75,42 +75,42 @@ export default {
   },
   methods: {
     async SignUp() {
-      // let url = "https://slack.api.tristanmacelli.com/v1/users";
-      // let username = this.FirstName + "." + this.LastName;
+      let url = "https://slack.api.tristanmacelli.com/v1/users";
+      let username = this.NewFirstName + "." + this.NewLastName;
 
       if (!this.NewEmail || !this.NewPassword) {
         alert("Error: Invalid New User Input");
         return;
       }
 
-      // let body = {
-      //   Email: this.NewEmail,
-      //   Password: this.Password,
-      //   PasswordConf: this.Password,
-      //   UserName: username,
-      //   FirstName: this.FirstName,
-      //   LastName: this.LastName
-      // };
+      let body = {
+        Email: this.NewEmail,
+        Password: this.NewPassword,
+        PasswordConf: this.NewPassword,
+        UserName: username,
+        FirstName: this.NewFirstName,
+        LastName: this.NewLastName
+      };
 
-      // let resp = await fetch(url, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify(body)
-      // });
-      // if (!resp.ok) {
-      //   let message = "Error: " + resp.status.toString();
-      //   alert(message);
-      // }
-      // let response = await resp.json();
+      let resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        let message = "Error: " + resp.status.toString();
+        alert(message);
+      }
 
-      // let sessionToken = "";
-      // localStorage.setItem("auth", sessionToken);
-      console.log("Success");
-      this.$emit("toggle-authentication");
-      this.$router.push({ path: "/home" });
-      // send a get request with the above data
+      let hasAuth = resp.headers.get("authorization");
+      if (hasAuth) {
+        let sessionToken = resp.headers.get("authorization");
+        localStorage.setItem("auth", sessionToken);
+        this.$emit("toggle-authentication");
+        this.$router.push({ path: "/home" });
+      }
     }
   }
 };

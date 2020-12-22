@@ -67,8 +67,6 @@ export default {
         let message = "Error: " + resp.status.toString();
         alert(message);
       }
-      // This is the User
-      // let response = await resp.json();
 
       let hasAuth = resp.headers.has("authorization");
       if (hasAuth) {

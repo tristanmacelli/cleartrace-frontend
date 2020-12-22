@@ -25,8 +25,7 @@ export default {
         let message = "Error: " + resp.status.toString();
         alert(message);
       }
-      // let response = await resp.json();
-      // console.log(response);
+
       localStorage.removeItem("auth");
       EventBus.$emit("toggle-authentication");
       if (this.$router.currentRoute != "/") {
