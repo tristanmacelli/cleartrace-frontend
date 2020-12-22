@@ -87,27 +87,45 @@ export default {
 
     // Open websocket connection as soon as possible
     let sessionToken = localStorage.getItem("auth");
-    this.connection = new WebSocket(
+    const connection = new WebSocket(
       "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
     );
 
     // Make query to server for last 100 messages
     await this.GetMessages();
 
-    this.connection.onmessage = function(event) {
-      console.log(event);
-      if (event.type == "message-new") {
-        let message = event.message;
-        if (message.creator.id != this.user.id) {
-          message = this.PreprocessMessage(message);
-          this.messageStream.push(event.message);
+    // The anonymous function is what allowed access to data/(props??)
+    // https://redislabs.com/blog/how-to-create-notification-services-with-redis-websockets-and-vue-js/
+    connection.onmessage = event => {
+      // The data we created is in the event.data field
+      // The current datatype of event is message
+      let receivedObj = JSON.parse(event.data);
+      let messageObj = receivedObj.message;
+
+      if (receivedObj.type == "message-new") {
+        // This is the "default behavior" when the user is viewing the channel
+        // that messages are coming in on
+        if (
+          messageObj.channelID == this.channelID &&
+          messageObj.creator.ID != this.user.ID
+        ) {
+          let message = this.PreprocessMessage(messageObj);
+          this.messageStream.push(message);
+        } else {
+          // Send a notification (noise, highlight channel with message, update channel w/ number
+          //                      indicating the # of unread messages)
         }
       }
     };
 
-    this.connection.onopen = function(event) {
-      console.log(event);
+    connection.onopen = function() {
       console.log("Successfully connected to the echo websocket server...");
+    };
+    connection.onclose = function() {
+      console.log("Disconnected from the echo websocket server...");
+    };
+    connection.onerror = function() {
+      console.log("Error originating from the echo websocket server...");
     };
   },
   methods: {
@@ -131,7 +149,6 @@ export default {
         .slice()
         .reverse()
         .forEach(message => {
-          console.log(message);
           message = this.PreprocessMessage(message);
           this.messageStream.push(message);
         });
@@ -167,6 +184,9 @@ export default {
       }
       this.NewBody = "";
       this.updateScroll();
+    },
+    getChannelID() {
+      return this.channelID;
     },
     updateScroll() {
       let element = document.getElementById("view-messages");
