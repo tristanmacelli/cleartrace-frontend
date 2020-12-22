@@ -2,4 +2,4 @@
 
 npm run lint
 npm run build
-docker build -t tristanmacelli/summaryclient .
+docker build -t tristanmacelli/client .

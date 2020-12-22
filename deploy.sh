@@ -3,7 +3,7 @@
 bash build.sh
 
 echo "Deploying to EC2"
-docker push tristanmacelli/summaryclient
+docker push tristanmacelli/client
 chmod g+x ./refresh.sh
 
 echo "Starting Summary Client"
