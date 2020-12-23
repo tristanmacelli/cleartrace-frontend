@@ -27,7 +27,6 @@ export default {
     Channel
   },
   created: async function() {
-    console.log("Getting Channels:");
     var url = "https://slack.api.tristanmacelli.com/v1/channels";
     let sessionToken = localStorage.getItem("auth");
 
@@ -43,12 +42,10 @@ export default {
       throw new Error(resp.status.toString());
     }
     let channels = await resp.json();
-    console.log(channels);
     channels
       .slice()
       .reverse()
       .forEach(channel => {
-        console.log(channel);
         this.channels.push(channel);
       });
   }
