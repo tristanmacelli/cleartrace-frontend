@@ -16,7 +16,7 @@
         <Logout v-if="authenticated"></Logout>
       </div>
     </div>
-    <router-view />
+    <router-view v-bind:Socket="socket" />
   </div>
 </template>
 
@@ -65,7 +65,7 @@ export default {
   mounted() {
     EventBus.$on("toggle-authentication", () => {
       this.toggleAuth();
-      // this.handleConnectionCreation();
+      this.handleConnectionCreation();
     });
     EventBus.$on("display-user-firstname", name => {
       this.firstname = name;
@@ -75,9 +75,9 @@ export default {
     let sessionToken = localStorage.getItem("auth");
     if (sessionToken && !this.authenticated) {
       this.toggleAuth();
-      // this.handleConnectionCreation();
+      this.handleConnectionCreation();
     }
-    // document.addEventListener("beforeunload", this.handleConnectionClose);
+    document.addEventListener("beforeunload", this.handleConnectionClose);
   }
 };
 </script>

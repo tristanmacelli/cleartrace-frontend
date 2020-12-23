@@ -68,7 +68,8 @@ export default {
   data() {
     return {
       newBody: "",
-      messageStream: []
+      messageStream: [],
+      socket: this.Socket
     };
   },
   computed: {

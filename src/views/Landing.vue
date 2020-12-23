@@ -11,6 +11,12 @@ import EventBus from "@/event-bus";
 
 export default {
   name: "Landing",
+  props: {
+    Socket: {
+      type: Object,
+      required: true
+    }
+  },
   components: {
     Signup
   },
