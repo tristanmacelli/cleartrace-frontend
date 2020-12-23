@@ -30,7 +30,8 @@ export default {
   data() {
     return {
       authenticated: false,
-      firstname: "Account"
+      firstname: "Account",
+      socket: Object
     };
   },
   components: {
@@ -41,9 +42,15 @@ export default {
     toggleAuth() {
       this.authenticated = !this.authenticated;
     },
+    handleConnectionCreation() {
+      let sessionToken = localStorage.getItem("auth");
+      this.socket = new WebSocket(
+        "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
+      );
+    },
+    // Close WebSocket connection
     handleConnectionClose() {
-      // Close WebSocket connection
-      // connection.close();
+      this.socket.close();
     }
   },
   computed: {
@@ -58,6 +65,7 @@ export default {
   mounted() {
     EventBus.$on("toggle-authentication", () => {
       this.toggleAuth();
+      // this.handleConnectionCreation();
     });
     EventBus.$on("display-user-firstname", name => {
       this.firstname = name;
@@ -67,8 +75,9 @@ export default {
     let sessionToken = localStorage.getItem("auth");
     if (sessionToken && !this.authenticated) {
       this.toggleAuth();
+      // this.handleConnectionCreation();
     }
-    document.addEventListener("beforeunload", this.handleConnectionClose);
+    // document.addEventListener("beforeunload", this.handleConnectionClose);
   }
 };
 </script>

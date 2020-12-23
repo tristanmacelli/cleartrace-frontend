@@ -1,9 +1,10 @@
 <template>
   <div id="home" class="main">
     <MessageStream
-      v-bind:channelID="currentChannelID"
-      v-bind:channelName="currentChannelName"
-      v-bind:user="user"
+      v-bind:ChannelID="currentChannelID"
+      v-bind:ChannelName="currentChannelName"
+      v-bind:Socket="socket"
+      v-bind:User="user"
     ></MessageStream>
     <Channels></Channels>
   </div>
@@ -24,9 +25,10 @@ export default {
   data() {
     return {
       connection: null,
-      user: null,
       currentChannelID: "5edc3d54ac409b000c9935b8",
-      currentChannelName: "General"
+      currentChannelName: "General",
+      socket: WebSocket,
+      user: null
     };
   },
   created: function() {
@@ -35,6 +37,7 @@ export default {
     if (!sessionToken) {
       this.$router.push({ path: "/" });
     }
+    this.handleConnectionCreation();
     this.request_user(this.display_user_first_name, sessionToken);
   },
   methods: {
@@ -56,6 +59,16 @@ export default {
 
     display_user_first_name() {
       EventBus.$emit("display-user-firstname", this.user.FirstName);
+    },
+    handleConnectionCreation() {
+      let sessionToken = localStorage.getItem("auth");
+      this.socket = new WebSocket(
+        "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
+      );
+    },
+    handleConnectionClose() {
+      // Close WebSocket connection
+      this.socket.close();
     }
   }
 };

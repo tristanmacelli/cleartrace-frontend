@@ -18,7 +18,7 @@
               <td>
                 <input
                   id="messageBody"
-                  v-model="NewBody"
+                  v-model="newBody"
                   type="text"
                   placeholder="Type a message..."
                 />
@@ -45,15 +45,19 @@ import Message from "./Message.vue";
 export default {
   name: "messageStream",
   props: {
-    channelName: {
+    ChannelID: {
       type: String,
       required: true
     },
-    channelID: {
+    ChannelName: {
       type: String,
       required: true
     },
-    user: {
+    Socket: {
+      type: Object,
+      required: true
+    },
+    User: {
       type: Object,
       required: true
     }
@@ -63,13 +67,13 @@ export default {
   },
   data() {
     return {
-      messageStream: [],
-      NewBody: ""
+      newBody: "",
+      messageStream: []
     };
   },
   computed: {
     disableSendMessage() {
-      return this.NewBody.length == 0;
+      return this.newBody.length == 0;
     }
   },
   created: async function() {
@@ -80,23 +84,17 @@ export default {
         FirstName: "Automated",
         LastName: ""
       },
-      body: "Welcome to the " + this.channelName + " channel",
+      body: "Welcome to the " + this.ChannelName + " channel",
       createdAt: date
     };
     this.messageStream.push(welcomeMessage);
-
-    // Open websocket connection as soon as possible
-    let sessionToken = localStorage.getItem("auth");
-    const connection = new WebSocket(
-      "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-    );
 
     // Make query to server for last 100 messages
     await this.GetMessages();
 
     // The anonymous function is what allowed access to data/(props??)
     // https://redislabs.com/blog/how-to-create-notification-services-with-redis-websockets-and-vue-js/
-    connection.onmessage = event => {
+    this.socket.onmessage = event => {
       // The data we created is in the event.data field
       // The current datatype of event is message
       let receivedObj = JSON.parse(event.data);
@@ -106,8 +104,8 @@ export default {
         // This is the "default behavior" when the user is viewing the channel
         // that messages are coming in on
         if (
-          messageObj.channelID == this.channelID &&
-          messageObj.creator.ID != this.user.ID
+          messageObj.channelID == this.ChannelID &&
+          messageObj.creator.ID != this.User.ID
         ) {
           let message = this.PreprocessMessage(messageObj);
           this.messageStream.push(message);
@@ -118,20 +116,20 @@ export default {
       }
     };
 
-    connection.onopen = function() {
+    this.socket.onopen = function() {
       console.log("Successfully connected to the echo websocket server...");
     };
-    connection.onclose = function() {
+    this.socket.onclose = function() {
       console.log("Disconnected from the echo websocket server...");
     };
-    connection.onerror = function() {
+    this.socket.onerror = function() {
       console.log("Error originating from the echo websocket server...");
     };
   },
   methods: {
     async GetMessages() {
       var url =
-        "https://slack.api.tristanmacelli.com/v1/channels/" + this.channelID;
+        "https://slack.api.tristanmacelli.com/v1/channels/" + this.ChannelID;
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -156,16 +154,16 @@ export default {
     },
     async SendMessage() {
       var url =
-        "https://slack.api.tristanmacelli.com/v1/channels/" + this.channelID;
+        "https://slack.api.tristanmacelli.com/v1/channels/" + this.ChannelID;
       let sessionToken = localStorage.getItem("auth");
 
       // Get user first name from store & add it to this object
       let date = new Date();
       let formattedDate = this.formatDate(date);
       let requestBody = {
-        channelID: this.channelID,
-        creator: this.user,
-        body: this.NewBody,
+        channelID: this.ChannelID,
+        creator: this.User,
+        body: this.newBody,
         createdAt: formattedDate
       };
       this.messageStream.push(requestBody);
@@ -182,11 +180,11 @@ export default {
       if (!resp.ok) {
         alert("Error: ", resp.status);
       }
-      this.NewBody = "";
+      this.newBody = "";
       this.updateScroll();
     },
     getChannelID() {
-      return this.channelID;
+      return this.ChannelID;
     },
     updateScroll() {
       let element = document.getElementById("view-messages");
