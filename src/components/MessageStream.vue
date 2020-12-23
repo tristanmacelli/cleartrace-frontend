@@ -93,8 +93,6 @@ export default {
     // Make query to server for last 100 messages
     await this.GetMessages();
 
-    // The anonymous function is what allowed access to data/(props??)
-    // https://redislabs.com/blog/how-to-create-notification-services-with-redis-websockets-and-vue-js/
     this.socket.onmessage = event => {
       // The data we created is in the event.data field
       // The current datatype of event is message
@@ -110,9 +108,6 @@ export default {
         ) {
           let message = this.PreprocessMessage(messageObj);
           this.messageStream.push(message);
-        } else {
-          // Send a notification (noise, highlight channel with message, update channel w/ number
-          //                      indicating the # of unread messages)
         }
       }
     };
@@ -173,9 +168,6 @@ export default {
       }
       this.newBody = "";
       this.updateScroll();
-    },
-    getChannelID() {
-      return this.ChannelID;
     },
     updateScroll() {
       let element = document.getElementById("view-messages");

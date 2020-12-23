@@ -59,8 +59,6 @@ export default {
       .forEach(channel => {
         this.channels.push(channel);
       });
-    // The anonymous function is what allowed access to data/(props??)
-    // https://redislabs.com/blog/how-to-create-notification-services-with-redis-websockets-and-vue-js/
     this.socket.onmessage = event => {
       // The data we created is in the event.data field
       // The current datatype of event is message
@@ -68,8 +66,6 @@ export default {
       let messageObj = receivedObj.message;
 
       if (receivedObj.type == "message-new") {
-        // This is the "default behavior" when the user is viewing the channel
-        // that messages are coming in on
         if (
           messageObj.channelID != this.ChannelID &&
           messageObj.creator.ID != this.User.ID

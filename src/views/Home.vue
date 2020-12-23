@@ -6,7 +6,10 @@
       v-bind:Socket="socket"
       v-bind:User="user"
     ></MessageStream>
-    <Channels v-bind:Socket="socket"></Channels>
+    <Channels
+      v-bind:ChannelID="currentChannelID"
+      v-bind:Socket="socket"
+    ></Channels>
   </div>
 </template>
 
@@ -65,16 +68,6 @@ export default {
     display_user_first_name() {
       EventBus.$emit("display-user-firstname", this.user.FirstName);
     }
-    // handleConnectionCreation() {
-    //   let sessionToken = localStorage.getItem("auth");
-    //   this.socket = new WebSocket(
-    //     "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-    //   );
-    // },
-    // handleConnectionClose() {
-    //   // Close WebSocket connection
-    //   this.socket.close();
-    // }
   }
 };
 </script>
