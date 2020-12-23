@@ -6,7 +6,7 @@
       v-bind:Socket="socket"
       v-bind:User="user"
     ></MessageStream>
-    <Channels></Channels>
+    <Channels v-bind:Socket="socket"></Channels>
   </div>
 </template>
 

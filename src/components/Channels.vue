@@ -18,9 +18,20 @@ import Channel from "./Channel.vue";
 
 export default {
   name: "channels",
+  props: {
+    ChannelID: {
+      type: String,
+      required: true
+    },
+    Socket: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
-      channels: []
+      channels: [],
+      socket: this.Socket
     };
   },
   components: {
@@ -48,6 +59,26 @@ export default {
       .forEach(channel => {
         this.channels.push(channel);
       });
+    // The anonymous function is what allowed access to data/(props??)
+    // https://redislabs.com/blog/how-to-create-notification-services-with-redis-websockets-and-vue-js/
+    this.socket.onmessage = event => {
+      // The data we created is in the event.data field
+      // The current datatype of event is message
+      let receivedObj = JSON.parse(event.data);
+      let messageObj = receivedObj.message;
+
+      if (receivedObj.type == "message-new") {
+        // This is the "default behavior" when the user is viewing the channel
+        // that messages are coming in on
+        if (
+          messageObj.channelID != this.ChannelID &&
+          messageObj.creator.ID != this.User.ID
+        ) {
+          // Send a notification (noise, highlight channel with message, update channel w/ number
+          //                      indicating the # of unread messages)
+        }
+      }
+    };
   }
 };
 </script>

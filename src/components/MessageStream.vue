@@ -116,16 +116,6 @@ export default {
         }
       }
     };
-
-    this.socket.onopen = function() {
-      console.log("Successfully connected to the echo websocket server...");
-    };
-    this.socket.onclose = function() {
-      console.log("Disconnected from the echo websocket server...");
-    };
-    this.socket.onerror = function() {
-      console.log("Error originating from the echo websocket server...");
-    };
   },
   methods: {
     async GetMessages() {
