@@ -78,6 +78,7 @@ export default {
     }
   },
   created: async function() {
+    // Create initial message
     let date = new Date();
     date = this.formatDate(date);
     let welcomeMessage = {
@@ -102,10 +103,7 @@ export default {
       if (receivedObj.type == "message-new") {
         // This is the "default behavior" when the user is viewing the channel
         // that messages are coming in on
-        if (
-          messageObj.channelID == this.ChannelID &&
-          messageObj.creator.ID != this.User.ID
-        ) {
+        if (messageObj.channelID == this.ChannelID) {
           let message = this.PreprocessMessage(messageObj);
           this.messageStream.push(message);
         }

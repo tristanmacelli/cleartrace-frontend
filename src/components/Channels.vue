@@ -38,27 +38,7 @@ export default {
     Channel
   },
   created: async function() {
-    var url = "https://slack.api.tristanmacelli.com/v1/channels";
-    let sessionToken = localStorage.getItem("auth");
-
-    // send a get request with the above data
-    let resp = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: sessionToken
-      }
-    });
-    if (!resp.ok) {
-      alert(resp.status);
-      throw new Error(resp.status.toString());
-    }
-    let channels = await resp.json();
-    channels
-      .slice()
-      .reverse()
-      .forEach(channel => {
-        this.channels.push(channel);
-      });
+    await this.GetChannels();
     this.socket.onmessage = event => {
       // The data we created is in the event.data field
       // The current datatype of event is message
@@ -66,15 +46,38 @@ export default {
       let messageObj = receivedObj.message;
 
       if (receivedObj.type == "message-new") {
-        if (
-          messageObj.channelID != this.ChannelID &&
-          messageObj.creator.ID != this.User.ID
-        ) {
+        if (messageObj.channelID != this.ChannelID) {
           // Send a notification (noise, highlight channel with message, update channel w/ number
           //                      indicating the # of unread messages)
         }
       }
     };
+  },
+  methods: {
+    async GetChannels() {
+      this.channels = [];
+      var url = "https://slack.api.tristanmacelli.com/v1/channels";
+      let sessionToken = localStorage.getItem("auth");
+
+      // send a get request with the above data
+      let resp = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: sessionToken
+        }
+      });
+      if (!resp.ok) {
+        alert(resp.status);
+        throw new Error(resp.status.toString());
+      }
+      let channels = await resp.json();
+      channels
+        .slice()
+        .reverse()
+        .forEach(channel => {
+          this.channels.push(channel);
+        });
+    }
   }
 };
 </script>
