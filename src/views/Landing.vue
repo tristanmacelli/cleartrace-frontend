@@ -7,7 +7,6 @@
 <script>
 // @ is an alias to /src
 import Signup from "@/components/Signup.vue";
-import EventBus from "@/event-bus";
 
 export default {
   name: "Landing",
@@ -19,18 +18,6 @@ export default {
   },
   components: {
     Signup
-  },
-  methods: {
-    toggleAuth() {
-      EventBus.$emit("toggle-authentication");
-    }
-  },
-  created: function() {
-    let sessionToken = localStorage.getItem("auth");
-    if (sessionToken) {
-      this.toggleAuth();
-      this.$router.push({ path: "/home" });
-    }
   }
 };
 </script>

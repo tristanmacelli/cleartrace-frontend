@@ -28,6 +28,7 @@ export default {
 
       localStorage.removeItem("auth");
       EventBus.$emit("toggle-authentication");
+      EventBus.$emit("toggle-websocket-connection");
       if (this.$router.currentRoute != "/") {
         this.$router.push({ path: "/" });
       }

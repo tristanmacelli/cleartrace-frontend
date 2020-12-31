@@ -17,40 +17,80 @@
       </div>
     </div>
     <router-view v-bind:Socket="socket" />
+    <!-- <ChannelUpdate
+      v-model="modalOpen"
+      v-bind:ChannelName="channelName"
+    ></ChannelUpdate> -->
   </div>
 </template>
 
 <script>
+import EventBus from "@/event-bus";
 import Login from "@/components/Login.vue";
 import Logout from "@/components/Logout.vue";
-import EventBus from "@/event-bus";
+// import ChannelUpdate from "@/components/ChannelUpdate.vue";
 
 export default {
   name: "app",
   data() {
     return {
       authenticated: false,
+      channelName: "",
       firstname: "Account",
-      socket: Object
+      modalOpen: false,
+      socket: null
     };
   },
   components: {
     Login,
-    Logout
+    Logout //,
+    // ChannelUpdate
   },
   methods: {
     toggleAuth() {
       this.authenticated = !this.authenticated;
     },
-    handleConnectionCreation() {
-      let sessionToken = localStorage.getItem("auth");
-      this.socket = new WebSocket(
-        "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-      );
+    toggleSocketConnection() {
+      // Open WebSocket connection
+      if (this.socket == null || this.socket.readyState === WebSocket.CLOSED) {
+        let sessionToken = localStorage.getItem("auth");
+        this.socket = new WebSocket(
+          "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
+        );
+        this.socket.onopen = function() {
+          console.log("Successfully connected to the echo WebSocket server!");
+          console.log(this.modalOpen);
+        };
+        this.socket.onclose = close => {
+          this.socketOnClose(close);
+        };
+        this.socket.onerror = () => {
+          console.log("Error originating from the echo websocket server...");
+        };
+        // this.socket is defined && this.socket.readyState === WebSocket.OPEN
+      } else {
+        // Close WebSocket connection
+        this.socket.close();
+        // Eventually this should be removed
+        this.socket = null;
+      }
     },
-    // Close WebSocket connection
-    handleConnectionClose() {
-      this.socket.close();
+    socketOnClose() {
+      if (close.wasClean) {
+        console.log("Successfully disconnected to the echo WebSocket server!");
+      } else {
+        console.log(
+          "Not able to cleanly disconnected from the WebSocket server."
+        );
+      }
+    },
+    beforeUnload() {
+      if (performance.navigation.type != performance.navigation.TYPE_RELOAD) {
+        console.log("Called beforeUnload && toggleSocketConnection");
+        this.toggleSocketConnection();
+      } else {
+        // this.$router.push({ path: "/" });
+      }
     }
   },
   computed: {
@@ -65,7 +105,10 @@ export default {
   mounted() {
     EventBus.$on("toggle-authentication", () => {
       this.toggleAuth();
-      this.handleConnectionCreation();
+      // this.toggleSocketConnection();
+    });
+    EventBus.$on("toggle-websocket-connection", () => {
+      this.toggleSocketConnection();
     });
     EventBus.$on("display-user-firstname", name => {
       this.firstname = name;
@@ -74,19 +117,16 @@ export default {
   created: function() {
     let sessionToken = localStorage.getItem("auth");
     if (sessionToken && !this.authenticated) {
-      this.toggleAuth();
-      this.handleConnectionCreation();
+      console.log("Returning to an active session");
+      // console.log("Is this.socket null? ", this.socket == null);
+      // console.log(
+      //   this.socket == null || this.socket.readyState === WebSocket.CLOSED
+      // );
+      EventBus.$emit("toggle-authentication");
+      EventBus.$emit("toggle-websocket-connection");
+      this.$router.push({ path: "/home" });
     }
-    this.socket.onopen = function() {
-      console.log("Successfully connected to the echo websocket server...");
-    };
-    this.socket.onclose = function() {
-      console.log("Disconnected from the echo websocket server...");
-    };
-    this.socket.onerror = function() {
-      console.log("Error originating from the echo websocket server...");
-    };
-    document.addEventListener("beforeunload", this.handleConnectionClose);
+    document.addEventListener("beforeunload", this.beforeUnload);
   }
 };
 </script>
