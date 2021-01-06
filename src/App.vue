@@ -59,12 +59,13 @@ export default {
         );
         this.socket.onopen = function() {
           console.log("Successfully connected to the echo WebSocket server!");
-          console.log(this.modalOpen);
         };
         this.socket.onclose = close => {
+          console.log("close: ", close);
           this.socketOnClose(close);
         };
-        this.socket.onerror = () => {
+        this.socket.onerror = error => {
+          console.log("error: ", error);
           console.log("Error originating from the echo websocket server...");
         };
         // this.socket is defined && this.socket.readyState === WebSocket.OPEN
@@ -75,7 +76,7 @@ export default {
         this.socket = null;
       }
     },
-    socketOnClose() {
+    socketOnClose(close) {
       if (close.wasClean) {
         console.log("Successfully disconnected to the echo WebSocket server!");
       } else {
@@ -86,7 +87,6 @@ export default {
     },
     beforeUnload() {
       if (performance.navigation.type != performance.navigation.TYPE_RELOAD) {
-        console.log("Called beforeUnload && toggleSocketConnection");
         this.toggleSocketConnection();
       } else {
         // this.$router.push({ path: "/" });
@@ -105,7 +105,6 @@ export default {
   mounted() {
     EventBus.$on("toggle-authentication", () => {
       this.toggleAuth();
-      // this.toggleSocketConnection();
     });
     EventBus.$on("toggle-websocket-connection", () => {
       this.toggleSocketConnection();
@@ -116,7 +115,9 @@ export default {
   },
   created: function() {
     let sessionToken = localStorage.getItem("auth");
-    if (sessionToken && !this.authenticated) {
+    // TODO: Fix logic for returning to an active session
+    let isActiveSession = sessionToken && !this.authenticated;
+    if (isActiveSession) {
       console.log("Returning to an active session");
       // console.log("Is this.socket null? ", this.socket == null);
       // console.log(
