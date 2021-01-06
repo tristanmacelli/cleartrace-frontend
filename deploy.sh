@@ -10,3 +10,5 @@ echo "Starting Summary Client"
 ssh -i ~/.ssh/slack-clone-server.pem ec2-user@slack.tristanmacelli.com 'bash -s' < refresh.sh
 
 docker image prune -f
+now=$(date +"%r")
+echo "Current time : $now"

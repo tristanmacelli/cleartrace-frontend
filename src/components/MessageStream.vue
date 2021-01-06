@@ -95,6 +95,7 @@ export default {
     await this.GetMessages();
 
     this.socket.onmessage = event => {
+      console.log("Message Received!");
       // The data we created is in the event.data field
       // The current datatype of event is message
       let receivedObj = JSON.parse(event.data);

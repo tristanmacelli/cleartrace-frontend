@@ -27,6 +27,8 @@ const routes = [
     name: "Account",
     component: Account
   }
+  // To serve for real not found paths (rather than manual reload paths)
+  // { path: '*', component: NotFoundComponent }
 ];
 
 const router = new VueRouter({

@@ -39,19 +39,19 @@ export default {
   },
   created: async function() {
     await this.GetChannels();
-    this.socket.onmessage = event => {
-      // The data we created is in the event.data field
-      // The current datatype of event is message
-      let receivedObj = JSON.parse(event.data);
-      let messageObj = receivedObj.message;
+    // this.socket.onmessage = event => {
+    //   // The data we created is in the event.data field
+    //   // The current datatype of event is message
+    //   let receivedObj = JSON.parse(event.data);
+    //   let messageObj = receivedObj.message;
 
-      if (receivedObj.type == "message-new") {
-        if (messageObj.channelID != this.ChannelID) {
-          // Send a notification (noise, highlight channel with message, update channel w/ number
-          //                      indicating the # of unread messages)
-        }
-      }
-    };
+    //   if (receivedObj.type == "message-new") {
+    //     if (messageObj.channelID != this.ChannelID) {
+    //       // Send a notification (noise, highlight channel with message, update channel w/ number
+    //       //                      indicating the # of unread messages)
+    //     }
+    //   }
+    // };
   },
   methods: {
     async GetChannels() {
