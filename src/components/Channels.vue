@@ -4,7 +4,6 @@
       Your Channels:
     </h3>
     <div
-      is="channel"
       v-for="channel in channels"
       v-bind:key="channel.name"
       v-bind:name="channel.name"

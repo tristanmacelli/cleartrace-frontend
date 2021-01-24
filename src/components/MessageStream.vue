@@ -2,7 +2,6 @@
   <div id="messageStream">
     <div id="view-messages">
       <p
-        is="message"
         v-for="message in messageStream"
         v-bind:key="message.body"
         v-bind:name="message.creator.FirstName + ' ' + message.creator.LastName"
