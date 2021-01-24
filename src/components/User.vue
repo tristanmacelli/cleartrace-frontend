@@ -30,7 +30,6 @@
                 id="account-firstname"
                 type="text"
                 v-model="FirstNameUpdate"
-                value=""
               />
             </td>
             <td>
@@ -38,7 +37,6 @@
                 id="account-lastname"
                 type="text"
                 v-model="LastNameUpdate"
-                value=""
               />
             </td>
             <td><input type="submit" id="userBtn" value="CHANGE" /></td>
