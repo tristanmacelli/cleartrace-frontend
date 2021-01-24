@@ -1,4 +1,5 @@
 import Vue from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 import VueRouter from "vue-router";
 import Landing from "../views/Landing.vue";
 import Account from "../views/Account.vue";
@@ -31,10 +32,15 @@ const routes = [
   // { path: '*', component: NotFoundComponent }
 ];
 
-const router = new VueRouter({
-  routes,
-  mode: "history" // Required for logic based on route change events
+const router = createRouter({
+  history: createWebHistory(), // Required for logic based on route change events
+  routes: routes
 });
+
+// const router = new VueRouter({
+//   routes,
+//   mode: "history" // Required for logic based on route change events
+// });
 
 const DEFAULT_TITLE = "Slack Clone";
 
