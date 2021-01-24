@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import EventBus from "@/event-bus";
+// import EventBus from "@/event-bus";
 
 export default {
   name: "logOut",
@@ -27,8 +27,10 @@ export default {
       }
 
       localStorage.removeItem("auth");
-      EventBus.$emit("toggle-authentication");
-      EventBus.$emit("toggle-websocket-connection");
+      // EventBus.$emit("toggle-authentication");
+      // EventBus.$emit("toggle-websocket-connection");
+      // this.$store.commit('toggleAuthentication');
+      // this.$store.commit('toggleSocket');
       if (this.$router.currentRoute != "/") {
         this.$router.push({ path: "/" });
       }

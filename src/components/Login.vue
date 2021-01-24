@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import EventBus from "@/event-bus";
+// import EventBus from "@/event-bus";
 
 export default {
   name: "login",
@@ -72,11 +72,19 @@ export default {
       if (hasAuth) {
         let sessionToken = resp.headers.get("authorization");
         localStorage.setItem("auth", sessionToken);
-        EventBus.$emit("toggle-authentication");
-        EventBus.$emit("toggle-websocket-connection");
-        // this.$router.push({ name: 'Home', params: { channelId: store.currentChannelID } });
+        // EventBus.$emit("toggle-authentication");
+        // EventBus.$emit("toggle-websocket-connection");
         this.$router.push({ path: "/home" });
+        // this.$store.commit('toggleAuthentication');
+        // this.$store.commit('toggleSocket');
+        // this.$router.push({ name: 'Home', params: { channelId: currentChannelID } });
       }
+    }
+  },
+  computed: {
+    // a computed getter
+    currentChannelID() {
+      return this.$store.getters.getChannelID;
     }
   }
 };

@@ -1,4 +1,4 @@
-import Vue from "vue";
+import { nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import Landing from "../views/Landing.vue";
 import Account from "../views/Account.vue";
@@ -43,7 +43,7 @@ const DEFAULT_TITLE = "Slack Clone";
 router.afterEach(to => {
   // Use next tick to handle router history correctly
   // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
-  Vue.nextTick(() => {
+  nextTick(() => {
     document.title = to.meta.title || DEFAULT_TITLE;
   });
 });

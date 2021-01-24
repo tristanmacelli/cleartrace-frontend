@@ -17,7 +17,7 @@
 // @ is an alias to /src
 import MessageStream from "@/components/MessageStream.vue";
 import Channels from "@/components/Channels.vue";
-import EventBus from "../event-bus.js";
+// import EventBus from "../event-bus.js";
 
 export default {
   name: "Home",
@@ -49,7 +49,7 @@ export default {
     // if these values dont exist then execute the following:
     // this.GetSpecificChannel(this.currentChannelName);
     // this.handleConnectionCreation();
-    this.request_user(this.display_user_first_name, sessionToken);
+    this.request_user(sessionToken);
     // TODO: Figure out how to have multiple onmessage OR another structure of handling info
     // this.socket.onmessage = event => {
     //   // The data we created is in the event.data field
@@ -98,7 +98,7 @@ export default {
     //   this.currentChannelID = channels[0].id;
     //   // Store this channel name & id into the store as the current channel information
     // },
-    async request_user(display_user_fn, token) {
+    async request_user(token) {
       let url = "https://slack.api.tristanmacelli.com/v1/users/";
       let resp = await fetch(url, {
         method: "GET",
@@ -111,12 +111,13 @@ export default {
       }
       let response = await resp.json();
       this.user = response;
-      display_user_fn();
-    },
-
-    display_user_first_name() {
-      EventBus.$emit("display-user-firstname", this.user.FirstName);
+      this.$store.commit("setUser", { user: this.user });
+      // display_user_fn();
     }
+
+    // display_user_first_name() {
+    //   EventBus.$emit("display-user-firstname", this.user.FirstName);
+    // }
   }
 };
 </script>
