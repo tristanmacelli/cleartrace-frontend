@@ -9,6 +9,10 @@
 export default {
   name: "message",
   props: {
+    id: {
+      type: String,
+      required: true
+    },
     body: {
       type: String,
       required: true

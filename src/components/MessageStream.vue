@@ -1,13 +1,11 @@
 <template>
   <div id="messageStream">
     <div id="view-messages">
-      <p
-        v-for="message in messageStream"
-        v-bind:key="message.body"
-        v-bind:name="message.creator.FirstName + ' ' + message.creator.LastName"
-        v-bind:date="message.createdAt"
-        v-bind:body="message.body"
-      ></p>
+      <message
+        v-for="msg in messageStream"
+        :message="msg"
+        :key="msg.id"
+      ></message>
     </div>
     <div id="send-message">
       <form v-on:submit.prevent="SendMessage" accept-charset="UTF-8">

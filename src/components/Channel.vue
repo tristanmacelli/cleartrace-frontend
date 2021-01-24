@@ -8,11 +8,11 @@
 export default {
   name: "channel",
   props: {
-    name: {
+    id: {
       type: String,
       required: true
     },
-    id: {
+    name: {
       type: String,
       required: true
     }

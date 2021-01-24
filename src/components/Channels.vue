@@ -3,12 +3,7 @@
     <h3>
       Your Channels:
     </h3>
-    <div
-      v-for="channel in channels"
-      v-bind:key="channel.name"
-      v-bind:name="channel.name"
-      v-bind:id="channel.id"
-    ></div>
+    <channel v-for="chan in channels" :channel="chan" :key="chan.id"></channel>
   </div>
 </template>
 
