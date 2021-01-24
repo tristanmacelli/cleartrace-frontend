@@ -74,6 +74,7 @@ export default {
         localStorage.setItem("auth", sessionToken);
         EventBus.$emit("toggle-authentication");
         EventBus.$emit("toggle-websocket-connection");
+        // this.$router.push({ name: 'Home', params: { channelId: store.currentChannelID } });
         this.$router.push({ path: "/home" });
       }
     }

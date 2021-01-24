@@ -5,10 +5,13 @@
         <router-link v-if="!authenticated" to="/">
           <h1>Slack Clone</h1>
         </router-link>
+        <!-- <router-link v-if="authenticated" to="{ name: 'Home', params: {channelId: store.currentChannelID}}"> -->
         <router-link v-if="authenticated" to="/home">
           <h1>Slack Clone</h1>
         </router-link>
+        <!-- <router-link v-if="showHomeLink" to="{ name: 'Home', params: {channelId: store.currentChannelID}}"> -->
         <router-link v-if="showHomeLink" to="/home">Home</router-link>
+        <!-- <router-link v-if="showHomeLink" to="{ name: 'Account', params: {userId: store.currentUserID}}"> -->
         <router-link v-if="showAcctLink" to="/account">{{
           firstname
         }}</router-link>
@@ -86,7 +89,7 @@ export default {
       }
     },
     beforeUnload() {
-      if (performance.navigation.type != performance.navigation.TYPE_RELOAD) {
+      if (PerformanceNavigation.type != PerformanceNavigation.TYPE_RELOAD) {
         this.toggleSocketConnection();
       } else {
         // this.$router.push({ path: "/" });
@@ -125,6 +128,7 @@ export default {
       // );
       EventBus.$emit("toggle-authentication");
       EventBus.$emit("toggle-websocket-connection");
+      // this.$router.push({ name: 'Home', params: { channelId: store.currentChannelID } });
       this.$router.push({ path: "/home" });
     }
     document.addEventListener("beforeunload", this.beforeUnload);

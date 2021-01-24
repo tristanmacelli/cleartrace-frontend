@@ -109,7 +109,8 @@ export default {
         let sessionToken = resp.headers.get("authorization");
         localStorage.setItem("auth", sessionToken);
         this.$emit("toggle-authentication");
-        this.$router.push({ path: "/home" });
+        // this.$router.push({ name: 'Home', params: { channelId: store.currentChannelID } });
+        this.$router.push({ path: "/home" }); 
       }
     }
   }

@@ -6,7 +6,7 @@ import Account from "../views/Account.vue";
 const routes = [
   {
     path: "/",
-    name: "Log In",
+    name: "Landing",
     component: Landing,
     meta: {
       title: "Slack Clone - Log In"
@@ -14,6 +14,7 @@ const routes = [
   },
   {
     path: "/home",
+    // path: "/home/:channelId",
     name: "Home",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -22,6 +23,7 @@ const routes = [
   },
   {
     path: "/account",
+    // path: "/home/:userId",
     name: "Account",
     component: Account
   }
