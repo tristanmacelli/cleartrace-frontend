@@ -5,15 +5,22 @@
         <router-link v-if="!authenticated" to="/">
           <h1>Slack Clone</h1>
         </router-link>
-        <!-- <router-link v-if="authenticated" to="{ name: 'Home', params: {channelId: store.currentChannelID}}"> -->
+        <!-- <router-link 
+          v-if="authenticated"
+          to="{ name: 'Home', params: {channelId: currentChannelID}}"
+        > -->
         <router-link v-if="authenticated" to="/home">
           <h1>Slack Clone</h1>
         </router-link>
-        <!-- <router-link v-if="showHomeLink" to="{ name: 'Home', params: {channelId: store.currentChannelID}}"> -->
+        <!-- <router-link 
+          v-if="showHomeLink"
+          to="{ name: 'Home', params: {channelId: currentChannelID}}"> -->
         <router-link v-if="showHomeLink" to="/home">Home</router-link>
-        <!-- <router-link v-if="showHomeLink" to="{ name: 'Account', params: {userId: store.currentUserID}}"> -->
+        <!-- <router-link 
+          v-if="showHomeLink" 
+          to="{ name: 'Account', params: {userId: store.currentUserID}}"> -->
         <router-link v-if="showAcctLink" to="/account">{{
-          firstname
+          userFirstname
         }}</router-link>
         <Login v-if="!authenticated"></Login>
         <Logout v-if="authenticated"></Logout>
@@ -28,7 +35,7 @@
 </template>
 
 <script>
-import EventBus from "@/event-bus";
+// import EventBus from "@/event-bus";
 import Login from "@/components/Login.vue";
 import Logout from "@/components/Logout.vue";
 // import ChannelUpdate from "@/components/ChannelUpdate.vue";
@@ -91,6 +98,7 @@ export default {
     beforeUnload() {
       if (PerformanceNavigation.type != PerformanceNavigation.TYPE_RELOAD) {
         this.toggleSocketConnection();
+        // this.$store.commit('toggleSocket');
       } else {
         // this.$router.push({ path: "/" });
       }
@@ -98,6 +106,12 @@ export default {
   },
   computed: {
     // a computed getter
+    currentChannelID() {
+      return this.$store.getters.getChannelID;
+    },
+    userFirstname() {
+      return this.$store.getters.user.firstname;
+    },
     showHomeLink: function() {
       return this.authenticated && this.$router.currentRoute != "/home";
     },
@@ -106,15 +120,15 @@ export default {
     }
   },
   mounted() {
-    EventBus.$on("toggle-authentication", () => {
-      this.toggleAuth();
-    });
-    EventBus.$on("toggle-websocket-connection", () => {
-      this.toggleSocketConnection();
-    });
-    EventBus.$on("display-user-firstname", name => {
-      this.firstname = name;
-    });
+    // EventBus.$on("toggle-authentication", () => {
+    //   this.toggleAuth();
+    // });
+    // EventBus.$on("toggle-websocket-connection", () => {
+    //   this.toggleSocketConnection();
+    // });
+    // EventBus.$on("display-user-firstname", name => {
+    //   this.firstname = name;
+    // });
   },
   created: function() {
     let sessionToken = localStorage.getItem("auth");
@@ -126,10 +140,12 @@ export default {
       // console.log(
       //   this.socket == null || this.socket.readyState === WebSocket.CLOSED
       // );
-      EventBus.$emit("toggle-authentication");
-      EventBus.$emit("toggle-websocket-connection");
-      // this.$router.push({ name: 'Home', params: { channelId: store.currentChannelID } });
+      // EventBus.$emit("toggle-authentication");
+      // EventBus.$emit("toggle-websocket-connection");
       this.$router.push({ path: "/home" });
+      // this.$store.commit('toggleAuthentication');
+      // this.$store.commit('toggleSocket');
+      // this.$router.push({ name: 'Home', params: { channelId: currentChannelID } });
     }
     document.addEventListener("beforeunload", this.beforeUnload);
   }
