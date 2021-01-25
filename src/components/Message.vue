@@ -1,7 +1,7 @@
 <template>
   <p class="message">
-    <strong>{{ name }}</strong>
-    {{ body + " " + date }}
+    <strong>{{ creator.FirstName + " " + creator.LastName }}</strong>
+    {{ body + " " + createdAt }}
   </p>
 </template>
 
@@ -17,11 +17,11 @@ export default {
       type: String,
       required: true
     },
-    name: {
-      type: String,
+    creator: {
+      type: Object,
       required: true
     },
-    date: {
+    createdAt: {
       type: String,
       required: true
     }

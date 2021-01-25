@@ -5,6 +5,10 @@
         v-for="msg in messageStream"
         :message="msg"
         :key="msg.id"
+        :id="msg.id"
+        :body="msg.body"
+        :creator="msg.creator"
+        :createdAt="msg.createdAt"
       ></message>
     </div>
     <div id="send-message">
@@ -78,11 +82,12 @@ export default {
     let date = new Date();
     date = this.formatDate(date);
     let welcomeMessage = {
+      id: "-1",
+      body: "Welcome to the " + this.storedChannelName + " channel",
       creator: {
         FirstName: "Automated",
         LastName: ""
       },
-      body: "Welcome to the " + this.storedChannelName + " channel",
       createdAt: date
     };
     this.messageStream.push(welcomeMessage);

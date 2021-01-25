@@ -145,7 +145,7 @@ export default {
 
 #names input {
   display: unset;
-  width: 13.2em;
+  width: 12em;
 }
 
 #email,

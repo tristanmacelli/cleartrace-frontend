@@ -104,8 +104,8 @@ export default {
         let message = "Error: " + resp.status;
         alert(message);
       }
-      // Since there are no errors and the fields are updated, there is no need to
-      // make a request until the user returns to the page later
+      // Since there are no errors and the name fields are updated locally, there is no need to
+      // make a request for user informatoin until the user returns to this page later
     }
   }
 };

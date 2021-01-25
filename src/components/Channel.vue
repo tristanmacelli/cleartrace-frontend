@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      isCurrentChannel: this.isStoredCurrentChannel()
+      isCurrentChannel: this.isStoredCurrentChannel
     };
   },
   methods: {

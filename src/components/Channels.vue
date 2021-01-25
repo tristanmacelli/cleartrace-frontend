@@ -3,7 +3,13 @@
     <h3>
       Your Channels:
     </h3>
-    <channel v-for="chan in channels" :channel="chan" :key="chan.id"></channel>
+    <channel
+      v-for="chan in channels"
+      :channel="chan"
+      :key="chan.id"
+      :id="chan.id"
+      :name="chan.name"
+    ></channel>
   </div>
 </template>
 
