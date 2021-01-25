@@ -3,18 +3,18 @@
     <div class="fixed container">
       <div id="nav">
         <router-link v-if="!this.storedAuth" to="/">
-          <h1>Slack Clone</h1>
+          <h1>Cleartrace</h1>
         </router-link>
         <!-- <router-link 
           v-if="storedAuth"
-          to="{ name: 'Home', params: {channelId: storedChannelID}}"
+          to="{ name: 'Home', params: {groupID: storedGroupID}}"
         > -->
         <router-link v-if="this.storedAuth" to="/home">
-          <h1>Slack Clone</h1>
+          <h1>Cleartrace</h1>
         </router-link>
         <!-- <router-link 
           v-if="showHomeLink"
-          to="{ name: 'Home', params: {channelId: storedChannelID}}"> -->
+          to="{ name: 'Home', params: {groupID: storedGroupID}}"> -->
         <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
         <!-- <router-link 
           v-if="showHomeLink" 
@@ -27,21 +27,21 @@
       </div>
     </div>
     <router-view />
-    <!-- <ChannelUpdate></ChannelUpdate> -->
+    <!-- <GroupUpdate></GroupUpdate> -->
   </div>
 </template>
 
 <script>
 import Login from "@/components/Login.vue";
 import Logout from "@/components/Logout.vue";
-// import ChannelUpdate from "@/components/ChannelUpdate.vue";
+// import GroupUpdate from "@/components/GroupUpdate.vue";
 
 export default {
   name: "app",
   components: {
     Login,
     Logout //,
-    // ChannelUpdate
+    // GroupUpdate
   },
   computed: {
     // a computed getter
@@ -51,8 +51,8 @@ export default {
     storedSocket() {
       return this.$store.getters.getSocket;
     },
-    storedChannelID() {
-      return this.$store.getters.getChannelID;
+    storedGroupID() {
+      return this.$store.getters.getGroupID;
     },
     storedUserID() {
       return this.$store.getters.getUserID;
@@ -69,7 +69,7 @@ export default {
   },
   created: async function() {
     this.$router.push({ path: "/" });
-    // await this.GetGeneralChannel();
+    // await this.GetGeneralGroup();
     let sessionToken = localStorage.getItem("auth");
     let isActiveSession = sessionToken && !this.storedAuth;
     if (isActiveSession) {
@@ -78,14 +78,14 @@ export default {
       this.$store.commit("setSocket");
       this.$store.commit("setUser");
       this.$router.push({ path: "/home" });
-      // this.$router.push({ name: 'Home', params: { channelId: storedChannelID } });
+      // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
     }
   },
   methods: {
-    async GetSpecificChannel(channelName) {
+    async GetSpecificGroup(groupName) {
       var url =
         "https://slack.api.tristanmacelli.com/v1/channels?startsWith=" +
-        channelName;
+        groupName;
       let sessionToken = localStorage.getItem("auth");
       // send a get request with the above data
       let resp = await fetch(url, {
@@ -97,15 +97,15 @@ export default {
       if (!resp.ok) {
         alert("Error: ", resp.status);
       }
-      let channels = await resp.json();
-      return channels;
+      let groups = await resp.json();
+      return groups;
     },
-    async GetGeneralChannel() {
-      let channels = await this.GetSpecificChannel("General");
-      let general = channels[0];
-      this.$store.commit("setChannel", {
-        channelID: general.id,
-        channelName: general.name
+    async GetGeneralGroup() {
+      let groups = await this.GetSpecificGroup("General");
+      let general = groups[0];
+      this.$store.commit("setGroup", {
+        groupID: general.id,
+        groupName: general.name
       });
     }
   }

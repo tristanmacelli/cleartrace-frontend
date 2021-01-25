@@ -21,8 +21,8 @@ export default {
     SetGroup() {
       if (!this.isStoredGroup) {
         this.$store.commit("setGroup", {
-          channelID: this.id,
-          channelName: this.name
+          groupID: this.id,
+          groupName: this.name
         });
       }
     }

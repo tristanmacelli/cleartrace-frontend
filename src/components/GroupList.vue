@@ -40,8 +40,8 @@ export default {
     //   let messageObj = receivedObj.message;
 
     //   if (receivedObj.type == "message-new") {
-    //     if (messageObj.channelID != this.ChannelID) {
-    //       // Send a notification (noise, highlight channel with message, update channel w/ number
+    //     if (messageObj.groupID != this.GroupID) {
+    //       // Send a notification (noise, highlight group with message, update group w/ number
     //       //                      indicating the # of unread messages)
     //     }
     //   }

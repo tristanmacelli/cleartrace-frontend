@@ -9,12 +9,12 @@ const routes = [
     name: "Landing",
     component: Landing,
     meta: {
-      title: "Slack Clone - Log In"
+      title: "Cleartrace - Log In"
     }
   },
   {
     path: "/home",
-    // path: "/home/:channelId",
+    // path: "/home/:groupID",
     name: "Home",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -36,7 +36,7 @@ const router = createRouter({
   routes: routes
 });
 
-const DEFAULT_TITLE = "Slack Clone";
+const DEFAULT_TITLE = "Cleartrace";
 
 // After every route change vue updates the page title based on a value provided
 // by the route object otherwise, if no value was provided, it uses DEFAULT_TITLE

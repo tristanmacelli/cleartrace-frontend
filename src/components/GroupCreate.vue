@@ -1,12 +1,12 @@
 <template>
   <div class="modal">
     <div class="container">
-      <div class="modal__title">Create a New Channel</div>
+      <div class="modal__title">Create a New Group</div>
       <input
         id="messageBody"
         v-model="newBody"
         type="text"
-        placeholder="Type a channel name..."
+        placeholder="Type a group name..."
       />
       <button class="mt-3 border-b border-teal font-semibold">Create</button>
     </div>

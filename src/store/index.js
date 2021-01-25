@@ -4,8 +4,10 @@ const store = createStore({
   state() {
     return {
       debug: true,
-      channelID: "5fec04e96d55740010123439",
-      channelName: "General",
+      group: {
+        groupID: "5fec04e96d55740010123439",
+        groupName: "General"
+      },
       user: null,
       socket: null,
       authenticated: false,
@@ -13,12 +15,14 @@ const store = createStore({
     };
   },
   mutations: {
-    setChannel(state, payload) {
+    setGroup(state, payload) {
       if (state.debug) {
-        console.log("setChannel triggered with: ", payload);
+        console.log("setGroup triggered with: ", payload);
       }
-      state.ChannelID = payload.channelID;
-      state.ChannelName = payload.channelName;
+      state.group = {
+        groupID: payload.groupID,
+        groupName: payload.groupName
+      };
     },
     async setUser(state) {
       if (state.debug) {
@@ -114,14 +118,23 @@ const store = createStore({
     }
   },
   getters: {
-    getChannelID(state) {
+    getGroupID(state) {
       if (state.debug) {
-        console.log("getChannelID triggered");
+        console.log("getGroupID triggered");
       }
-      return state.channelID;
+      if (state.group) {
+        return state.group.groupID;
+      }
+      return "";
     },
-    getChannelName(state) {
-      return state.channelName;
+    getGroupName(state) {
+      if (state.debug) {
+        console.log("getGroupName triggered");
+      }
+      if (state.group) {
+        return state.group.groupName;
+      }
+      return "";
     },
     getUserID(state) {
       if (state.user) {

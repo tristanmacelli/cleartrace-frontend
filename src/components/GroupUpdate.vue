@@ -2,10 +2,10 @@
   <div class="modal">
     <div class="container">
       <div class="modal__title">{{ UpdateMessage }}</div>
-      <p>{{ ChannelName }} channel has been {{ Action }}</p>
-      <a v-if="channelDeleted" href="#" class="btn go-to">
+      <p>{{ GroupName }} group has been {{ Action }}</p>
+      <a v-if="groupDeleted" href="#" class="btn go-to">
         Go to
-        {{ ChannelName }}
+        {{ GroupName }}
       </a>
       <button class="mt-3 border-b border-teal font-semibold">Close</button>
     </div>
@@ -20,11 +20,11 @@ export default {
       type: String,
       required: true
     },
-    ChannelName: {
+    GroupName: {
       type: String,
       required: true
     },
-    ChannelDeleted: {
+    GroupDeleted: {
       type: Boolean,
       required: true
     },
@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      channelDeleted: this.ChannelDeleted
+      groupDeleted: this.GroupDeleted
     };
   }
 };

@@ -112,14 +112,14 @@ export default {
         this.$store.commit("setSocket");
         this.$store.commit("setUser");
         this.$router.push({ path: "/home" });
-        // this.$router.push({ name: 'Home', params: { channelId: currentChannelID } });
+        // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
       }
     }
   },
   computed: {
     // a computed getter
-    currentChannelID() {
-      return this.$store.getters.getChannelID;
+    storedGroupID() {
+      return this.$store.getters.getGroupID;
     }
   }
 };

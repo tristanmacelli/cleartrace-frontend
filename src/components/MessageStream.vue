@@ -50,17 +50,17 @@ export default {
   },
   data() {
     return {
-      channelID: this.storedChannelID,
+      groupID: this.storedGroupID,
       newBody: "",
       messageStream: []
     };
   },
   computed: {
-    storedChannelID() {
-      return this.$store.getters.getChannelID;
+    storedGroupID() {
+      return this.$store.getters.getGroupID;
     },
-    storedChannelName() {
-      return this.$store.getters.getChannelName;
+    storedGroupName() {
+      return this.$store.getters.getGroupName;
     },
     disableSendMessage() {
       return this.newBody.length == 0;
@@ -73,7 +73,7 @@ export default {
     }
   },
   watch: {
-    channelID: async function() {
+    groupID: async function() {
       await this.GetMessages();
     }
   },
@@ -83,7 +83,7 @@ export default {
     date = this.formatDate(date);
     let welcomeMessage = {
       id: "-1",
-      body: "Welcome to the " + this.storedChannelName + " channel",
+      body: "Welcome to the " + this.storedGroupName + " group",
       creator: {
         FirstName: "Automated",
         LastName: ""
@@ -103,9 +103,9 @@ export default {
       let messageObj = receivedObj.message;
 
       if (receivedObj.type == "message-new") {
-        // This is the "default behavior" when the user is viewing the channel
+        // This is the "default behavior" when the user is viewing the group
         // that messages are coming in on
-        if (messageObj.channelID == this.storedChannelID) {
+        if (messageObj.groupID == this.storedGroupID) {
           let message = this.PreprocessMessage(messageObj);
           this.messageStream.push(message);
         }
@@ -116,7 +116,7 @@ export default {
     async GetMessages() {
       var url =
         "https://slack.api.tristanmacelli.com/v1/channels/" +
-        this.storedChannelID;
+        this.storedGroupID;
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -142,14 +142,14 @@ export default {
     async SendMessage() {
       var url =
         "https://slack.api.tristanmacelli.com/v1/channels/" +
-        this.storedChannelID;
+        this.storedGroupID;
       let sessionToken = localStorage.getItem("auth");
 
       // Get user first name from store & add it to this object
       let date = new Date();
       let formattedDate = this.formatDate(date);
       let requestBody = {
-        channelID: this.storedChannelID,
+        channelID: this.storedGroupID,
         creator: this.storedUser,
         body: this.newBody,
         createdAt: formattedDate
