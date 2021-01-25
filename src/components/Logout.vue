@@ -42,6 +42,11 @@ export default {
   cursor: pointer;
 }
 
+#logoutBtn:hover {
+  color: #e9ebee;
+  border-color: #10335e;
+}
+
 .pull-right {
   float: right;
   display: block;

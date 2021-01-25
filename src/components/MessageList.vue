@@ -29,7 +29,7 @@
                   id="sendMsgBtn"
                   :disabled="disableSendMessage"
                   type="submit"
-                  value=""
+                  value=" "
                 />
               </td>
             </tr>
