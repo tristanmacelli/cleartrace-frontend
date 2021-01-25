@@ -1,5 +1,5 @@
 <template>
-  <div id="channels">
+  <div id="channelList">
     <h3>
       Your Channels:
     </h3>
@@ -17,7 +17,7 @@
 import Channel from "./Channel.vue";
 
 export default {
-  name: "channels",
+  name: "channelList",
   data() {
     return {
       channels: []
@@ -77,9 +77,9 @@ export default {
 </script>
 
 <style>
-#channels {
+#channelList {
   height: 88vh;
-  width: 29vw;
+  width: 30vw;
   padding: 0 2em;
   float: left;
   overflow: scroll;

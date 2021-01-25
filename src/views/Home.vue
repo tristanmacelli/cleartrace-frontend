@@ -1,20 +1,20 @@
 <template>
   <div id="home" class="main">
     <MessageStream></MessageStream>
-    <Channels></Channels>
+    <ChannelList></ChannelList>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import MessageStream from "@/components/MessageStream.vue";
-import Channels from "@/components/Channels.vue";
+import ChannelList from "@/components/ChannelList.vue";
 
 export default {
   name: "Home",
   components: {
     MessageStream,
-    Channels
+    ChannelList
   },
   created: function() {
     let sessionToken = localStorage.getItem("auth");
