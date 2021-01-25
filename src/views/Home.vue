@@ -1,15 +1,7 @@
 <template>
   <div id="home" class="main">
-    <MessageStream
-      v-bind:ChannelID="currentChannelID"
-      v-bind:ChannelName="currentChannelName"
-      v-bind:Socket="socket"
-      v-bind:User="user"
-    ></MessageStream>
-    <Channels
-      v-bind:ChannelID="currentChannelID"
-      v-bind:Socket="socket"
-    ></Channels>
+    <MessageStream></MessageStream>
+    <Channels></Channels>
   </div>
 </template>
 
@@ -17,28 +9,12 @@
 // @ is an alias to /src
 import MessageStream from "@/components/MessageStream.vue";
 import Channels from "@/components/Channels.vue";
-// import EventBus from "../event-bus.js";
 
 export default {
   name: "Home",
-  props: {
-    Socket: {
-      type: Object,
-      required: true
-    }
-  },
   components: {
     MessageStream,
     Channels
-  },
-  data() {
-    return {
-      connection: null,
-      currentChannelID: "5fec04e96d55740010123439",
-      currentChannelName: "General",
-      socket: this.Socket,
-      user: null
-    };
   },
   created: function() {
     let sessionToken = localStorage.getItem("auth");
@@ -49,7 +25,6 @@ export default {
     // if these values dont exist then execute the following:
     // this.GetSpecificChannel(this.currentChannelName);
     // this.handleConnectionCreation();
-    this.request_user(sessionToken);
     // TODO: Figure out how to have multiple onmessage OR another structure of handling info
     // this.socket.onmessage = event => {
     //   // The data we created is in the event.data field
@@ -76,48 +51,6 @@ export default {
     //     // GetChannels() will be called from the Channels component
     //   }
     // };
-  },
-  methods: {
-    // async GetSpecificChannel(channel_name) {
-    //   var url =
-    //     "https://slack.api.tristanmacelli.com/v1/channels?startsWith=" +
-    //     channel_name;
-    //   let sessionToken = localStorage.getItem("auth");
-
-    //   // send a get request with the above data
-    //   let resp = await fetch(url, {
-    //     method: "GET",
-    //     headers: {
-    //       Authorization: sessionToken
-    //     }
-    //   });
-    //   if (!resp.ok) {
-    //     alert("Error: ", resp.status);
-    //   }
-    //   let channels = await resp.json();
-    //   this.currentChannelID = channels[0].id;
-    //   // Store this channel name & id into the store as the current channel information
-    // },
-    async request_user(token) {
-      let url = "https://slack.api.tristanmacelli.com/v1/users/";
-      let resp = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: token
-        }
-      });
-      if (!resp.ok) {
-        alert("Error: ", resp.status);
-      }
-      let response = await resp.json();
-      this.user = response;
-      this.$store.commit("setUser", { user: this.user });
-      // display_user_fn();
-    }
-
-    // display_user_first_name() {
-    //   EventBus.$emit("display-user-firstname", this.user.FirstName);
-    // }
   }
 };
 </script>

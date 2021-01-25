@@ -108,11 +108,10 @@ export default {
       if (hasAuth) {
         let sessionToken = resp.headers.get("authorization");
         localStorage.setItem("auth", sessionToken);
-        // this.$emit("toggle-authentication");
-        // this.$emit("toggle-websocket-connection");
+        this.$store.commit("setAuthentication");
+        this.$store.commit("setSocket");
+        this.$store.commit("setUser");
         this.$router.push({ path: "/home" });
-        // this.$store.commit('toggleAuthentication');
-        // this.$store.commit('toggleSocket');
         // this.$router.push({ name: 'Home', params: { channelId: currentChannelID } });
       }
     }

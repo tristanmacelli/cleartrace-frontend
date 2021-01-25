@@ -2,152 +2,133 @@
   <div id="app">
     <div class="fixed container">
       <div id="nav">
-        <router-link v-if="!authenticated" to="/">
+        <router-link v-if="!storedAuth" to="/">
           <h1>Slack Clone</h1>
         </router-link>
         <!-- <router-link 
-          v-if="authenticated"
-          to="{ name: 'Home', params: {channelId: currentChannelID}}"
+          v-if="storedAuth"
+          to="{ name: 'Home', params: {channelId: storedChannelID}}"
         > -->
-        <router-link v-if="authenticated" to="/home">
+        <router-link v-if="storedAuth" to="/home">
           <h1>Slack Clone</h1>
         </router-link>
         <!-- <router-link 
           v-if="showHomeLink"
-          to="{ name: 'Home', params: {channelId: currentChannelID}}"> -->
+          to="{ name: 'Home', params: {channelId: storedChannelID}}"> -->
         <router-link v-if="showHomeLink" to="/home">Home</router-link>
         <!-- <router-link 
           v-if="showHomeLink" 
-          to="{ name: 'Account', params: {userId: store.currentUserID}}"> -->
+          to="{ name: 'Account', params: {userId: storedUserID}}"> -->
         <router-link v-if="showAcctLink" to="/account">{{
-          userFirstname
+          storedUserFirstname
         }}</router-link>
-        <Login v-if="!authenticated"></Login>
-        <Logout v-if="authenticated"></Logout>
+        <Login v-if="!storedAuth"></Login>
+        <Logout v-if="storedAuth"></Logout>
       </div>
     </div>
-    <router-view v-bind:Socket="socket" />
-    <!-- <ChannelUpdate
-      v-model="modalOpen"
-      v-bind:ChannelName="channelName"
-    ></ChannelUpdate> -->
+    <router-view />
+    <!-- <ChannelUpdate></ChannelUpdate> -->
   </div>
 </template>
 
 <script>
-// import EventBus from "@/event-bus";
 import Login from "@/components/Login.vue";
 import Logout from "@/components/Logout.vue";
 // import ChannelUpdate from "@/components/ChannelUpdate.vue";
 
 export default {
   name: "app",
-  data() {
-    return {
-      authenticated: false,
-      channelName: "",
-      firstname: "Account",
-      modalOpen: false,
-      socket: null
-    };
-  },
   components: {
     Login,
     Logout //,
     // ChannelUpdate
   },
+  computed: {
+    // a computed getter
+    storedAuth() {
+      return this.$store.getters.getAuth;
+    },
+    storedSocket() {
+      return this.$store.getters.getSocket;
+    },
+    storedChannelID() {
+      return this.$store.getters.getChannelID;
+    },
+    storedUserID() {
+      return this.$store.getters.getUserID;
+    },
+    storedUserFirstname() {
+      return this.$store.getters.getUserFirstname;
+    },
+    showHomeLink() {
+      return this.storedAuth && this.$router.currentRoute != "/home";
+    },
+    showAcctLink() {
+      return this.storedAuth && this.$router.currentRoute != "/account";
+    }
+  },
+  created: async function() {
+    // await this.GetGeneralChannel();
+    let sessionToken = localStorage.getItem("auth");
+    // TODO: Fix logic for returning to an active session
+    let isActiveSession = sessionToken && !this.storedAuth;
+    if (isActiveSession) {
+      console.log("Returning to an active session");
+      // console.log("Is storedSocket null? ", storedSocket == null);
+      // console.log(
+      //   storedSocket == null || storedSocket.readyState === WebSocket.CLOSED
+      // );
+      this.$store.commit("setAuthentication");
+      this.$store.commit("setSocket");
+      this.$store.commit("setUser");
+      this.$router.push({ path: "/home" });
+      // this.$router.push({ name: 'Home', params: { channelId: storedChannelID } });
+    }
+    window.addEventListener("beforeunload", function(e) {
+      e.preventDefault();
+      this.beforeUnload();
+    });
+  },
   methods: {
-    toggleAuth() {
-      this.authenticated = !this.authenticated;
-    },
-    toggleSocketConnection() {
-      // Open WebSocket connection
-      if (this.socket == null || this.socket.readyState === WebSocket.CLOSED) {
-        let sessionToken = localStorage.getItem("auth");
-        this.socket = new WebSocket(
-          "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-        );
-        this.socket.onopen = function() {
-          console.log("Successfully connected to the echo WebSocket server!");
-        };
-        this.socket.onclose = close => {
-          console.log("close: ", close);
-          this.socketOnClose(close);
-        };
-        this.socket.onerror = error => {
-          console.log("error: ", error);
-          console.log("Error originating from the echo websocket server...");
-        };
-        // this.socket is defined && this.socket.readyState === WebSocket.OPEN
-      } else {
-        // Close WebSocket connection
-        this.socket.close();
-        // Eventually this should be removed
-        this.socket = null;
-      }
-    },
-    socketOnClose(close) {
-      if (close.wasClean) {
-        console.log("Successfully disconnected to the echo WebSocket server!");
-      } else {
-        console.log(
-          "Not able to cleanly disconnected from the WebSocket server."
-        );
-      }
-    },
     beforeUnload() {
-      if (PerformanceNavigation.type != PerformanceNavigation.TYPE_RELOAD) {
-        this.toggleSocketConnection();
-        // this.$store.commit('toggleSocket');
+      // window.confirm("Leaving site? ", PerformanceNavigation.type);
+      if (
+        PerformanceNavigation.type != PerformanceNavigation.TYPE_RELOAD //&&
+        //this.storedAuth
+      ) {
+        console.log("Leaving site");
+        window.confirm("Leaving site?");
+        // this.$store.commit("clearSocket");
       } else {
         // this.$router.push({ path: "/" });
       }
-    }
-  },
-  computed: {
-    // a computed getter
-    currentChannelID() {
-      return this.$store.getters.getChannelID;
     },
-    userFirstname() {
-      return this.$store.getters.user.firstname;
+    async GetSpecificChannel(channelName) {
+      var url =
+        "https://slack.api.tristanmacelli.com/v1/channels?startsWith=" +
+        channelName;
+      let sessionToken = localStorage.getItem("auth");
+      // send a get request with the above data
+      let resp = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: sessionToken
+        }
+      });
+      if (!resp.ok) {
+        alert("Error: ", resp.status);
+      }
+      let channels = await resp.json();
+      return channels;
     },
-    showHomeLink: function() {
-      return this.authenticated && this.$router.currentRoute != "/home";
-    },
-    showAcctLink: function() {
-      return this.authenticated && this.$router.currentRoute != "/account";
+    async GetGeneralChannel() {
+      let channels = await this.GetSpecificChannel("General");
+      let general = channels[0];
+      this.$store.commit("setChannel", {
+        channelID: general.id,
+        channelName: general.name
+      });
     }
-  },
-  mounted() {
-    // EventBus.$on("toggle-authentication", () => {
-    //   this.toggleAuth();
-    // });
-    // EventBus.$on("toggle-websocket-connection", () => {
-    //   this.toggleSocketConnection();
-    // });
-    // EventBus.$on("display-user-firstname", name => {
-    //   this.firstname = name;
-    // });
-  },
-  created: function() {
-    let sessionToken = localStorage.getItem("auth");
-    // TODO: Fix logic for returning to an active session
-    let isActiveSession = sessionToken && !this.authenticated;
-    if (isActiveSession) {
-      console.log("Returning to an active session");
-      // console.log("Is this.socket null? ", this.socket == null);
-      // console.log(
-      //   this.socket == null || this.socket.readyState === WebSocket.CLOSED
-      // );
-      // EventBus.$emit("toggle-authentication");
-      // EventBus.$emit("toggle-websocket-connection");
-      this.$router.push({ path: "/home" });
-      // this.$store.commit('toggleAuthentication');
-      // this.$store.commit('toggleSocket');
-      // this.$router.push({ name: 'Home', params: { channelId: currentChannelID } });
-    }
-    document.addEventListener("beforeunload", this.beforeUnload);
   }
 };
 </script>

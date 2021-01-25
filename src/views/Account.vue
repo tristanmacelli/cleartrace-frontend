@@ -9,12 +9,6 @@ import User from "@/components/User.vue";
 
 export default {
   name: "Account",
-  props: {
-    Socket: {
-      type: Object,
-      required: true
-    }
-  },
   components: {
     User
   },

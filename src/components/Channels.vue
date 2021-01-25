@@ -12,28 +12,22 @@ import Channel from "./Channel.vue";
 
 export default {
   name: "channels",
-  props: {
-    ChannelID: {
-      type: String,
-      required: true
-    },
-    Socket: {
-      type: Object,
-      required: true
-    }
-  },
   data() {
     return {
-      channels: [],
-      socket: this.Socket
+      channels: []
     };
   },
   components: {
     Channel
   },
+  computed: {
+    storedSocket() {
+      return this.$store.getters.getSocket;
+    }
+  },
   created: async function() {
     await this.GetChannels();
-    // this.socket.onmessage = event => {
+    // storedSocket.onmessage = event => {
     //   // The data we created is in the event.data field
     //   // The current datatype of event is message
     //   let receivedObj = JSON.parse(event.data);

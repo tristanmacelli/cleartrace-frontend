@@ -1,6 +1,6 @@
 <template>
   <div id="landing" class="main">
-    <Signup @toggle-authentication="toggleAuth"></Signup>
+    <Signup></Signup>
   </div>
 </template>
 
@@ -10,12 +10,6 @@ import Signup from "@/components/Signup.vue";
 
 export default {
   name: "Landing",
-  props: {
-    Socket: {
-      type: Object,
-      required: true
-    }
-  },
   components: {
     Signup
   }

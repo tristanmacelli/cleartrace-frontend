@@ -41,37 +41,36 @@ import Message from "./Message.vue";
 
 export default {
   name: "messageStream",
-  props: {
-    ChannelID: {
-      type: String,
-      required: true
-    },
-    ChannelName: {
-      type: String,
-      required: true
-    },
-    Socket: {
-      type: Object,
-      required: true
-    },
-    User: {
-      type: Object,
-      required: true
-    }
-  },
   components: {
     Message
   },
   data() {
     return {
+      channelID: this.storedChannelID,
       newBody: "",
-      messageStream: [],
-      socket: this.Socket
+      messageStream: []
     };
   },
   computed: {
+    storedChannelID() {
+      return this.$store.getters.getChannelID;
+    },
+    storedChannelName() {
+      return this.$store.getters.getChannelName;
+    },
     disableSendMessage() {
       return this.newBody.length == 0;
+    },
+    storedSocket() {
+      return this.$store.getters.getSocket;
+    },
+    storedUser() {
+      return this.$store.getters.getUser;
+    }
+  },
+  watch: {
+    channelID: async function() {
+      await this.GetMessages();
     }
   },
   created: async function() {
@@ -83,7 +82,7 @@ export default {
         FirstName: "Automated",
         LastName: ""
       },
-      body: "Welcome to the " + this.ChannelName + " channel",
+      body: "Welcome to the " + this.storedChannelName + " channel",
       createdAt: date
     };
     this.messageStream.push(welcomeMessage);
@@ -91,7 +90,7 @@ export default {
     // Make query to server for last 100 messages
     await this.GetMessages();
 
-    this.socket.onmessage = event => {
+    this.storedSocket.onmessage = event => {
       console.log("Message Received!");
       // The data we created is in the event.data field
       // The current datatype of event is message
@@ -101,7 +100,7 @@ export default {
       if (receivedObj.type == "message-new") {
         // This is the "default behavior" when the user is viewing the channel
         // that messages are coming in on
-        if (messageObj.channelID == this.ChannelID) {
+        if (messageObj.channelID == this.storedChannelID) {
           let message = this.PreprocessMessage(messageObj);
           this.messageStream.push(message);
         }
@@ -111,7 +110,8 @@ export default {
   methods: {
     async GetMessages() {
       var url =
-        "https://slack.api.tristanmacelli.com/v1/channels/" + this.ChannelID;
+        "https://slack.api.tristanmacelli.com/v1/channels/" +
+        this.storedChannelID;
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -136,15 +136,16 @@ export default {
     },
     async SendMessage() {
       var url =
-        "https://slack.api.tristanmacelli.com/v1/channels/" + this.ChannelID;
+        "https://slack.api.tristanmacelli.com/v1/channels/" +
+        this.storedChannelID;
       let sessionToken = localStorage.getItem("auth");
 
       // Get user first name from store & add it to this object
       let date = new Date();
       let formattedDate = this.formatDate(date);
       let requestBody = {
-        channelID: this.ChannelID,
-        creator: this.User,
+        channelID: this.storedChannelID,
+        creator: this.storedUser,
         body: this.newBody,
         createdAt: formattedDate
       };

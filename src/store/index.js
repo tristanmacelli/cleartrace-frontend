@@ -20,69 +20,102 @@ const store = createStore({
       state.ChannelID = payload.channelID;
       state.ChannelName = payload.channelName;
     },
-    setUser(state, payload) {
+    async setUser(state) {
       if (state.debug) {
-        console.log("setUser triggered with: ", payload);
+        console.log("setUser triggered");
       }
-      state.user = payload.user;
+      let sessionToken = localStorage.getItem("auth");
+      let url = "https://slack.api.tristanmacelli.com/v1/users/";
+      let resp = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: sessionToken
+        }
+      });
+      if (!resp.ok) {
+        alert("Error: ", resp.status);
+      }
+      let user = await resp.json();
+      state.user = user;
     },
-    toggleSocket(state) {
+    clearUser(state) {
       if (state.debug) {
-        console.log("toggleSocket triggered");
+        console.log("clearUser triggered");
+      }
+      state.user = null;
+    },
+    setSocket(state) {
+      if (state.debug) {
+        console.log("setSocket triggered");
       }
       // Open WebSocket connection
-      if (
-        state.socket == null ||
-        state.socket.readyState === WebSocket.CLOSED
-      ) {
-        let sessionToken = localStorage.getItem("auth");
-        state.socket = new WebSocket(
-          "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-        );
-        state.socket.onopen = function() {
-          if (state.debug) {
-            console.log("Successfully connected to the echo WebSocket server!");
+      // if (
+      //   state.socket == null ||
+      //   state.socket.readyState === WebSocket.CLOSED
+      // ) {
+      let sessionToken = localStorage.getItem("auth");
+      state.socket = new WebSocket(
+        "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
+      );
+      state.socket.onopen = function() {
+        if (state.debug) {
+          console.log("Successfully connected to the echo WebSocket server!");
+        }
+      };
+      state.socket.onclose = close => {
+        if (state.debug) {
+          console.log("close: ", close);
+          if (close.wasClean) {
+            console.log(
+              "Successfully disconnected to the echo WebSocket server!"
+            );
+          } else {
+            console.log(
+              "Not able to cleanly disconnected from the WebSocket server."
+            );
           }
-        };
-        state.socket.onclose = close => {
-          if (state.debug) {
-            console.log("close: ", close);
-            if (close.wasClean) {
-              console.log(
-                "Successfully disconnected to the echo WebSocket server!"
-              );
-            } else {
-              console.log(
-                "Not able to cleanly disconnected from the WebSocket server."
-              );
-            }
-          }
-        };
-        state.socket.onerror = error => {
-          if (state.debug) {
-            console.log("error: ", error);
-            console.log("Error originating from the echo websocket server...");
-          }
-        };
-        // state.socket is defined && state.socket.readyState === WebSocket.OPEN
-      } else {
-        // Close WebSocket connection
-        state.socket.close();
-        // Eventually this should be removed
-        state.socket = null;
-      }
+        }
+      };
+      state.socket.onerror = error => {
+        if (state.debug) {
+          console.log("error: ", error);
+          console.log("Error originating from the echo websocket server...");
+        }
+      };
     },
-    toggleAuthentication(state) {
+    clearSocket(state) {
       if (state.debug) {
-        console.log("toggleAuthentication triggered");
+        console.log("clearSocket triggered");
       }
-      state.athenticated = !state.athenticated;
+      // state.socket is defined && state.socket.readyState === WebSocket.OPEN
+      // Close WebSocket connection
+      state.socket.close();
+      // Eventually this should be removed
+      state.socket = null;
     },
-    toggleModal(state) {
+    setAuthentication(state) {
       if (state.debug) {
-        console.log("toggleModal triggered");
+        console.log("setAuthentication triggered");
       }
-      state.modalOpen = !state.modalOpen;
+      state.athenticated = true;
+    },
+    clearAuthentication(state) {
+      if (state.debug) {
+        console.log("clearAuthentication triggered");
+      }
+      state.athenticated = false;
+    },
+    setModal(state) {
+      if (state.debug) {
+        console.log("setModal triggered");
+      }
+      state.modalOpen = true;
+    },
+    clearModal(state) {
+      if (state.debug) {
+        console.log("clearModal triggered");
+      }
+      state.modalOpen = false;
     }
   },
   getters: {
@@ -92,8 +125,11 @@ const store = createStore({
     getChannelName(state) {
       return state.channelName;
     },
-    getUser(state) {
-      return state.user;
+    getUserID(state) {
+      return state.user.id;
+    },
+    getUserFirstname(state) {
+      return state.user.firstname;
     },
     getSocket(state) {
       return state.socket;
