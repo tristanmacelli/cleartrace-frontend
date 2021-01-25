@@ -1,6 +1,10 @@
 <template>
-  <div class="channel">
-    <p v-on:click="SetCurrentChannel"># {{ name }}</p>
+  <div
+    class="channel"
+    :class="{ current: isStoredChannel }"
+    v-on:click="SetChannel"
+  >
+    <p># {{ name }}</p>
   </div>
 </template>
 
@@ -17,14 +21,9 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      isCurrentChannel: this.isStoredCurrentChannel
-    };
-  },
   methods: {
-    SetCurrentChannel() {
-      if (!this.isCurrentChannel) {
+    SetChannel() {
+      if (!this.isStoredChannel) {
         this.$store.commit("setChannel", {
           channelID: this.id,
           channelName: this.name
@@ -34,13 +33,8 @@ export default {
   },
   computed: {
     // If this is true we want to apply the same css rules as applied to the .channel:hover class
-    isStoredCurrentChannel() {
+    isStoredChannel() {
       return this.id == this.$store.getters.getChannelID;
-    }
-  },
-  watch: {
-    isCurrentChannel: async function() {
-      // Apply the css class
     }
   }
 };
@@ -53,6 +47,10 @@ export default {
 }
 
 .channel:hover {
+  background-color: steelblue;
+}
+
+.current {
   background-color: lightsteelblue;
 }
 </style>
