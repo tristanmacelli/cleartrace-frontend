@@ -4,11 +4,11 @@ const store = createStore({
   state() {
     return {
       debug: true,
-      ChannelID: "5fec04e96d55740010123439",
-      ChannelName: "General",
+      channelID: "5fec04e96d55740010123439",
+      channelName: "General",
       user: null,
       socket: null,
-      athenticated: false,
+      authenticated: false,
       modalOpen: false
     };
   },
@@ -48,11 +48,6 @@ const store = createStore({
       if (state.debug) {
         console.log("setSocket triggered");
       }
-      // Open WebSocket connection
-      // if (
-      //   state.socket == null ||
-      //   state.socket.readyState === WebSocket.CLOSED
-      // ) {
       let sessionToken = localStorage.getItem("auth");
       state.socket = new WebSocket(
         "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
@@ -97,13 +92,13 @@ const store = createStore({
       if (state.debug) {
         console.log("setAuthentication triggered");
       }
-      state.athenticated = true;
+      state.authenticated = true;
     },
     clearAuthentication(state) {
       if (state.debug) {
         console.log("clearAuthentication triggered");
       }
-      state.athenticated = false;
+      state.authenticated = false;
     },
     setModal(state) {
       if (state.debug) {
@@ -120,21 +115,42 @@ const store = createStore({
   },
   getters: {
     getChannelID(state) {
+      if (state.debug) {
+        console.log("getChannelID triggered");
+      }
       return state.channelID;
     },
     getChannelName(state) {
       return state.channelName;
     },
     getUserID(state) {
-      return state.user.id;
+      if (state.user) {
+        return state.user.id;
+      }
+      return "";
     },
     getUserFirstname(state) {
-      return state.user.firstname;
+      if (state.user) {
+        return state.user.FirstName;
+      }
+      return "";
+    },
+    getUserLastname(state) {
+      if (state.user) {
+        return state.user.LastName;
+      }
+      return "";
     },
     getSocket(state) {
+      if (state.debug) {
+        console.log("getSocket triggered");
+      }
       return state.socket;
     },
-    getAuth(state) {
+    getAuthentication(state) {
+      if (state.debug) {
+        console.log("getAuthentication triggered");
+      }
       return state.authenticated;
     }
   }
