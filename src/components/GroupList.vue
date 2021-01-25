@@ -1,30 +1,30 @@
 <template>
-  <div id="channelList">
+  <div id="groupList">
     <h3>
-      Your Channels:
+      Your Groups:
     </h3>
-    <channel
-      v-for="chan in channels"
-      :channel="chan"
-      :key="chan.id"
-      :id="chan.id"
-      :name="chan.name"
-    ></channel>
+    <group
+      v-for="grp in groups"
+      :group="grp"
+      :key="grp.id"
+      :id="grp.id"
+      :name="grp.name"
+    ></group>
   </div>
 </template>
 
 <script>
-import Channel from "./Channel.vue";
+import Group from "./Group.vue";
 
 export default {
-  name: "channelList",
+  name: "groupList",
   data() {
     return {
-      channels: []
+      groups: []
     };
   },
   components: {
-    Channel
+    Group
   },
   computed: {
     storedSocket() {
@@ -32,7 +32,7 @@ export default {
     }
   },
   created: async function() {
-    await this.GetChannels();
+    await this.GetGroups();
     // storedSocket.onmessage = event => {
     //   // The data we created is in the event.data field
     //   // The current datatype of event is message
@@ -48,8 +48,8 @@ export default {
     // };
   },
   methods: {
-    async GetChannels() {
-      this.channels = [];
+    async GetGroups() {
+      this.groups = [];
       var url = "https://slack.api.tristanmacelli.com/v1/channels";
       let sessionToken = localStorage.getItem("auth");
 
@@ -64,12 +64,12 @@ export default {
         alert(resp.status);
         throw new Error(resp.status.toString());
       }
-      let channels = await resp.json();
-      channels
+      let groups = await resp.json();
+      groups
         .slice()
         .reverse()
-        .forEach(channel => {
-          this.channels.push(channel);
+        .forEach(group => {
+          this.groups.push(group);
         });
     }
   }
@@ -77,7 +77,7 @@ export default {
 </script>
 
 <style>
-#channelList {
+#groupList {
   height: 88vh;
   width: 30vw;
   padding: 0 2em;

@@ -14,7 +14,7 @@
 
 <script>
 export default {
-  name: "Modal",
+  name: "groupUpdate",
   props: {
     Action: {
       type: String,

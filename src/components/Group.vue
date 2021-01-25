@@ -1,16 +1,12 @@
 <template>
-  <div
-    class="channel"
-    :class="{ current: isStoredChannel }"
-    v-on:click="SetChannel"
-  >
+  <div class="group" :class="{ current: isStoredGroup }" v-on:click="SetGroup">
     <p># {{ name }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  name: "channel",
+  name: "group",
   props: {
     id: {
       type: String,
@@ -22,9 +18,9 @@ export default {
     }
   },
   methods: {
-    SetChannel() {
-      if (!this.isStoredChannel) {
-        this.$store.commit("setChannel", {
+    SetGroup() {
+      if (!this.isStoredGroup) {
+        this.$store.commit("setGroup", {
           channelID: this.id,
           channelName: this.name
         });
@@ -32,21 +28,21 @@ export default {
     }
   },
   computed: {
-    // If this is true we want to apply the same css rules as applied to the .channel:hover class
-    isStoredChannel() {
-      return this.id == this.$store.getters.getChannelID;
+    // If this is true we want to apply the same css rules as applied to the .group:hover class
+    isStoredGroup() {
+      return this.id == this.$store.getters.getGroupID;
     }
   }
 };
 </script>
 
 <style>
-.channel {
+.group {
   padding: 0.0007em 1em;
   cursor: pointer;
 }
 
-.channel:hover {
+.group:hover {
   background-color: steelblue;
 }
 
