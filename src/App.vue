@@ -2,28 +2,28 @@
   <div id="app">
     <div class="fixed container">
       <div id="nav">
-        <router-link v-if="!storedAuth" to="/">
+        <router-link v-if="!this.storedAuth" to="/">
           <h1>Slack Clone</h1>
         </router-link>
         <!-- <router-link 
           v-if="storedAuth"
           to="{ name: 'Home', params: {channelId: storedChannelID}}"
         > -->
-        <router-link v-if="storedAuth" to="/home">
+        <router-link v-if="this.storedAuth" to="/home">
           <h1>Slack Clone</h1>
         </router-link>
         <!-- <router-link 
           v-if="showHomeLink"
           to="{ name: 'Home', params: {channelId: storedChannelID}}"> -->
-        <router-link v-if="showHomeLink" to="/home">Home</router-link>
+        <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
         <!-- <router-link 
           v-if="showHomeLink" 
           to="{ name: 'Account', params: {userId: storedUserID}}"> -->
-        <router-link v-if="showAcctLink" to="/account">{{
+        <router-link v-if="this.showAcctLink" to="/account">{{
           storedUserFirstname
         }}</router-link>
-        <Login v-if="!storedAuth"></Login>
-        <Logout v-if="storedAuth"></Logout>
+        <Login v-if="!this.storedAuth"></Login>
+        <Logout v-if="this.storedAuth"></Logout>
       </div>
     </div>
     <router-view />
@@ -46,7 +46,7 @@ export default {
   computed: {
     // a computed getter
     storedAuth() {
-      return this.$store.getters.getAuth;
+      return this.$store.getters.getAuthentication;
     },
     storedSocket() {
       return this.$store.getters.getSocket;
@@ -58,7 +58,7 @@ export default {
       return this.$store.getters.getUserID;
     },
     storedUserFirstname() {
-      return this.$store.getters.getUserFirstname;
+      return this.$store.getters.getUserFirstname || "Account";
     },
     showHomeLink() {
       return this.storedAuth && this.$router.currentRoute != "/home";
@@ -68,41 +68,20 @@ export default {
     }
   },
   created: async function() {
+    this.$router.push({ path: "/" });
     // await this.GetGeneralChannel();
     let sessionToken = localStorage.getItem("auth");
-    // TODO: Fix logic for returning to an active session
     let isActiveSession = sessionToken && !this.storedAuth;
     if (isActiveSession) {
-      console.log("Returning to an active session");
-      // console.log("Is storedSocket null? ", storedSocket == null);
-      // console.log(
-      //   storedSocket == null || storedSocket.readyState === WebSocket.CLOSED
-      // );
+      // console.log("Returning to an active session");
       this.$store.commit("setAuthentication");
       this.$store.commit("setSocket");
       this.$store.commit("setUser");
       this.$router.push({ path: "/home" });
       // this.$router.push({ name: 'Home', params: { channelId: storedChannelID } });
     }
-    window.addEventListener("beforeunload", function(e) {
-      e.preventDefault();
-      this.beforeUnload();
-    });
   },
   methods: {
-    beforeUnload() {
-      // window.confirm("Leaving site? ", PerformanceNavigation.type);
-      if (
-        PerformanceNavigation.type != PerformanceNavigation.TYPE_RELOAD //&&
-        //this.storedAuth
-      ) {
-        console.log("Leaving site");
-        window.confirm("Leaving site?");
-        // this.$store.commit("clearSocket");
-      } else {
-        // this.$router.push({ path: "/" });
-      }
-    },
     async GetSpecificChannel(channelName) {
       var url =
         "https://slack.api.tristanmacelli.com/v1/channels?startsWith=" +
