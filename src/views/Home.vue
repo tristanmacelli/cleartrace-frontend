@@ -1,19 +1,19 @@
 <template>
   <div id="home" class="main">
-    <MessageStream></MessageStream>
+    <MessageList></MessageList>
     <GroupList></GroupList>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import MessageStream from "@/components/MessageStream.vue";
+import MessageList from "@/components/MessageList.vue";
 import GroupList from "@/components/GroupList.vue";
 
 export default {
   name: "Home",
   components: {
-    MessageStream,
+    MessageList,
     GroupList
   },
   created: function() {

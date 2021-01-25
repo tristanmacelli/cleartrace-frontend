@@ -1,8 +1,8 @@
 <template>
-  <div id="messageStream">
+  <div id="messageList">
     <div id="view-messages">
       <message
-        v-for="msg in messageStream"
+        v-for="msg in messageList"
         :message="msg"
         :key="msg.id"
         :id="msg.id"
@@ -44,7 +44,7 @@
 import Message from "./Message.vue";
 
 export default {
-  name: "messageStream",
+  name: "messageList",
   components: {
     Message
   },
@@ -52,7 +52,7 @@ export default {
     return {
       groupID: this.storedGroupID,
       newBody: "",
-      messageStream: []
+      messageList: []
     };
   },
   computed: {
@@ -90,7 +90,7 @@ export default {
       },
       createdAt: date
     };
-    this.messageStream.push(welcomeMessage);
+    this.messageList.push(welcomeMessage);
 
     // Make query to server for last 100 messages
     await this.GetMessages();
@@ -107,7 +107,7 @@ export default {
         // that messages are coming in on
         if (messageObj.groupID == this.storedGroupID) {
           let message = this.PreprocessMessage(messageObj);
-          this.messageStream.push(message);
+          this.messageList.push(message);
         }
       }
     };
@@ -135,7 +135,7 @@ export default {
         .reverse()
         .forEach(message => {
           message = this.PreprocessMessage(message);
-          this.messageStream.push(message);
+          this.messageList.push(message);
         });
       this.updateScroll();
     },
@@ -154,7 +154,7 @@ export default {
         body: this.newBody,
         createdAt: formattedDate
       };
-      this.messageStream.push(requestBody);
+      this.messageList.push(requestBody);
 
       // send a get request with the above data
       let resp = await fetch(url, {
@@ -201,7 +201,7 @@ export default {
 </script>
 
 <style>
-#messageStream {
+#messageList {
   width: 66vw;
   background-color: lightsteelblue;
   border-radius: 2px;
