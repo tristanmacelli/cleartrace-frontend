@@ -18,7 +18,7 @@
         <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
         <!-- <router-link 
           v-if="showHomeLink" 
-          to="{ name: 'Account', params: {userId: storedUserID}}"> -->
+          to="{ name: 'Account', params: {userID: storedUserID}}"> -->
         <router-link v-if="this.showAcctLink" to="/account">{{
           storedUserFirstname
         }}</router-link>
@@ -68,7 +68,6 @@ export default {
     }
   },
   created: async function() {
-    this.$router.push({ path: "/" });
     // await this.GetGeneralGroup();
     let sessionToken = localStorage.getItem("auth");
     let isActiveSession = sessionToken && !this.storedAuth;

@@ -23,7 +23,7 @@ const routes = [
   },
   {
     path: "/account",
-    // path: "/home/:userId",
+    // path: "/account/:userID",
     name: "Account",
     component: Account
   }

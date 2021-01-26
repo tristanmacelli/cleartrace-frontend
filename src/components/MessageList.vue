@@ -211,7 +211,7 @@ export default {
 #view-messages {
   padding: 2em;
   overflow: scroll;
-  height: 70vh;
+  height: 76vh;
 }
 
 #send-message {

@@ -40,6 +40,7 @@ export default {
 .group {
   padding: 0.0007em 1em;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 .group:hover {
