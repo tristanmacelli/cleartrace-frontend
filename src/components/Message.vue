@@ -1,7 +1,8 @@
 <template>
-  <p class="message">
+  <p class="m-1 p-1 rounded-lg">
     <strong>{{ creator.FirstName + " " + creator.LastName }}</strong>
     {{ body + " " + createdAt }}
+    <!-- <button @click="$emit('remove')">(X)</button> -->
   </p>
 </template>
 
@@ -25,6 +26,7 @@ export default {
       type: String,
       required: true
     }
-  }
+  },
+  emits: ["remove"]
 };
 </script>

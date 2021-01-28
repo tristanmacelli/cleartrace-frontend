@@ -1,8 +1,16 @@
 <template>
-  <div id="groupList">
-    <h3>
-      Your Groups:
-    </h3>
+  <div id="groupList" class="w-1/4 px-4 py-4 bg-white">
+    <div class="flex no-wrap mb-10">
+      <h3 class="flex-grow text-2xl">
+        Conversations
+      </h3>
+      <button
+        @click="SignOut"
+        class="font-bold text-lg px-2 py-0.5 rounded-3xl bg-gray-200 hover:bg-gray-300"
+      >
+        ...
+      </button>
+    </div>
     <group
       v-for="grp in groups"
       :group="grp"
@@ -71,6 +79,29 @@ export default {
         .forEach(group => {
           this.groups.push(group);
         });
+    },
+    async SignOut() {
+      let url = "https://slack.api.tristanmacelli.com/v1/sessions/mine";
+      let sessionToken = localStorage.getItem("auth");
+
+      // send a get request with the above data
+      let resp = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: sessionToken
+        }
+      });
+      if (!resp.ok) {
+        let message = "Error: " + resp.status.toString();
+        alert(message);
+      }
+
+      localStorage.removeItem("auth");
+      this.$store.commit("clearAuthentication");
+      this.$store.commit("clearSocket");
+      if (this.$router.currentRoute != "/") {
+        this.$router.push({ path: "/" });
+      }
     }
   }
 };
@@ -78,10 +109,7 @@ export default {
 
 <style>
 #groupList {
-  height: 88vh;
-  width: 30vw;
-  padding: 0 2em;
+  height: 100vh;
   float: left;
-  overflow: scroll;
 }
 </style>

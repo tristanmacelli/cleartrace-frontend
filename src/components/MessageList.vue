@@ -1,40 +1,44 @@
 <template>
-  <div id="messageList">
-    <div id="view-messages">
+  <div id="messageList" class="w-3/4 h-full border-r border-gray-300">
+    <div class="h-20 p-10 grid content-center">
+      <p class="font-semibold text-lg">{{ this.storedGroupName }}</p>
+    </div>
+    <div
+      id="view-messages"
+      style="height: 86%;"
+      class="h-full p-8 pb-0 bg-white overflow-y-auto"
+    >
       <message
-        v-for="msg in messageList"
+        v-for="(msg, index) in messageList"
         :message="msg"
         :key="msg.id"
         :id="msg.id"
         :body="msg.body"
         :creator="msg.creator"
         :createdAt="msg.createdAt"
+        @remove="todos.splice(index, 1)"
       ></message>
     </div>
-    <div id="send-message">
-      <form v-on:submit.prevent="SendMessage" accept-charset="UTF-8">
-        <table cellspacing="0" role="presentation">
-          <tbody>
-            <tr>
-              <td>
-                <input
-                  id="messageBody"
-                  v-model="newBody"
-                  type="text"
-                  placeholder="Type a message..."
-                />
-              </td>
-              <td>
-                <input
-                  id="sendMsgBtn"
-                  :disabled="disableSendMessage"
-                  type="submit"
-                  value=" "
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="w-full h-14 bg-white p-3">
+      <form
+        v-on:submit.prevent="SendMessage"
+        accept-charset="UTF-8"
+        class="flex no-wrap"
+      >
+        <input
+          class="flex-grow h-8 pl-3 pt-1 bg-gray-200 rounded-2xl"
+          id="messageBody"
+          v-model="newBody"
+          type="text"
+          placeholder="Type a message..."
+        />
+        <input
+          class="w-min h-5 self-center"
+          id="sendMsgBtn"
+          :disabled="disableSendMessage"
+          type="submit"
+          value=" "
+        />
       </form>
     </div>
   </div>
@@ -202,30 +206,7 @@ export default {
 
 <style>
 #messageList {
-  width: 66vw;
-  background-color: lightsteelblue;
-  border-radius: 2px;
   float: left;
-}
-
-#view-messages {
-  padding: 2em;
-  overflow: scroll;
-  height: 76vh;
-}
-
-#send-message {
-  padding: 0.75em;
-  background-color: #e9ebee;
-  max-height: 10vh;
-  border: slategrey;
-  border-radius: 4px;
-  border-style: solid;
-  border-width: 0.05em;
-}
-
-#messageBody {
-  width: 60vw;
 }
 
 #sendMsgBtn {

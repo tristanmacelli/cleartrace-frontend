@@ -1,48 +1,22 @@
 <template>
   <div id="app">
-    <div class="fixed container">
-      <div id="nav">
-        <router-link v-if="!this.storedAuth" to="/">
-          <h1>Cleartrace</h1>
-        </router-link>
-        <!-- <router-link 
-          v-if="storedAuth"
-          to="{ name: 'Home', params: {groupID: storedGroupID}}"
-        > -->
-        <router-link v-if="this.storedAuth" to="/home">
-          <h1>Cleartrace</h1>
-        </router-link>
-        <!-- <router-link 
-          v-if="showHomeLink"
-          to="{ name: 'Home', params: {groupID: storedGroupID}}"> -->
-        <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
-        <!-- <router-link 
-          v-if="showHomeLink" 
-          to="{ name: 'Account', params: {userID: storedUserID}}"> -->
-        <router-link v-if="this.showAcctLink" to="/account">{{
-          storedUserFirstname
-        }}</router-link>
-        <Login v-if="!this.storedAuth"></Login>
-        <Logout v-if="this.storedAuth"></Logout>
-      </div>
-    </div>
+    <!-- <router-link 
+      v-if="showHomeLink"
+      to="{ name: 'Home', params: {groupID: storedGroupID}}">
+    <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
+    <router-link 
+      v-if="showHomeLink" 
+      to="{ name: 'Account', params: {userID: storedUserID}}">
+    <router-link v-if="this.showAcctLink" to="/account">{{
+      storedUserFirstname
+    }}</router-link> -->
     <router-view />
-    <!-- <GroupUpdate></GroupUpdate> -->
   </div>
 </template>
 
 <script>
-import Login from "@/components/Login.vue";
-import Logout from "@/components/Logout.vue";
-// import GroupUpdate from "@/components/GroupUpdate.vue";
-
 export default {
   name: "app",
-  components: {
-    Login,
-    Logout //,
-    // GroupUpdate
-  },
   computed: {
     // a computed getter
     storedAuth() {
@@ -126,12 +100,7 @@ html {
 .main {
   background-size: cover;
   background-color: #e9ebee;
-  padding-top: 11vh;
-  height: 88vh;
-}
-
-body {
-  margin: unset;
+  height: 100vh;
 }
 
 .fixed {

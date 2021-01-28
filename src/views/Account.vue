@@ -11,10 +11,6 @@ export default {
   name: "Account",
   components: {
     User
-  },
-  created: function() {
-    // let sessionToken = localStorage.getItem("auth")
-    // auth.request_user(auth.display_user, sessionToken)
   }
 };
 </script>
