@@ -1,29 +1,41 @@
 <template>
-  <div id="login">
-    <form v-on:submit.prevent="SignIn" accept-charset="UTF-8">
-      <table cellspacing="0" role="presentation">
-        <tbody>
-          <tr>
-            <td>
-              <label for="emailSess">Email</label>
-            </td>
-            <td>
-              <label for="passSess">Password</label>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input id="emailSess" v-model="LogInEmail" type="text" />
-            </td>
-            <td>
-              <input id="passSess" v-model="LogInPass" type="password" />
-            </td>
-            <td>
-              <input id="logInBtn" type="submit" value="Log In" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div
+    id="login"
+    class="w-72 sm:w-96 sm:h-72 shadow-lg bg-white rounded-md p-4"
+  >
+    <form
+      v-on:submit.prevent="SignIn"
+      accept-charset="UTF-8"
+      class="grid grid-rows-3 gap-y-2 w-full"
+    >
+      <input
+        class="w-full p-2 border border-solid border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
+        v-model="LogInEmail"
+        type="text"
+        placeholder="Email"
+      />
+      <input
+        class="w-full p-2 border border-solid border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
+        v-model="LogInPass"
+        type="password"
+        placeholder="Password"
+      />
+      <input
+        class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
+        type="submit"
+        value="Log In"
+      />
+    </form>
+    <form
+      v-on:submit.prevent="testHelloAlert"
+      accept-charset="UTF-8"
+      class="grid"
+    >
+      <input
+        class="w-48 mt-8 px-4 py-2 place-self-center bg-green-600 font-bold text-white cursor-pointer rounded-md"
+        type="submit"
+        value="Create New Account"
+      />
     </form>
   </div>
 </template>
@@ -39,6 +51,10 @@ export default {
   },
   methods: {
     // Creating a new session based on the form values
+    testHelloAlert() {
+      confirm("Your interaction was successful!");
+      this.$store.commit("setSignUpModal");
+    },
     async SignIn() {
       let url = "https://slack.api.tristanmacelli.com/v1/sessions";
       let email = this.LogInEmail;
@@ -86,27 +102,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-label {
-  color: white;
-  font-size: 0.8em;
-}
-
-#emailSess,
-#passSess {
-  width: 10rem;
-}
-
-#logInBtn {
-  background-color: #204a7e;
-  border-radius: 1.5px;
-  border: 0;
-  padding: 0.3em 0.8em;
-  font-weight: bold;
-  color: white;
-  border: 1px solid #1a3666;
-  margin-bottom: 5px;
-  cursor: pointer;
-}
-</style>

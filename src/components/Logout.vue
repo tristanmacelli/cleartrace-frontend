@@ -1,6 +1,12 @@
 <template>
   <div id="logout">
-    <button id="logoutBtn" @click="SignOut" class="pull-right">Log Out</button>
+    <button
+      id="logoutBtn"
+      @click="SignOut"
+      class="pull-right bg-gray-300 cursor-pointer"
+    >
+      Log Out
+    </button>
   </div>
 </template>
 
