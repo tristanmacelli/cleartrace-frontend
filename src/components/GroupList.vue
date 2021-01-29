@@ -1,5 +1,5 @@
 <template>
-  <div id="groupList" class="w-1/4 px-4 py-4 bg-white">
+  <div id="groupList" class="w-1/4 h-screen px-4 py-4 bg-white">
     <div class="flex no-wrap mb-10">
       <h3 class="flex-grow text-2xl">
         Conversations
@@ -106,10 +106,3 @@ export default {
   }
 };
 </script>
-
-<style>
-#groupList {
-  height: 100vh;
-  float: left;
-}
-</style>

@@ -14,6 +14,6 @@
 
 <script>
 export default {
-  name: "title"
+  name: "titleSplash"
 };
 </script>

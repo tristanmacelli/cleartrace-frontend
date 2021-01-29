@@ -32,9 +32,10 @@
           type="text"
           placeholder="Type a message..."
         />
+        <!-- https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 -->
         <input
-          class="w-min h-5 self-center"
-          id="sendMsgBtn"
+          class="w-min h-5 py-1 px-8 cursor-pointer bg-center"
+          style="background:url('../assets/send.svg') no-repeat"
           :disabled="disableSendMessage"
           type="submit"
           value=" "
@@ -203,19 +204,3 @@ export default {
   }
 };
 </script>
-
-<style>
-#messageList {
-  float: left;
-}
-
-#sendMsgBtn {
-  /* https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 */
-  background: url("../assets/send.svg") no-repeat;
-  background-position: center center;
-  border-radius: 2px;
-  border: 0;
-  padding: 0.25em 2em;
-  cursor: pointer;
-}
-</style>

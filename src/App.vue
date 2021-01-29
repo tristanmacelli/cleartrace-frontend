@@ -90,17 +90,10 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
 }
 
 html {
   background-color: #e9ebee;
-}
-
-.main {
-  background-size: cover;
-  background-color: #e9ebee;
-  height: 100vh;
 }
 
 .fixed {
@@ -108,33 +101,6 @@ html {
   top: 0;
   left: 0;
   width: 100%;
-  height: 10.8vh;
-
   z-index: 1;
-  background-color: #113969;
-  background-image: linear-gradient(#284b6b, #113969 50%);
-  border-bottom: 1px solid #133783;
-}
-
-.container {
-  margin: 0 auto;
-}
-
-h1 {
-  font-family: "Open Sans", sans-serif;
-}
-
-#nav a {
-  font-weight: bold;
-  color: White;
-  float: left;
-  margin-left: 6em;
-  padding: 2em 0.4em;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-#nav a:first-of-type {
-  padding: unset;
 }
 </style>

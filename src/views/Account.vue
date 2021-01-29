@@ -1,5 +1,5 @@
 <template>
-  <div id="account" class="main">
+  <div id="account" class="h-screen bg-cover">
     <User></User>
   </div>
 </template>

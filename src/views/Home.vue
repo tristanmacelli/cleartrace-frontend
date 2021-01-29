@@ -1,5 +1,5 @@
 <template>
-  <div id="home" class="main">
+  <div id="home" class="h-screen bg-cover flex flex-nowrap">
     <MessageList></MessageList>
     <GroupList></GroupList>
   </div>
