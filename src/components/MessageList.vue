@@ -6,7 +6,7 @@
     <div
       id="view-messages"
       style="height: 86%;"
-      class="h-full p-8 pb-0 bg-white overflow-y-auto"
+      class="grid grid-flow-row auto-rows-max h-full p-8 pb-0 bg-white overflow-y-auto"
     >
       <message
         v-for="(msg, index) in messageList"
@@ -32,10 +32,8 @@
           type="text"
           placeholder="Type a message..."
         />
-        <!-- https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 -->
         <input
-          class="w-min h-5 py-1 px-8 cursor-pointer bg-center"
-          style="background:url('../assets/send.svg') no-repeat"
+          class="arrow w-6 h-5 mx-4 cursor-pointer self-center"
           :disabled="disableSendMessage"
           type="submit"
           value=" "
@@ -204,3 +202,10 @@ export default {
   }
 };
 </script>
+
+<style>
+.arrow {
+  /* https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 */
+  background: url("../assets/send.svg") no-repeat;
+}
+</style>
