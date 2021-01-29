@@ -1,11 +1,9 @@
 <template>
   <div id="app">
     <!-- <router-link 
-      v-if="showHomeLink"
       to="{ name: 'Home', params: {groupID: storedGroupID}}">
     <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
-    <router-link 
-      v-if="showHomeLink" 
+    <router-link  
       to="{ name: 'Account', params: {userID: storedUserID}}">
     <router-link v-if="this.showAcctLink" to="/account">{{
       storedUserFirstname
@@ -33,12 +31,6 @@ export default {
     },
     storedUserFirstname() {
       return this.$store.getters.getUserFirstname || "Account";
-    },
-    showHomeLink() {
-      return this.storedAuth && this.$router.currentRoute != "/home";
-    },
-    showAcctLink() {
-      return this.storedAuth && this.$router.currentRoute != "/account";
     }
   },
   created: async function() {

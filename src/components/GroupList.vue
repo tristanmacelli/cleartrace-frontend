@@ -4,12 +4,11 @@
       <h3 class="flex-grow text-2xl">
         Conversations
       </h3>
-      <button
-        @click="SignOut"
-        class="font-bold text-lg px-2 py-0.5 rounded-3xl bg-gray-200 hover:bg-gray-300"
-      >
-        ...
-      </button>
+      <Dropdown>
+        <DropdownItem @click="this.AlertUnregistered">Profile</DropdownItem>
+        <DropdownItem @click="this.AlertUnregistered">Settings</DropdownItem>
+        <DropdownItem @click="this.SignOut">Sign Out</DropdownItem>
+      </Dropdown>
     </div>
     <group
       v-for="grp in groups"
@@ -23,6 +22,8 @@
 
 <script>
 import Group from "./Group.vue";
+import Dropdown from "./Dropdown.vue";
+import DropdownItem from "./DropdownItem.vue";
 
 export default {
   name: "groupList",
@@ -32,7 +33,9 @@ export default {
     };
   },
   components: {
-    Group
+    Group,
+    Dropdown,
+    DropdownItem
   },
   computed: {
     storedSocket() {
@@ -56,6 +59,9 @@ export default {
     // };
   },
   methods: {
+    AlertUnregistered() {
+      confirm("We're sorry but this feature is still under development :(");
+    },
     async GetGroups() {
       this.groups = [];
       var url = "https://slack.api.tristanmacelli.com/v1/channels";
