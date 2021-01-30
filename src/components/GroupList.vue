@@ -1,5 +1,9 @@
 <template>
-  <div id="groupList" class="w-1/4 h-screen px-4 py-4 bg-white">
+  <div
+    id="groupList"
+    class="absolute sm:right-0 z-20 w-full sm:w-1/4 h-screen px-4 py-4 transform ease-in-out transition-all duration-300 bg-white"
+    :class="this.storedIsGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
+  >
     <div class="flex no-wrap mb-10">
       <h3 class="flex-grow text-2xl">
         Conversations
@@ -11,6 +15,7 @@
       </Dropdown>
     </div>
     <group
+      @click="this.CloseGroupList"
       v-for="grp in groups"
       :group="grp"
       :key="grp.id"
@@ -29,7 +34,8 @@ export default {
   name: "groupList",
   data() {
     return {
-      groups: []
+      groups: [],
+      width: 0
     };
   },
   components: {
@@ -40,9 +46,16 @@ export default {
   computed: {
     storedSocket() {
       return this.$store.getters.getSocket;
+    },
+    storedIsGroupListOpen() {
+      return this.$store.getters.getIsGroupListOpen;
+    },
+    storedIsMobile() {
+      return this.$store.getters.getIsMobile;
     }
   },
   created: async function() {
+    this.width = window.innerWidth;
     await this.GetGroups();
     // storedSocket.onmessage = event => {
     //   // The data we created is in the event.data field
@@ -61,6 +74,12 @@ export default {
   methods: {
     AlertUnregistered() {
       confirm("We're sorry but this feature is still under development :(");
+    },
+    CloseGroupList() {
+      // Transition #groupList to the right
+      if (this.storedIsMobile) {
+        this.$store.commit("clearIsGroupListOpen");
+      }
     },
     async GetGroups() {
       this.groups = [];

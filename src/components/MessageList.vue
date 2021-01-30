@@ -1,12 +1,31 @@
 <template>
-  <div id="messageList" class="w-3/4 h-full border-r border-gray-300">
-    <div class="h-20 p-10 grid content-center">
-      <p class="font-semibold text-lg">{{ this.storedGroupName }}</p>
+  <div
+    id="messageList"
+    class="flex flex-col absolute z-10 w-full sm:w-3/4 h-full border-r border-gray-300"
+  >
+    <div class="flex no-wrap h-20 px-5 py-6">
+      <p class="flex-grow font-semibold text-lg">{{ this.storedGroupName }}</p>
+      <svg
+        class="sm:hidden"
+        @click="this.OpenGroupList"
+        height="28px"
+        id="Layer_1"
+        style="enable-background:new 0 0 28 28;"
+        version="1.1"
+        viewBox="0 0 28 28"
+        width="28px"
+        xml:space="preserve"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+      >
+        <path
+          d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"
+        />
+      </svg>
     </div>
     <div
       id="view-messages"
-      style="height: 86%;"
-      class="grid grid-flow-row auto-rows-max h-full p-8 pb-0 bg-white overflow-y-auto"
+      class="grid grid-flow-row auto-rows-max flex-grow pt-4 px-2 sm:px-4 pb-0 bg-white overflow-y-auto"
     >
       <message
         v-for="(msg, index) in messageList"
@@ -19,7 +38,7 @@
         @remove="todos.splice(index, 1)"
       ></message>
     </div>
-    <div class="w-full h-14 bg-white p-3">
+    <div class="w-full h-12 sm:h-14 bg-white p-3">
       <form
         v-on:submit.prevent="SendMessage"
         accept-charset="UTF-8"
@@ -173,6 +192,12 @@ export default {
       }
       this.newBody = "";
       this.updateScroll();
+    },
+    OpenGroupList() {
+      // Transition #groupList to the right
+      if (this.$store.getters.getIsMobile) {
+        this.$store.commit("setIsGroupListOpen");
+      }
     },
     updateScroll() {
       let element = document.getElementById("view-messages");

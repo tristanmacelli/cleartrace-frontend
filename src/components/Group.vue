@@ -1,7 +1,7 @@
 <template>
   <div
     class="group px-4 py-3 hover:bg-blue-400 rounded-md cursor-pointer"
-    :class="{ current: isStoredGroup }"
+    :class="{ 'sm:bg-blue-200': isStoredGroup }"
     v-on:click="SetGroup"
   >
     <p># {{ name }}</p>
@@ -39,9 +39,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.current {
-  background-color: lightsteelblue;
-}
-</style>

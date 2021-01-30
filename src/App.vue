@@ -35,6 +35,10 @@ export default {
   },
   created: async function() {
     // await this.GetGeneralGroup();
+    this.$store.commit("setWindowDimensions");
+    if (window.innerWidth < 640) {
+      this.$store.commit("setIsMobile");
+    }
     let sessionToken = localStorage.getItem("auth");
     let isActiveSession = sessionToken && !this.storedAuth;
     if (isActiveSession) {
