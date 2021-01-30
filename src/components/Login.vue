@@ -9,13 +9,13 @@
       class="grid grid-rows-3 gap-y-2 w-full"
     >
       <input
-        class="w-full p-2 border border-solid border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
+        class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
         v-model="LogInEmail"
         type="text"
         placeholder="Email"
       />
       <input
-        class="w-full p-2 border border-solid border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
+        class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
         v-model="LogInPass"
         type="password"
         placeholder="Password"

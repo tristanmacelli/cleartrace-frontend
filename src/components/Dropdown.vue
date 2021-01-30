@@ -19,7 +19,7 @@
     <div class="">
       <ul
         v-if="this.showDropdown"
-        class="absolute z-10 w-max right-4 shadow-xl text-gray-700 pt-1 cursor-pointer"
+        class="absolute z-50 w-max right-4 shadow-xl text-gray-700 pt-1 cursor-pointer"
       >
         <slot></slot>
       </ul>

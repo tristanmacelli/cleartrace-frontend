@@ -13,14 +13,14 @@
       <div class="h-4 gap-x-2">
         <input
           type="text"
-          class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 rounded-md"
+          class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
           v-model="NewFirstName"
           id="firstname"
           placeholder="First name"
         />
         <input
           type="text"
-          class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 rounded-md"
+          class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
           v-model="NewLastName"
           id="lastname"
           placeholder="Last name"
@@ -28,14 +28,14 @@
       </div>
       <input
         type="text"
-        class="w-full p-2 bg-gray-100 border border-solid border-gray-300 rounded-md"
+        class="w-full p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
         v-model="NewEmail"
         id="email"
         placeholder="Email"
       />
       <input
         type="password"
-        class="w-full p-2 bg-gray-100 border border-solid border-gray-300 rounded-md"
+        class="w-full p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
         v-model="NewPassword"
         id="pass"
         placeholder="New password"
