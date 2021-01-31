@@ -11,6 +11,7 @@ const store = createStore({
       },
       isGroupListOpen: true,
       isMobile: false,
+      isSignUpActive: false,
       socket: null,
       user: null,
       window: {
@@ -146,6 +147,18 @@ const store = createStore({
         console.log("clearIsMobile triggered");
       }
       state.isMobile = false;
+    },
+    setIsSignUpActive(state) {
+      if (state.debug) {
+        console.log("setIsSignUpActive triggered");
+      }
+      state.isSignUpActive = true;
+    },
+    clearIsSignUpActive(state) {
+      if (state.debug) {
+        console.log("clearIsSignUpActive triggered");
+      }
+      state.isSignUpActive = false;
     }
   },
   getters: {
@@ -208,6 +221,12 @@ const store = createStore({
         console.log("getIsMobile triggered");
       }
       return state.isMobile;
+    },
+    getIsSignUpActive(state) {
+      if (state.debug) {
+        console.log("getIsSignUpActive triggered");
+      }
+      return state.isSignUpActive;
     }
   }
 });

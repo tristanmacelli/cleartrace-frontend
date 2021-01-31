@@ -5,6 +5,7 @@
     v-on:click="SetGroup"
   >
     <p># {{ name }}</p>
+    <p class="hidden truncate">{{ this.latestMessage }}</p>
   </div>
 </template>
 
@@ -20,6 +21,11 @@ export default {
       type: String,
       required: true
     }
+  },
+  data() {
+    return {
+      latestMessage: ""
+    };
   },
   methods: {
     SetGroup() {

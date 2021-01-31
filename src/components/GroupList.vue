@@ -1,4 +1,5 @@
 <template>
+  <!-- https://dev.to/fayaz/making-a-navigation-drawer-sliding-sidebar-with-tailwindcss-blueprint-581l -->
   <div
     id="groupList"
     class="absolute sm:right-0 z-20 w-full sm:w-1/4 h-screen px-4 py-4 transform ease-in-out transition-all duration-300 bg-white"

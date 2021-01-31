@@ -7,6 +7,7 @@
   >
     <Title></Title>
     <Login></Login>
+    <Signup v-if="this.storedIsSignUpActive"></Signup>
   </div>
 </template>
 
@@ -14,12 +15,24 @@
 // @ is an alias to /src
 import Title from "@/components/Title.vue";
 import Login from "@/components/Login.vue";
+import Signup from "@/components/Signup.vue";
 
 export default {
   name: "Landing",
   components: {
     Title,
-    Login
+    Login,
+    Signup
+  },
+  data() {
+    return {
+      showSignUp: false
+    };
+  },
+  computed: {
+    storedIsSignUpActive() {
+      return this.$store.getters.getIsSignUpActive;
+    }
   }
 };
 </script>

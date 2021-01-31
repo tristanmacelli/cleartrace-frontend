@@ -6,7 +6,7 @@
     <form
       v-on:submit.prevent="SignIn"
       accept-charset="UTF-8"
-      class="grid grid-rows-3 gap-y-2 w-full"
+      class="grid grid-rows-3 gap-y-2 w-full pb-2 border-b border-gray-300 border-solid"
     >
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
@@ -25,14 +25,20 @@
         type="submit"
         value="Log In"
       />
+      <a
+        href="/login/reset"
+        class="my-2 text-sm text-center text-blue-500 hover:underline"
+        @click.prevent="this.Alert"
+        >Forgot Password?</a
+      >
     </form>
     <form
-      v-on:submit.prevent="testHelloAlert"
+      v-on:submit.prevent="this.ShowSignUp"
       accept-charset="UTF-8"
       class="grid"
     >
       <input
-        class="w-48 mt-8 px-4 py-2 place-self-center bg-green-600 font-bold text-white cursor-pointer rounded-md"
+        class="w-48 mt-6 px-4 py-2 place-self-center bg-green-600 font-bold text-white cursor-pointer rounded-md"
         type="submit"
         value="Create New Account"
       />
@@ -51,9 +57,12 @@ export default {
   },
   methods: {
     // Creating a new session based on the form values
-    testHelloAlert() {
-      confirm("Your interaction was successful!");
+    Alert() {
+      confirm("We're sorry but this feature is still under development :(");
       this.$store.commit("setSignUpModal");
+    },
+    ShowSignUp() {
+      this.$store.commit("setIsSignUpActive");
     },
     async SignIn() {
       let url = "https://slack.api.tristanmacelli.com/v1/sessions";
