@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createStore } from "vuex";
 
 const store = createStore({
@@ -35,17 +36,20 @@ const store = createStore({
       }
       let sessionToken = localStorage.getItem("auth");
       let url = "https://slack.api.tristanmacelli.com/v1/users/";
-      let resp = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: sessionToken
-        }
-      });
-      if (!resp.ok) {
-        alert("Error: ", resp.status);
-      }
-      let user = await resp.json();
-      state.user = user;
+      axios
+        .get(url, {
+          headers: {
+            Authorization: sessionToken
+          }
+        })
+        .catch(error => {
+          if (state.debug) {
+            console.log(error);
+          }
+        })
+        .then(response => {
+          state.user = response.data;
+        });
     },
     clearUser(state) {
       if (state.debug) {

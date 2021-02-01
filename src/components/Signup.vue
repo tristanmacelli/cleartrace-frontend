@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "signup",
   data() {
@@ -105,38 +106,29 @@ export default {
         alert("Error: Invalid New User Input");
         return;
       }
-
-      let body = {
-        Email: this.NewEmail,
-        Password: this.NewPassword,
-        PasswordConf: this.NewPassword,
-        UserName: username,
-        FirstName: this.NewFirstName,
-        LastName: this.NewLastName
-      };
-
-      let resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-      if (!resp.ok) {
-        let message = "Error: " + resp.status.toString();
-        alert(message);
-      }
-
-      let hasAuth = resp.headers.get("authorization");
-      if (hasAuth) {
-        let sessionToken = resp.headers.get("authorization");
-        localStorage.setItem("auth", sessionToken);
-        this.$store.commit("setAuthentication");
-        this.$store.commit("setSocket");
-        this.$store.commit("setUser");
-        this.$router.push({ path: "/home" });
-        // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
-      }
+      axios
+        .post(url, {
+          Email: this.NewEmail,
+          Password: this.NewPassword,
+          PasswordConf: this.NewPassword,
+          UserName: username,
+          FirstName: this.NewFirstName,
+          LastName: this.NewLastName
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          let sessionToken = response.headers["authorization"];
+          if (sessionToken) {
+            localStorage.setItem("auth", sessionToken);
+            this.$store.commit("setAuthentication");
+            this.$store.commit("setSocket");
+            this.$store.commit("setUser");
+            this.$router.push({ path: "/home" });
+            // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
+          }
+        });
     }
   },
   computed: {

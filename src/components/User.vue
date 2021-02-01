@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "user",
   data() {
@@ -60,19 +62,20 @@ export default {
   created: async function() {
     let url = "https://slack.api.tristanmacelli.com/v1/users/";
     let sessionToken = localStorage.getItem("auth");
-    let resp = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: sessionToken
-      }
-    });
-    if (!resp.ok) {
-      alert("Error: ", resp.status);
-    }
-    let response = await resp.json();
-    this.FirstNameUpdate = response.FirstName;
-    this.LastNameUpdate = response.LastName;
-    this.UserName = response.UserName;
+    axios
+      .get(url, {
+        headers: {
+          Authorization: sessionToken
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      })
+      .then(response => {
+        this.FirstNameUpdate = response.data.FirstName;
+        this.LastNameUpdate = response.data.LastName;
+        this.UserName = response.data.UserName;
+      });
   },
 
   methods: {
@@ -80,32 +83,27 @@ export default {
       var url = "https://slack.api.tristanmacelli.com/v1/users/me";
       let firstName = this.FirstNameUpdate;
       let lastName = this.LastNameUpdate;
-      if (!firstName || !lastName) {
+      if (!this.FirstNameUpdate || !this.LastNameUpdate) {
         alert("Error: Invalid name change, names must not be blank");
         return;
       }
 
-      var body = {
-        FirstName: firstName,
-        LastName: lastName
-      };
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "PATCH",
-        headers: {
-          Authorization: sessionToken,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-      if (!resp.ok) {
-        let message = "Error: " + resp.status;
-        alert(message);
-      }
+      axios
+        .patch(url, {
+          headers: {
+            Authorization: sessionToken
+          },
+          FirstName: firstName,
+          LastName: lastName
+        })
+        .catch(error => {
+          alert(error);
+        });
       // Since there are no errors and the name fields are updated locally, there is no need to
-      // make a request for user informatoin until the user returns to this page later
+      // make a request for user information until the user returns to this page later
     }
   }
 };

@@ -6,9 +6,7 @@
     :class="this.storedIsGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
   >
     <div class="flex no-wrap mb-10">
-      <h3 class="flex-grow text-2xl">
-        Conversations
-      </h3>
+      <h3 class="flex-grow text-2xl">Conversations</h3>
       <Dropdown>
         <DropdownItem @click="this.AlertUnregistered">Profile</DropdownItem>
         <DropdownItem @click="this.AlertUnregistered">Settings</DropdownItem>
@@ -30,6 +28,7 @@
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import DropdownItem from "./DropdownItem.vue";
+const axios = require("axios");
 
 export default {
   name: "groupList",
@@ -83,51 +82,51 @@ export default {
       }
     },
     async GetGroups() {
-      this.groups = [];
       var url = "https://slack.api.tristanmacelli.com/v1/channels";
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: sessionToken
-        }
-      });
-      if (!resp.ok) {
-        alert(resp.status);
-        throw new Error(resp.status.toString());
-      }
-      let groups = await resp.json();
-      groups
-        .slice()
-        .reverse()
-        .forEach(group => {
-          this.groups.push(group);
+      axios
+        .get(url, {
+          headers: {
+            Authorization: sessionToken
+          }
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          let groups = response.data;
+          groups
+            .slice()
+            .reverse()
+            .forEach(group => {
+              this.groups.push(group);
+            });
         });
     },
     async SignOut() {
       let url = "https://slack.api.tristanmacelli.com/v1/sessions/mine";
       let sessionToken = localStorage.getItem("auth");
 
-      // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          Authorization: sessionToken
-        }
-      });
-      if (!resp.ok) {
-        let message = "Error: " + resp.status.toString();
-        alert(message);
-      }
-
-      localStorage.removeItem("auth");
-      this.$store.commit("clearAuthentication");
-      this.$store.commit("clearSocket");
-      if (this.$router.currentRoute != "/") {
-        this.$router.push({ path: "/" });
-      }
+      // send a DELETE request with the above data
+      axios
+        .delete(url, {
+          headers: {
+            Authorization: sessionToken
+          }
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(() => {
+          localStorage.removeItem("auth");
+          this.$store.commit("clearAuthentication");
+          this.$store.commit("clearSocket");
+          if (this.$router.currentRoute != "/") {
+            this.$router.push({ path: "/" });
+          }
+        });
     }
   }
 };

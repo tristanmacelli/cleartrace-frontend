@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "app",
   computed: {
@@ -57,17 +58,18 @@ export default {
         groupName;
       let sessionToken = localStorage.getItem("auth");
       // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: sessionToken
-        }
-      });
-      if (!resp.ok) {
-        alert("Error: ", resp.status);
-      }
-      let groups = await resp.json();
-      return groups;
+      axios
+        .get(url, {
+          headers: {
+            Authorization: sessionToken
+          }
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          return response;
+        });
     },
     async GetGeneralGroup() {
       let groups = await this.GetSpecificGroup("General");

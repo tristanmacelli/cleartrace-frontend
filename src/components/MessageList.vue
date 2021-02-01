@@ -4,13 +4,15 @@
     class="flex flex-col absolute z-10 w-full sm:w-3/4 h-full border-r border-gray-300"
   >
     <div class="flex no-wrap h-20 px-5 py-6">
-      <p class="flex-grow font-semibold text-lg">{{ this.storedGroupName }}</p>
+      <p class="flex-grow font-semibold text-lg">
+        {{ this.storedGroupName + " " + this.$store.getters.getUserFirstname }}
+      </p>
       <svg
         class="sm:hidden"
         @click="this.OpenGroupList"
         height="28px"
         id="Layer_1"
-        style="enable-background:new 0 0 28 28;"
+        style="enable-background: new 0 0 28 28"
         version="1.1"
         viewBox="0 0 28 28"
         width="28px"
@@ -63,6 +65,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Message from "./Message.vue";
 
 export default {
@@ -142,24 +145,26 @@ export default {
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: sessionToken
-        }
-      });
-      if (!resp.ok) {
-        alert("Error: ", resp.status);
-      }
-      let messages = await resp.json();
-      messages
-        .slice()
-        .reverse()
-        .forEach(message => {
-          message = this.PreprocessMessage(message);
-          this.messageList.push(message);
+      axios
+        .get(url, {
+          headers: {
+            Authorization: sessionToken
+          }
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          let messages = response.data;
+          messages
+            .slice()
+            .reverse()
+            .forEach(message => {
+              message = this.PreprocessMessage(message);
+              this.messageList.push(message);
+            });
+          this.updateScroll();
         });
-      this.updateScroll();
     },
     async SendMessage() {
       var url =
@@ -170,28 +175,29 @@ export default {
       // Get user first name from store & add it to this object
       let date = new Date();
       let formattedDate = this.formatDate(date);
-      let requestBody = {
+      let messageObject = {
         channelID: this.storedGroupID,
         creator: this.storedUser,
         body: this.newBody,
         createdAt: formattedDate
       };
-      this.messageList.push(requestBody);
+      this.messageList.push(messageObject);
 
       // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: sessionToken
-        },
-        body: JSON.stringify(requestBody)
-      });
-      if (!resp.ok) {
-        alert("Error: ", resp.status);
-      }
-      this.newBody = "";
-      this.updateScroll();
+      axios
+        .post(url, {
+          headers: {
+            Authorization: sessionToken
+          },
+          data: messageObject
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(() => {
+          this.newBody = "";
+          this.updateScroll();
+        });
     },
     OpenGroupList() {
       // Transition #groupList to the right

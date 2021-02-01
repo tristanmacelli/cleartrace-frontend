@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "login",
   data() {
@@ -68,41 +70,30 @@ export default {
     },
     async SignIn() {
       let url = "https://slack.api.tristanmacelli.com/v1/sessions";
-      let email = this.LogInEmail;
-      let password = this.LogInPass;
-      if (!email || !password) {
+      if (!this.LogInEmail || !this.LogInPass) {
         alert("Error: Invalid Credentials");
         return;
       }
 
-      let body = {
-        Email: email,
-        Password: password
-      };
-      // send a get request with the above data
-      let resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-      if (!resp.ok) {
-        let message = "Error: " + resp.status.toString();
-        alert(message);
-      }
-
-      let hasAuth = resp.headers.has("authorization");
-      if (hasAuth) {
-        let sessionToken = resp.headers.get("authorization");
-        localStorage.setItem("auth", sessionToken);
-        this.$store.commit("setAuthentication");
-        this.$store.commit("setSocket");
-        this.$store.commit("setUser");
-        this.$router.push({ path: "/home" });
-        // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
-      }
+      axios
+        .post(url, {
+          Email: this.LogInEmail,
+          Password: this.LogInPass
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          let sessionToken = response.headers["authorization"];
+          if (sessionToken) {
+            localStorage.setItem("auth", sessionToken);
+            this.$store.commit("setAuthentication");
+            this.$store.commit("setSocket");
+            this.$store.commit("setUser");
+            this.$router.push({ path: "/home" });
+            // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
+          }
+        });
     }
   },
   computed: {
