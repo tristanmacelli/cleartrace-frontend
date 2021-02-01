@@ -89,12 +89,13 @@ export default {
       NewPassword: ""
     };
   },
+  emits: ["hideSignup"],
   methods: {
     Alert() {
       confirm("We're sorry but this feature is still under development :(");
     },
     HideSignUp() {
-      this.$store.commit("clearIsSignUpActive");
+      this.$emit("hideSignup");
     },
     async SignUp() {
       let url = "https://slack.api.tristanmacelli.com/v1/users";

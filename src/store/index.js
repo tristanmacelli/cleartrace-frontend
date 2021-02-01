@@ -11,7 +11,6 @@ const store = createStore({
       },
       isGroupListOpen: true,
       isMobile: false,
-      isSignUpActive: false,
       socket: null,
       user: null,
       window: {

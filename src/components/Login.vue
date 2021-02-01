@@ -34,7 +34,7 @@
       >
     </form>
     <form
-      v-on:submit.prevent="this.ShowSignUp"
+      v-on:submit.prevent="this.DisplaySignUp"
       accept-charset="UTF-8"
       class="grid"
     >
@@ -56,14 +56,15 @@ export default {
       LogInPass: ""
     };
   },
+  emits: ["displaySignup"],
   methods: {
     // Creating a new session based on the form values
     Alert() {
       confirm("We're sorry but this feature is still under development :(");
       this.$store.commit("setSignUpModal");
     },
-    ShowSignUp() {
-      this.$store.commit("setIsSignUpActive");
+    DisplaySignUp() {
+      this.$emit("displaySignup");
     },
     async SignIn() {
       let url = "https://slack.api.tristanmacelli.com/v1/sessions";

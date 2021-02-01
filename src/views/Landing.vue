@@ -6,8 +6,8 @@
       lg:grid-cols-2 lg:mx-20 xl:mx-66 2xl:mx-80 justify-items-center content-center"
   >
     <Title></Title>
-    <Login></Login>
-    <Signup v-if="this.storedIsSignUpActive"></Signup>
+    <Login @display-signup="this.DisplaySignUp"></Login>
+    <Signup v-if="this.displaySignUp" @hide-signup="this.HideSignUp"></Signup>
   </div>
 </template>
 
@@ -26,12 +26,15 @@ export default {
   },
   data() {
     return {
-      showSignUp: false
+      displaySignUp: false
     };
   },
-  computed: {
-    storedIsSignUpActive() {
-      return this.$store.getters.getIsSignUpActive;
+  methods: {
+    DisplaySignUp() {
+      this.displaySignUp = true;
+    },
+    HideSignUp() {
+      this.displaySignUp = false;
     }
   }
 };
