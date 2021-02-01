@@ -1,5 +1,5 @@
 <template>
-  <div class="self-center sm:h-72 lg:h-auto">
+  <div v-once class="self-center sm:h-72 lg:h-auto">
     <h1 class="font-bold text-3xl lg:text-5xl text-center md:text-left">
       Cleartrace
     </h1>

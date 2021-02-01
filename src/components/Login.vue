@@ -1,5 +1,6 @@
 <template>
   <div
+    v-once
     id="login"
     class="w-72 sm:w-96 h-66 sm:h-72 shadow-lg bg-white rounded-md p-4"
   >
