@@ -1,6 +1,11 @@
 <template>
-  <div class="group" :class="{ current: isStoredGroup }" v-on:click="SetGroup">
+  <div
+    class="group px-4 py-3 hover:bg-blue-400 rounded-md cursor-pointer"
+    :class="{ 'sm:bg-blue-200': isStoredGroup }"
+    v-on:click="SetGroup"
+  >
     <p># {{ name }}</p>
+    <p class="hidden truncate">{{ this.latestMessage }}</p>
   </div>
 </template>
 
@@ -16,6 +21,11 @@ export default {
       type: String,
       required: true
     }
+  },
+  data() {
+    return {
+      latestMessage: ""
+    };
   },
   methods: {
     SetGroup() {
@@ -35,19 +45,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.group {
-  padding: 0.0007em 1em;
-  cursor: pointer;
-  border-radius: 10px;
-}
-
-.group:hover {
-  background-color: steelblue;
-}
-
-.current {
-  background-color: lightsteelblue;
-}
-</style>

@@ -3,15 +3,21 @@ import { createStore } from "vuex";
 const store = createStore({
   state() {
     return {
+      authenticated: false,
       debug: true,
       group: {
         groupID: "5fec04e96d55740010123439",
         groupName: "General"
       },
-      user: null,
+      isGroupListOpen: true,
+      isMobile: false,
+      isSignUpActive: false,
       socket: null,
-      authenticated: false,
-      modalOpen: false
+      user: null,
+      window: {
+        width: 0,
+        height: 0
+      }
     };
   },
   mutations: {
@@ -104,17 +110,55 @@ const store = createStore({
       }
       state.authenticated = false;
     },
-    setModal(state) {
+    setWindowDimensions(state) {
       if (state.debug) {
-        console.log("setModal triggered");
+        console.log("setWindowDimensions triggered");
       }
-      state.modalOpen = true;
+      state.window.width = window.innerWidth;
+      state.window.height = window.innerHeight;
     },
-    clearModal(state) {
+    clearWindowDimensions(state) {
       if (state.debug) {
-        console.log("clearModal triggered");
+        console.log("clearWindowDimensions triggered");
       }
-      state.modalOpen = false;
+      state.window.width = 0;
+      state.window.height = 0;
+    },
+    setIsGroupListOpen(state) {
+      if (state.debug) {
+        console.log("setIsGroupListOpen triggered");
+      }
+      state.isGroupListOpen = true;
+    },
+    clearIsGroupListOpen(state) {
+      if (state.debug) {
+        console.log("clearIsGroupListOpen triggered");
+      }
+      state.isGroupListOpen = false;
+    },
+    setIsMobile(state) {
+      if (state.debug) {
+        console.log("setIsMobile triggered");
+      }
+      state.isMobile = true;
+    },
+    clearIsMobile(state) {
+      if (state.debug) {
+        console.log("clearIsMobile triggered");
+      }
+      state.isMobile = false;
+    },
+    setIsSignUpActive(state) {
+      if (state.debug) {
+        console.log("setIsSignUpActive triggered");
+      }
+      state.isSignUpActive = true;
+    },
+    clearIsSignUpActive(state) {
+      if (state.debug) {
+        console.log("clearIsSignUpActive triggered");
+      }
+      state.isSignUpActive = false;
     }
   },
   getters: {
@@ -165,6 +209,24 @@ const store = createStore({
         console.log("getAuthentication triggered");
       }
       return state.authenticated;
+    },
+    getIsGroupListOpen(state) {
+      if (state.debug) {
+        console.log("getIsGroupListOpen triggered");
+      }
+      return state.isGroupListOpen;
+    },
+    getIsMobile(state) {
+      if (state.debug) {
+        console.log("getIsMobile triggered");
+      }
+      return state.isMobile;
+    },
+    getIsSignUpActive(state) {
+      if (state.debug) {
+        console.log("getIsSignUpActive triggered");
+      }
+      return state.isSignUpActive;
     }
   }
 });

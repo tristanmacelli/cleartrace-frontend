@@ -1,40 +1,62 @@
 <template>
-  <div id="messageList">
-    <div id="view-messages">
+  <div
+    id="messageList"
+    class="flex flex-col absolute z-10 w-full sm:w-3/4 h-full border-r border-gray-300"
+  >
+    <div class="flex no-wrap h-20 px-5 py-6">
+      <p class="flex-grow font-semibold text-lg">{{ this.storedGroupName }}</p>
+      <svg
+        class="sm:hidden"
+        @click="this.OpenGroupList"
+        height="28px"
+        id="Layer_1"
+        style="enable-background:new 0 0 28 28;"
+        version="1.1"
+        viewBox="0 0 28 28"
+        width="28px"
+        xml:space="preserve"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+      >
+        <path
+          d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"
+        />
+      </svg>
+    </div>
+    <div
+      id="view-messages"
+      class="grid grid-flow-row auto-rows-max flex-grow pt-4 px-2 sm:px-4 pb-0 bg-white overflow-y-auto"
+    >
       <message
-        v-for="msg in messageList"
+        v-for="(msg, index) in messageList"
         :message="msg"
         :key="msg.id"
         :id="msg.id"
         :body="msg.body"
         :creator="msg.creator"
         :createdAt="msg.createdAt"
+        @remove="todos.splice(index, 1)"
       ></message>
     </div>
-    <div id="send-message">
-      <form v-on:submit.prevent="SendMessage" accept-charset="UTF-8">
-        <table cellspacing="0" role="presentation">
-          <tbody>
-            <tr>
-              <td>
-                <input
-                  id="messageBody"
-                  v-model="newBody"
-                  type="text"
-                  placeholder="Type a message..."
-                />
-              </td>
-              <td>
-                <input
-                  id="sendMsgBtn"
-                  :disabled="disableSendMessage"
-                  type="submit"
-                  value=" "
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="w-full h-12 sm:h-14 bg-white p-3">
+      <form
+        v-on:submit.prevent="SendMessage"
+        accept-charset="UTF-8"
+        class="flex no-wrap"
+      >
+        <input
+          class="flex-grow h-8 pl-3 pt-1 bg-gray-200 rounded-2xl"
+          id="messageBody"
+          v-model="newBody"
+          type="text"
+          placeholder="Type a message..."
+        />
+        <input
+          class="arrow w-6 h-5 mx-4 cursor-pointer self-center"
+          :disabled="disableSendMessage"
+          type="submit"
+          value=" "
+        />
       </form>
     </div>
   </div>
@@ -171,6 +193,12 @@ export default {
       this.newBody = "";
       this.updateScroll();
     },
+    OpenGroupList() {
+      // Transition #groupList to the right
+      if (this.$store.getters.getIsMobile) {
+        this.$store.commit("setIsGroupListOpen");
+      }
+    },
     updateScroll() {
       let element = document.getElementById("view-messages");
       element.scrollTop = element.scrollHeight;
@@ -201,40 +229,8 @@ export default {
 </script>
 
 <style>
-#messageList {
-  width: 66vw;
-  background-color: lightsteelblue;
-  border-radius: 2px;
-  float: left;
-}
-
-#view-messages {
-  padding: 2em;
-  overflow: scroll;
-  height: 76vh;
-}
-
-#send-message {
-  padding: 0.75em;
-  background-color: #e9ebee;
-  max-height: 10vh;
-  border: slategrey;
-  border-radius: 4px;
-  border-style: solid;
-  border-width: 0.05em;
-}
-
-#messageBody {
-  width: 60vw;
-}
-
-#sendMsgBtn {
+.arrow {
   /* https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 */
   background: url("../assets/send.svg") no-repeat;
-  background-position: center center;
-  border-radius: 2px;
-  border: 0;
-  padding: 0.25em 2em;
-  cursor: pointer;
 }
 </style>

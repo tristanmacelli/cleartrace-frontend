@@ -1,5 +1,5 @@
 <template>
-  <div id="account" class="main">
+  <div id="account" class="h-screen bg-cover">
     <User></User>
   </div>
 </template>
@@ -11,10 +11,6 @@ export default {
   name: "Account",
   components: {
     User
-  },
-  created: function() {
-    // let sessionToken = localStorage.getItem("auth")
-    // auth.request_user(auth.display_user, sessionToken)
   }
 };
 </script>
