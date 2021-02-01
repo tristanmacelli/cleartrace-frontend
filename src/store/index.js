@@ -97,7 +97,7 @@ const store = createStore({
       }
       // state.socket is defined && state.socket.readyState === WebSocket.OPEN
       // Close WebSocket connection
-      state.socket.close();
+      state.socket.close(1000);
       // Eventually this should be removed
       state.socket = null;
     },

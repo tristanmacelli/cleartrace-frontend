@@ -28,7 +28,7 @@
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import DropdownItem from "./DropdownItem.vue";
-const axios = require("axios");
+import axios from "axios";
 
 export default {
   name: "groupList",
