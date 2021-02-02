@@ -185,11 +185,10 @@ export default {
 
       // send a get request with the above data
       axios
-        .post(url, {
+        .post(url, messageObject, {
           headers: {
             Authorization: sessionToken
-          },
-          data: messageObject
+          }
         })
         .catch(error => {
           alert(error);
