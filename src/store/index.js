@@ -205,6 +205,13 @@ const store = createStore({
       }
       return "";
     },
+    getUser(state) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("getUser triggered");
+      }
+      return state.user;
+    },
     getUserID(state) {
       // eslint-disable-next-line
       if (state.debug) {

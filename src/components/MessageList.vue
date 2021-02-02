@@ -177,9 +177,9 @@ export default {
       let formattedDate = this.formatDate(date);
       let messageObject = {
         channelID: this.storedGroupID,
-        creator: this.storedUser,
         body: this.newBody,
-        createdAt: formattedDate
+        createdAt: formattedDate,
+        creator: this.storedUser
       };
       this.messageList.push(messageObject);
 
