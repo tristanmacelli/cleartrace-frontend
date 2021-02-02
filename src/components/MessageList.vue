@@ -130,7 +130,7 @@ export default {
       if (receivedObj.type == "message-new") {
         // This is the "default behavior" when the user is viewing the group
         // that messages are coming in on
-        if (messageObj.groupID == this.storedGroupID) {
+        if (messageObj.channelID == this.storedGroupID) {
           let message = this.PreprocessMessage(messageObj);
           this.messageList.push(message);
         }
