@@ -6,6 +6,9 @@
     :class="this.storedIsGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
   >
     <div class="flex no-wrap mb-10">
+      <p class="mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
+        {{ this.storedUserInitials }}
+      </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>
       <Dropdown>
         <DropdownItem @click="this.AlertUnregistered">Profile</DropdownItem>
@@ -44,6 +47,9 @@ export default {
     DropdownItem
   },
   computed: {
+    storedUserInitials() {
+      return this.$store.getters.getUserInitials;
+    },
     storedSocket() {
       return this.$store.getters.getSocket;
     },

@@ -5,7 +5,7 @@
   >
     <div class="flex no-wrap h-20 px-5 py-6">
       <p class="flex-grow font-semibold text-lg">
-        {{ this.storedGroupName + " " + this.$store.getters.getUserFirstname }}
+        {{ this.storedGroupName }}
       </p>
       <svg
         class="sm:hidden"
@@ -47,7 +47,7 @@
         class="flex no-wrap"
       >
         <input
-          class="flex-grow h-8 pl-3 pt-1 bg-gray-200 rounded-2xl"
+          class="flex-grow h-8 pl-3 pt-1 bg-gray-200 focus:outline-none rounded-2xl"
           id="messageBody"
           v-model="newBody"
           type="text"

@@ -235,6 +235,16 @@ const store = createStore({
       }
       return "";
     },
+    getUserInitials(state) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("getUserInitials triggered");
+      }
+      if (state.user) {
+        return state.user.FirstName.charAt(0) + state.user.LastName.charAt(0);
+      }
+      return "";
+    },
     getSocket(state) {
       // eslint-disable-next-line
       if (state.debug) {
