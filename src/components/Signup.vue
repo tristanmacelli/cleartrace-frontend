@@ -2,7 +2,7 @@
   <div
     v-once
     id="signup"
-    class="absolute z-50 self-center sm:block w-80 sm:w-max h-88 rounded-md shadow-xl bg-white"
+    class="absolute z-50 sm:block w-80 sm:w-max h-88 rounded-md shadow-xl bg-white"
   >
     <div class="flex no-wrap p-3 border-b border-gray-300">
       <div class="flex-grow">

@@ -1,7 +1,8 @@
 <template>
   <div
     id="landing"
-    class="h-screen bg-cover grid sm:grid-rows-1 gap-y-2 md:space-y-0 lg:grid-rows-none lg:grid-cols-2 lg:mx-20 xl:mx-66 2xl:mx-80 justify-items-center content-center"
+    class="w-screen h-screen bg-cover flex flex-col sm:flex-row sm:flex-nowrap 
+           gap-y-2 md:space-y-0 lg:grid-cols-2 sm:gap-x-4 lg:gap-x-40 items-center justify-center"
   >
     <Title></Title>
     <Login @display-signup="this.DisplaySignUp"></Login>
