@@ -4,7 +4,7 @@
   <div @mouseleave="this.hideDropdown" class="w-8">
     <button
       @click="this.toggleDropdown"
-      class="font-bold text-lg px-2 py-2 rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
+      class="font-bold text-lg p-2 rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
     >
       <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
         <path
