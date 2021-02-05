@@ -10,6 +10,21 @@
         {{ this.storedUserInitials }}
       </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>
+      <button
+        class="mr-1 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
+        @click="this.DisplayCreate"
+      >
+        <svg class="w-8 h-8 p-2" viewBox="0 0 512 512">
+          <g>
+            <g>
+              <path
+                d="M492,236H276V20c0-11.046-8.954-20-20-20c-11.046,0-20,8.954-20,20v216H20c-11.046,0-20,8.954-20,20s8.954,20,20,20h216
+                v216c0,11.046,8.954,20,20,20s20-8.954,20-20V276h216c11.046,0,20-8.954,20-20C512,244.954,503.046,236,492,236z"
+              />
+            </g>
+          </g>
+        </svg>
+      </button>
       <Dropdown>
         <DropdownItem @click="this.AlertUnregistered">Profile</DropdownItem>
         <DropdownItem @click="this.AlertUnregistered">Settings</DropdownItem>
@@ -37,10 +52,12 @@ export default {
   name: "groupList",
   data() {
     return {
+      displayCreate: false,
       groups: [],
       width: 0
     };
   },
+  emits: ["displayCreate"],
   components: {
     Group,
     Dropdown,
@@ -86,6 +103,9 @@ export default {
       if (this.storedIsMobile) {
         this.$store.commit("clearIsGroupListOpen");
       }
+    },
+    DisplayCreate() {
+      this.$emit("displayCreate");
     },
     async GetGroups() {
       var url = "https://slack.api.tristanmacelli.com/v1/channels";

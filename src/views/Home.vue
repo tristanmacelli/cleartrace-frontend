@@ -1,7 +1,18 @@
 <template>
-  <div id="home" class="h-screen bg-cover flex flex-nowrap">
-    <MessageList></MessageList>
-    <GroupList></GroupList>
+  <div
+    id="home"
+    class="h-screen w-screen bg-cover flex flex-nowrap items-center justify-center"
+  >
+    <div class="w-screen h-screen">
+      <MessageList></MessageList>
+      <GroupList @display-create="this.DisplayCreate"></GroupList>
+    </div>
+    <Modal
+      Title="Create New Group"
+      Description="Create a new group to chat with friends!"
+      v-if="this.displayCreate"
+      @hide-modal="this.HideModal"
+    ></Modal>
   </div>
 </template>
 
@@ -9,12 +20,27 @@
 // @ is an alias to /src
 import MessageList from "@/components/MessageList.vue";
 import GroupList from "@/components/GroupList.vue";
+import Modal from "@/components/Modal.vue";
 
 export default {
   name: "Home",
   components: {
     MessageList,
-    GroupList
+    GroupList,
+    Modal
+  },
+  data() {
+    return {
+      displayCreate: false
+    };
+  },
+  methods: {
+    DisplayCreate() {
+      this.displayCreate = true;
+    },
+    HideModal() {
+      this.displayCreate = false;
+    }
   },
   created: function() {
     let sessionToken = localStorage.getItem("auth");
