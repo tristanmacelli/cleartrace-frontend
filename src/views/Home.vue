@@ -8,15 +8,46 @@
       <GroupList @display-create="this.DisplayCreate"></GroupList>
     </div>
     <Modal
-      Title="Create New Group"
-      Description="Create a new group to chat with friends!"
+      Title="Create a new Group"
+      Description="Fill out this form to begin chatting with friends!"
       v-if="this.displayCreate"
       @hide-modal="this.HideModal"
-    ></Modal>
+    >
+      <form
+        v-on:submit.prevent="CreateGroup"
+        accept-charset="UTF-8"
+        class="grid grid-rows-3 gap-y-2 w-full"
+      >
+        <input
+          class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
+          v-model="GroupTitle"
+          type="text"
+          placeholder="Title"
+        />
+        <input
+          class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
+          v-model="GroupDescription"
+          type="text"
+          placeholder="Description"
+        />
+        <input
+          class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
+          v-model="GroupMembers"
+          type="text"
+          placeholder="*Members*"
+        />
+        <input
+          class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
+          type="submit"
+          value="Create"
+        />
+      </form>
+    </Modal>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 // @ is an alias to /src
 import MessageList from "@/components/MessageList.vue";
 import GroupList from "@/components/GroupList.vue";
@@ -31,10 +62,36 @@ export default {
   },
   data() {
     return {
-      displayCreate: false
+      displayCreate: false,
+      GroupTitle: "",
+      GroupDescription: "",
+      GroupMembers: ""
     };
   },
   methods: {
+    CreateGroup() {
+      let url = "https://slack.api.tristanmacelli.com/v1/channels";
+
+      if (!this.GroupMembers) {
+        alert("Error: Invalid New Group Input");
+        return;
+      }
+      axios
+        .post(url, {
+          name: this.GroupTitle,
+          description: this.GroupDescription,
+          private: true,
+          members: this.GroupMembers,
+          createdAt: null,
+          editedAt: null
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          console.log(response);
+        });
+    },
     DisplayCreate() {
       this.displayCreate = true;
     },

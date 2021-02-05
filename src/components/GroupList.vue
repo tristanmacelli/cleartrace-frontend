@@ -11,7 +11,7 @@
       </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>
       <button
-        class="mr-1 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
+        class="mr-2 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
         @click="this.DisplayCreate"
       >
         <svg class="w-8 h-8 p-2" viewBox="0 0 512 512">
