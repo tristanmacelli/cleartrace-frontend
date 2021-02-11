@@ -8,8 +8,8 @@
       <GroupList @display-create="this.DisplayCreate"></GroupList>
     </div>
     <Modal
-      Title="Create a new Group"
-      Description="Fill out this form to begin chatting with friends!"
+      Title="New Group"
+      Description=" "
       v-if="this.displayCreate"
       @hide-modal="this.HideModal"
     >
@@ -20,19 +20,7 @@
       >
         <input
           class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-          v-model="GroupTitle"
-          type="text"
-          placeholder="Title"
-        />
-        <input
-          class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-          v-model="GroupDescription"
-          type="text"
-          placeholder="Description"
-        />
-        <input
-          class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-          v-model="GroupMembers"
+          v-model="query"
           type="text"
           placeholder="*Members*"
         />
@@ -63,25 +51,30 @@ export default {
   data() {
     return {
       displayCreate: false,
-      GroupTitle: "",
-      GroupDescription: "",
-      GroupMembers: ""
+      members: [],
+      searchResults: [],
+      query: ""
     };
+  },
+  watch: {
+    query() {
+      this.SearchUsers();
+    }
   },
   methods: {
     CreateGroup() {
       let url = "https://slack.api.tristanmacelli.com/v1/channels";
-
-      if (!this.GroupMembers) {
+      let title = this.members.toString();
+      if (this.members.length() == 0) {
         alert("Error: Invalid New Group Input");
         return;
       }
       axios
         .post(url, {
-          name: this.GroupTitle,
-          description: this.GroupDescription,
+          name: title,
+          description: "[Enter a description]",
           private: true,
-          members: this.GroupMembers,
+          members: this.members,
           createdAt: null,
           editedAt: null
         })
@@ -91,6 +84,36 @@ export default {
         .then(response => {
           console.log(response);
         });
+    },
+    SearchUsers() {
+      if (this.query.length == 0) {
+        return;
+      }
+      let url =
+        "https://slack.api.tristanmacelli.com/v1/users/search/?q=" + this.query;
+      let sessionToken = localStorage.getItem("auth");
+
+      axios
+        .get(url, {
+          headers: {
+            Authorization: sessionToken
+          }
+        })
+        .catch(error => {
+          alert(error);
+        })
+        .then(response => {
+          // console.log(response.data);
+          let users = response.data;
+          users
+            .slice()
+            .reverse()
+            .forEach(user => {
+              console.log(user);
+              this.searchResults.push(user);
+            });
+        });
+      // console.log(this.members.toString());
     },
     DisplayCreate() {
       this.displayCreate = true;
