@@ -1,7 +1,7 @@
 <template>
   <div
-    class="group px-4 py-3 hover:bg-blue-400 rounded-md cursor-pointer"
-    :class="{ 'sm:bg-blue-200': isStoredGroup }"
+    class="group px-4 py-3 hover:bg-gray-300 rounded-md cursor-pointer"
+    :class="{ 'sm:bg-gray-100': isStoredGroup }"
     v-on:click="SetGroup"
   >
     <p># {{ name }}</p>

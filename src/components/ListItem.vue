@@ -8,6 +8,6 @@
 
 <script>
 export default {
-  name: "dropdownItem"
+  name: "listItem"
 };
 </script>

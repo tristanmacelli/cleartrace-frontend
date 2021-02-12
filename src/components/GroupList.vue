@@ -2,10 +2,10 @@
   <!-- https://dev.to/fayaz/making-a-navigation-drawer-sliding-sidebar-with-tailwindcss-blueprint-581l -->
   <div
     id="groupList"
-    class="absolute sm:right-0 z-20 w-full sm:w-1/4 h-screen px-4 py-4 transform ease-in-out transition-all duration-300 bg-white"
+    class="absolute sm:right-0 z-20 w-full sm:w-1/5 h-screen transform ease-in-out transition-all duration-300 bg-white"
     :class="this.storedIsGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
   >
-    <div class="flex no-wrap mb-10">
+    <div class="flex no-wrap px-4 pt-4 mb-10">
       <p class="mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
         {{ this.storedUserInitials }}
       </p>
@@ -18,34 +18,38 @@
           <g>
             <g>
               <path
-                d="M492,236H276V20c0-11.046-8.954-20-20-20c-11.046,0-20,8.954-20,20v216H20c-11.046,0-20,8.954-20,20s8.954,20,20,20h216
-                v216c0,11.046,8.954,20,20,20s20-8.954,20-20V276h216c11.046,0,20-8.954,20-20C512,244.954,503.046,236,492,236z"
+                d="M492,236H276V20c0-11.046-8.954-20-20-20c-11.046,0-20,8.954-20,20v216H20c-11.046,0-20,8.954-20,20s8.954,20,20,20h216 v216c0,11.046,8.954,20,20,20s20-8.954,20-20V276h216c11.046,0,20-8.954,20-20C512,244.954,503.046,236,492,236z"
               />
             </g>
           </g>
         </svg>
       </button>
       <Dropdown>
-        <DropdownItem @click="this.AlertUnregistered">Profile</DropdownItem>
-        <DropdownItem @click="this.AlertUnregistered">Settings</DropdownItem>
-        <DropdownItem @click="this.SignOut">Sign Out</DropdownItem>
+        <List bool="true">
+          <ListItem @click="this.AlertUnregistered">Profile</ListItem>
+          <ListItem @click="this.AlertUnregistered">Settings</ListItem>
+          <ListItem @click="this.SignOut">Sign Out</ListItem>
+        </List>
       </Dropdown>
     </div>
-    <group
-      @click="this.CloseGroupList"
-      v-for="grp in groups"
-      :group="grp"
-      :key="grp.id"
-      :id="grp.id"
-      :name="grp.name"
-    ></group>
+    <div class="px-2">
+      <group
+        @click="this.CloseGroupList"
+        v-for="grp in groups"
+        :group="grp"
+        :key="grp.id"
+        :id="grp.id"
+        :name="grp.name"
+      ></group>
+    </div>
   </div>
 </template>
 
 <script>
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
-import DropdownItem from "./DropdownItem.vue";
+import List from "./List.vue";
+import ListItem from "./ListItem.vue";
 import axios from "axios";
 
 export default {
@@ -61,7 +65,8 @@ export default {
   components: {
     Group,
     Dropdown,
-    DropdownItem
+    List,
+    ListItem
   },
   computed: {
     storedUserInitials() {

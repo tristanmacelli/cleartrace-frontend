@@ -1,9 +1,9 @@
 <template>
   <!-- https://codepen.io/huphtur/pen/ordMeN -->
   <!-- https://tailwindui.com/components/application-ui/elements/dropdowns -->
-  <div @mouseleave="this.hideDropdown" class="w-8">
+  <div @mouseleave="this.HideDropdown" class="w-8">
     <button
-      @click="this.toggleDropdown"
+      @click="this.ToggleDropdown"
       class="font-bold text-lg p-2 rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
     >
       <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
@@ -12,14 +12,7 @@
         />
       </svg>
     </button>
-    <div class="">
-      <ul
-        v-if="this.showDropdown"
-        class="absolute z-50 w-max right-4 shadow-xl text-gray-700 pt-1 cursor-pointer"
-      >
-        <slot></slot>
-      </ul>
-    </div>
+    <slot v-if="this.showDropdown"></slot>
   </div>
 </template>
 
@@ -32,10 +25,10 @@ export default {
     };
   },
   methods: {
-    toggleDropdown() {
+    ToggleDropdown() {
       this.showDropdown = !this.showDropdown;
     },
-    hideDropdown() {
+    HideDropdown() {
       this.showDropdown = false;
     }
   }
