@@ -1,8 +1,8 @@
 <template>
-  <div v-on:keyup.down="this.NextItem" v-on:keyup.up="this.PrevItem" class="">
+  <div @keyup.down="this.NextItem" @keyup.up="this.PrevItem" class="">
     <ul
-      class="absolute z-50 w-max shadow-xl text-gray-700 pt-1 cursor-pointer"
-      :class="this.positionRight ? 'right-4' : 'right-0'"
+      class="absolute z-50 w-5/6 shadow-xl text-gray-700 pt-1 cursor-pointer"
+      :class="this.positionRight ? 'right-4' : ''"
     >
       <list-item
         v-for="(item, index) in this.items"
@@ -37,16 +37,18 @@ export default {
   },
   data() {
     return {
-      currentItem: 0
+      currentItem: -1
     };
   },
   methods: {
     NextItem() {
+      console.log("Calling NextItem");
       if (this.currentItem < 19) {
         this.currentItem++;
       }
     },
     PrevItem() {
+      console.log("Calling PrevItem");
       if (this.currentItem > -1) {
         this.currentItem--;
       }
