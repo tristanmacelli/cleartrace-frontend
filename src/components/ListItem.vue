@@ -1,13 +1,24 @@
 <template>
   <li
-    class="w-full py-2 px-4 text-left bg-white hover:bg-gray-200 cursor-pointer"
+    @click="$emit('activeListItem', this.index)"
+    class="w-full py-2 px-4 text-left bg-white hover:bg-gray-300 cursor-pointer"
   >
-    <slot></slot>
+    {{ text }}
   </li>
 </template>
 
 <script>
 export default {
-  name: "listItem"
+  name: "listItem",
+  props: {
+    index: {
+      type: Number,
+      required: true
+    },
+    text: {
+      type: String,
+      required: true
+    }
+  }
 };
 </script>

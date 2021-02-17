@@ -1,39 +1,59 @@
 <template>
-  <div class="">
+  <div v-on:keyup.down="this.NextItem" v-on:keyup.up="this.PrevItem" class="">
     <ul
       class="absolute z-50 w-max shadow-xl text-gray-700 pt-1 cursor-pointer"
-      :class="this.bool ? 'right-4' : 'right-0'"
+      :class="this.positionRight ? 'right-4' : 'right-0'"
     >
-      <slot></slot>
+      <list-item
+        v-for="(item, index) in this.items"
+        :key="item.id"
+        :index="index"
+        :text="item.text"
+        :class="item.index === this.currentItem ? 'bg-gray-200' : 'bg-white'"
+        @active-list-item="this.HandleListItem"
+      >
+      </list-item>
     </ul>
   </div>
 </template>
 
 <script>
+import ListItem from "@/components/ListItem.vue";
+
 export default {
   name: "list",
+  components: {
+    ListItem
+  },
   props: {
-    bool: {
+    items: {
+      type: Array,
+      required: true
+    },
+    positionRight: {
       type: Boolean,
       required: true
     }
   },
   data() {
     return {
-      currentItem: -1
+      currentItem: 0
     };
   },
   methods: {
-    NextItem(e) {
-      if (e.keyCode == 38 && this.currentItem > 0) {
-        this.currentItem--;
-      } else if (e.keyCode == 40 && this.currentItem < 20) {
+    NextItem() {
+      if (this.currentItem < 19) {
         this.currentItem++;
       }
+    },
+    PrevItem() {
+      if (this.currentItem > -1) {
+        this.currentItem--;
+      }
+    },
+    HandleListItem(index) {
+      this.$emit("activeListItem", index);
     }
-  },
-  mounted() {
-    document.addEventListener("keyup", this.NextItem);
   }
 };
 </script>

@@ -25,11 +25,11 @@
         </svg>
       </button>
       <Dropdown>
-        <List bool="true">
-          <ListItem @click="this.AlertUnregistered">Profile</ListItem>
-          <ListItem @click="this.AlertUnregistered">Settings</ListItem>
-          <ListItem @click="this.SignOut">Sign Out</ListItem>
-        </List>
+        <list
+          @active-list-item="this.HandleListItem"
+          positionRight
+          :items="this.listItems"
+        ></list>
       </Dropdown>
     </div>
     <div class="px-2">
@@ -49,7 +49,6 @@
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
-import ListItem from "./ListItem.vue";
 import axios from "axios";
 
 export default {
@@ -58,6 +57,7 @@ export default {
     return {
       displayCreate: false,
       groups: [],
+      listItems: [],
       width: 0
     };
   },
@@ -65,8 +65,7 @@ export default {
   components: {
     Group,
     Dropdown,
-    List,
-    ListItem
+    List
   },
   computed: {
     storedUserInitials() {
@@ -83,6 +82,10 @@ export default {
     }
   },
   created: async function() {
+    let items = ["Profile", "Settings", "Sign Out"];
+    items.forEach((item, index) =>
+      this.listItems.push({ id: index, text: item })
+    );
     this.width = window.innerWidth;
     await this.GetGroups();
     // storedSocket.onmessage = event => {
@@ -111,6 +114,13 @@ export default {
     },
     DisplayCreate() {
       this.$emit("displayCreate");
+    },
+    async HandleListItem(index) {
+      if (index == 2) {
+        this.SignOut();
+      } else {
+        this.AlertUnregistered();
+      }
     },
     async GetGroups() {
       var url = "https://slack.api.tristanmacelli.com/v1/channels";
