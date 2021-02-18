@@ -7,8 +7,17 @@ const store = createStore({
       authenticated: false,
       debug: true,
       group: {
-        groupID: "5fec04e96d55740010123439",
-        groupName: "General"
+        id: "5fec04e96d55740010123439",
+        name: "General"
+      },
+      general: {
+        id: "5fec04e96d55740010123439",
+        name: "General",
+        description: "an open channel for all",
+        members: [],
+        creator: {
+          id: -1
+        }
       },
       isGroupListOpen: true,
       isMobile: false,
@@ -26,10 +35,14 @@ const store = createStore({
       if (state.debug) {
         console.log("setGroup triggered with: ", payload);
       }
-      state.group = {
-        groupID: payload.groupID,
-        groupName: payload.groupName
-      };
+      state.group = payload.group;
+    },
+    setGeneral(state, payload) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("setGroup triggered with: ", payload);
+      }
+      state.general = payload.group;
     },
     async setUser(state) {
       // eslint-disable-next-line
@@ -191,7 +204,7 @@ const store = createStore({
         console.log("getGroupID triggered");
       }
       if (state.group) {
-        return state.group.groupID;
+        return state.group.id;
       }
       return "";
     },
@@ -201,9 +214,16 @@ const store = createStore({
         console.log("getGroupName triggered");
       }
       if (state.group) {
-        return state.group.groupName;
+        return state.group.name;
       }
       return "";
+    },
+    getGeneral(state) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("getUser triggered");
+      }
+      return state.general;
     },
     getUser(state) {
       // eslint-disable-next-line

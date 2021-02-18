@@ -30,9 +30,12 @@ export default {
   methods: {
     SetGroup() {
       if (!this.isStoredGroup) {
+        let groupObj = {
+          id: this.id,
+          name: this.name
+        };
         this.$store.commit("setGroup", {
-          groupID: this.id,
-          groupName: this.name
+          group: groupObj
         });
       }
     }

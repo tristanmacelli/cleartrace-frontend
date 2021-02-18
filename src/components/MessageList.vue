@@ -69,7 +69,6 @@ export default {
   },
   data() {
     return {
-      groupID: this.storedGroupID,
       newBody: "",
       messageList: []
     };
@@ -92,7 +91,9 @@ export default {
     }
   },
   watch: {
-    groupID: async function() {
+    // Clears the current messages & updates
+    storedGroupID: async function() {
+      this.messageList = [];
       await this.GetMessages();
     }
   },

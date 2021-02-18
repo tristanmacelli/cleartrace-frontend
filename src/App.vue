@@ -35,7 +35,6 @@ export default {
     }
   },
   created: async function() {
-    // await this.GetGeneralGroup();
     this.$store.commit("setWindowDimensions");
     if (window.innerWidth < 640) {
       this.$store.commit("setIsMobile");
@@ -44,6 +43,7 @@ export default {
     let isActiveSession = sessionToken && !this.storedAuth;
     if (isActiveSession) {
       // console.log("Returning to an active session");
+      await this.GetGeneralGroup();
       this.$store.commit("setAuthentication");
       this.$store.commit("setSocket");
       this.$store.commit("setUser");
@@ -75,8 +75,10 @@ export default {
       let groups = await this.GetSpecificGroup("General");
       let general = groups[0];
       this.$store.commit("setGroup", {
-        groupID: general.id,
-        groupName: general.name
+        group: general
+      });
+      this.$store.commit("setGeneral", {
+        group: general
       });
     }
   }
