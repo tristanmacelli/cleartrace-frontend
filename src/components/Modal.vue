@@ -4,11 +4,11 @@
   >
     <div class="flex no-wrap p-5 border-b border-gray-300">
       <div class="flex-grow">
-        <p class="text-2xl font-bold">{{ Title }}</p>
+        <p class="text-2xl font-bold">{{ Title ? Title : modalTitle }}</p>
         <p>{{ Description }}</p>
       </div>
       <button
-        @click.prevent="this.HideModal"
+        @click.prevent="$emit('hideModal')"
         class="p-2 h-8 cursor-pointer hover:bg-gray-200 rounded-3xl focus:outline-none"
       >
         <svg class="w-4" viewBox="0 0 96 96" enable-background="new 0 0 96 96">
@@ -19,7 +19,7 @@
         </svg>
       </button>
     </div>
-    <div class="p-5">
+    <div class="sm:w-80 p-5">
       <slot></slot>
     </div>
   </div>
@@ -32,18 +32,14 @@ export default {
   props: {
     Title: {
       type: String,
-      required: true
+      required: false
     },
     Description: {
       type: String,
       required: true
     }
   },
-  emits: ["hideModal"],
-  methods: {
-    HideModal() {
-      this.$emit("hideModal");
-    }
-  }
+  inject: ["modalTitle"],
+  emits: ["hideModal"]
 };
 </script>
