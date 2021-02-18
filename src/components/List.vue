@@ -1,7 +1,7 @@
 <template>
   <div @keyup.down="this.NextItem" @keyup.up="this.PrevItem" class="">
     <ul
-      class="absolute z-50 w-5/6 shadow-xl text-gray-700 pt-1 cursor-pointer"
+      class="absolute z-50 w-60 shadow-xl text-gray-700 pt-1 cursor-pointer"
       :class="this.positionRight ? 'right-4' : ''"
     >
       <list-item

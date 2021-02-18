@@ -24,6 +24,13 @@
           type="text"
           placeholder="Add a member!"
         />
+        <member
+          v-for="(name, index) in names"
+          :key="index"
+          :name="name"
+          @remove="names.splice(index, 1)"
+        >
+        </member>
         <input
           class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
           type="submit"
@@ -31,7 +38,7 @@
         />
       </form>
       <list
-        class="h-20 overflow-y-auto"
+        class="overflow-y-auto"
         @active-list-item="this.HandleListItem"
         v-if="this.showResults"
         :positionRight="false"
@@ -45,18 +52,20 @@
 <script>
 import axios from "axios";
 // @ is an alias to /src
-import MessageList from "@/components/MessageList.vue";
-import GroupList from "@/components/GroupList.vue";
-import Modal from "@/components/Modal.vue";
 import List from "@/components/List.vue";
+import Member from "@/components/Member.vue";
+import MessageList from "@/components/MessageList.vue";
+import Modal from "@/components/Modal.vue";
+import GroupList from "@/components/GroupList.vue";
 
 export default {
   name: "Home",
   components: {
+    List,
+    Member,
     MessageList,
-    GroupList,
     Modal,
-    List
+    GroupList
   },
   data() {
     return {
@@ -78,6 +87,11 @@ export default {
         }, 1000); // 1 sec delay
       }
       this.awaitingSearch = true;
+    }
+  },
+  computed: {
+    storedUserID() {
+      return this.$store.getters.getUserID;
     }
   },
   methods: {
@@ -107,11 +121,12 @@ export default {
     HandleListItem(index) {
       this.HideResults();
       // Grab the user associated with this item
+      console.log(index);
       let newMember = this.searchResults[index];
+      console.log(newMember);
       // Add this user to the list
       this.members.push(newMember.id);
-      let fullname = newMember.Firstname + " " + newMember.Lastname;
-      this.names.push(fullname);
+      this.names.push(newMember.text);
     },
     SearchUsers() {
       // Do not query the backend if there is nothing to querys
@@ -146,12 +161,14 @@ export default {
               .reverse()
               .forEach(user => {
                 console.log(user);
-                let reducedUsr = {
-                  id: user.id,
-                  text: user.FirstName + " " + user.LastName,
-                  img: user.PhotoURL
-                };
-                this.searchResults.push(reducedUsr);
+                if (user.ID != this.storedUserID) {
+                  let reducedUsr = {
+                    id: user.ID,
+                    text: user.FirstName + " " + user.LastName,
+                    img: user.PhotoURL
+                  };
+                  this.searchResults.push(reducedUsr);
+                }
               });
             if (this.searchResults.length > 0) {
               // Hide loading animation component
