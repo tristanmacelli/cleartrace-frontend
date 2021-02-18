@@ -1,5 +1,5 @@
 <template>
-  <Modal Description=" " @hide-modal="$emit('hideModal')">
+  <Modal Description=" " @hide-modal="HideModal">
     <form
       v-on:submit.prevent="GroupAction"
       accept-charset="UTF-8"
@@ -97,7 +97,7 @@ export default {
       return this.$store.getters.getUserID;
     }
   },
-  emits: ["updateGroup", "hideModal"],
+  emits: ["createGroup", "updateGroup", "hideModal"],
   watch: {
     query() {
       if (!this.awaitingSearch) {
@@ -111,15 +111,15 @@ export default {
   },
   methods: {
     CreateGroup() {
-      if (this.members.length() == 0) {
+      if (this.members.length == 0) {
         alert("Error: Invalid New Group Input");
         return;
       }
-      let url = "https://slack.api.tristanmacelli.com/v1/channels";
-      let sessionToken = localStorage.getItem("auth");
+      // let url = "https://slack.api.tristanmacelli.com/v1/channels";
+      // let sessionToken = localStorage.getItem("auth");
       let title = this.names.toString();
       let date = new Date();
-      title = title.substring(1, title.length - 2);
+      // title = title.substring(1, title.length - 2);
       // Create Group object
       let groupObject = {
         name: title,
@@ -129,19 +129,27 @@ export default {
         createdAt: date,
         editedAt: null
       };
-      this.messageList.push(groupObject);
-      axios
-        .post(url, groupObject, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          console.log(response);
-        });
+      // axios
+      //   .post(url, groupObject, {
+      //     headers: {
+      //       Authorization: sessionToken
+      //     }
+      //   })
+      //   .catch(error => {
+      //     alert(error);
+      //   })
+      //   .then(response => {
+      //     This should be the newly created channel w/ id
+      //     console.log(response.data);
+      //     Done in then to ensure backend generated id is correct
+      this.$emit("createGroup", groupObject);
+      //     Set current Channel info
+      //     this.$store.commit("setGroup", {
+      //       groupID: groupObject.id,
+      //       groupName: groupObject.name
+      //     });
+      //     Call GetMessages(); to ensure user is up to date
+      //   });
     },
     DisplayResults() {
       this.showResults = true;
@@ -156,6 +164,10 @@ export default {
       } else {
         this.UpdateGroup();
       }
+      this.HideModal();
+    },
+    HideModal() {
+      this.$emit("hideModal");
     },
     HandleListItem(index) {
       this.HideResults();

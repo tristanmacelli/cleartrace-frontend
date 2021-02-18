@@ -53,6 +53,17 @@ import axios from "axios";
 
 export default {
   name: "groupList",
+  components: {
+    Group,
+    Dropdown,
+    List
+  },
+  props: {
+    newGroup: {
+      type: Object,
+      required: false
+    }
+  },
   data() {
     return {
       displayCreate: false,
@@ -60,12 +71,6 @@ export default {
       listItems: [],
       width: 0
     };
-  },
-  emits: ["displayCreate"],
-  components: {
-    Group,
-    Dropdown,
-    List
   },
   computed: {
     storedUserInitials() {
@@ -81,6 +86,12 @@ export default {
       return this.$store.getters.getIsMobile;
     }
   },
+  watch: {
+    newGroup() {
+      this.groups.push(this.newGroup);
+    }
+  },
+  emits: ["displayCreate"],
   created: async function() {
     let items = ["Profile", "Settings", "Sign Out"];
     items.forEach((item, index) =>

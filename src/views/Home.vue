@@ -5,10 +5,14 @@
   >
     <div class="w-screen h-screen">
       <MessageList></MessageList>
-      <GroupList @display-create="this.DisplayCreate"></GroupList>
+      <GroupList
+        :newGroup="newlyCreatedGroup"
+        @display-create="this.DisplayCreate"
+      ></GroupList>
     </div>
     <GroupModal
       v-if="this.displayCreate"
+      @create-group="SetNewGroup"
       @hide-modal="HideModal"
       type="Create"
     ></GroupModal>
@@ -30,7 +34,8 @@ export default {
   },
   data() {
     return {
-      displayCreate: false
+      displayCreate: false,
+      newlyCreatedGroup: null
     };
   },
   provide() {
@@ -44,6 +49,10 @@ export default {
     },
     HideModal() {
       this.displayCreate = false;
+    },
+    SetNewGroup(group) {
+      group.id = "-99";
+      this.newlyCreatedGroup = group;
     }
   },
   created: function() {

@@ -1,10 +1,10 @@
 <template>
   <div
-    class="group px-4 py-3 hover:bg-gray-300 rounded-md cursor-pointer"
+    class="px-4 py-3 truncate hover:bg-gray-300 rounded-md cursor-pointer"
     :class="{ 'sm:bg-gray-100': isStoredGroup }"
     v-on:click="SetGroup"
   >
-    <p># {{ name }}</p>
+    <p>{{ name }}</p>
     <p class="hidden truncate">{{ this.latestMessage }}</p>
   </div>
 </template>
