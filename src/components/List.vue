@@ -4,27 +4,22 @@
       class="absolute z-50 w-60 shadow-xl text-gray-700 pt-1 cursor-pointer"
       :class="this.positionRight ? 'right-4' : ''"
     >
-      <list-item
+      <li
         v-for="(item, index) in this.items"
         :key="item.id"
-        :index="index"
-        :text="item.text"
-        :class="item.index === this.currentItem ? 'bg-gray-200' : 'bg-white'"
-        @active-list-item="this.HandleListItem"
+        :class="index === this.currentItem ? 'bg-gray-200' : 'bg-white'"
+        class="w-full py-2 px-4 text-left bg-white hover:bg-gray-300 cursor-pointer"
+        @click="$emit('activeListItem', index)"
       >
-      </list-item>
+        {{ item.text }}
+      </li>
     </ul>
   </div>
 </template>
 
 <script>
-import ListItem from "@/components/ListItem.vue";
-
 export default {
   name: "list",
-  components: {
-    ListItem
-  },
   props: {
     items: {
       type: Array,
