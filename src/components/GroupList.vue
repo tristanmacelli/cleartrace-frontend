@@ -12,7 +12,7 @@
       <h3 class="flex-grow text-2xl">Conversations</h3>
       <button
         class="mr-2 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
-        @click="this.DisplayCreate"
+        @click="this.DisplayModalCreate"
       >
         <svg class="w-8 h-8 p-2" viewBox="0 0 512 512">
           <g>
@@ -35,10 +35,13 @@
     <div class="px-2">
       <group
         @click="this.CloseGroupList"
+        @display-modal="this.DisplayModalUpdate"
         v-for="grp in groups"
-        :group="grp"
         :key="grp.id"
+        :creator="grp.creator"
+        :description="grp.description"
         :id="grp.id"
+        :members="grp.members"
         :name="grp.name"
       ></group>
     </div>
@@ -59,14 +62,13 @@ export default {
     List
   },
   props: {
-    newGroup: {
+    setGroup: {
       type: Object,
       required: false
     }
   },
   data() {
     return {
-      displayCreate: false,
       groups: [],
       listItems: [],
       width: 0
@@ -87,11 +89,22 @@ export default {
     }
   },
   watch: {
-    newGroup() {
-      this.groups.push(this.newGroup);
+    setGroup() {
+      this.$store.commit("setGroup", {
+        group: this.setGroup
+      });
+      // If it is a deletion (General channel is received) call GetGroups() to update groupList
+      if (this.setGroup.creator.id === -1) {
+        this.GetGroups();
+        return;
+      }
+      // If not General channel, then new or updated channel
+      // If the change is an update, pop old the channel
+      // if (this.setGroup is an updated version) { this.groups.pop(oldGroupVersion) }
+      this.groups.push(this.setGroup);
     }
   },
-  emits: ["displayCreate"],
+  emits: ["displayModal"],
   created: async function() {
     let items = ["Profile", "Settings", "Sign Out"];
     items.forEach((item, index) =>
@@ -123,8 +136,14 @@ export default {
         this.$store.commit("clearIsGroupListOpen");
       }
     },
-    DisplayCreate() {
-      this.$emit("displayCreate");
+    DisplayModalCreate() {
+      let modalState;
+      modalState.type = "create";
+      this.$emit("displayModal", modalState);
+    },
+    // Ideally this would be an event emitted from the group itself
+    DisplayModalUpdate(modalState) {
+      this.$emit("displayModal", modalState);
     },
     async HandleListItem(index) {
       if (index == 2) {

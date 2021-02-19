@@ -1,11 +1,12 @@
 <template>
   <div
-    class="px-4 py-3 truncate hover:bg-gray-300 rounded-md cursor-pointer"
+    class="grid grid-rows-2 grid-cols-2 px-4 py-3 truncate hover:bg-gray-300 rounded-md cursor-pointer"
     :class="{ 'sm:bg-gray-100': isStoredGroup }"
     v-on:click="SetGroup"
   >
     <p>{{ name }}</p>
     <p class="hidden truncate">{{ this.latestMessage }}</p>
+    <div class="row-span-2"><p @click="DisplayModalUpdate">(i)</p></div>
   </div>
 </template>
 
@@ -13,8 +14,20 @@
 export default {
   name: "group",
   props: {
+    creator: {
+      type: Object,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    },
     id: {
       type: String,
+      required: true
+    },
+    members: {
+      type: Array,
       required: true
     },
     name: {
@@ -27,6 +40,7 @@ export default {
       latestMessage: ""
     };
   },
+  emits: ["displayModal"],
   methods: {
     SetGroup() {
       if (!this.isStoredGroup) {
@@ -38,6 +52,18 @@ export default {
           group: groupObj
         });
       }
+    },
+    DisplayModalUpdate() {
+      let modalState;
+      modalState.type = "update";
+      modalState.group = {
+        creator: this.creator,
+        description: this.description,
+        id: this.id,
+        members: this.members,
+        name: this.name
+      };
+      this.$emit("displayModal", modalState);
     }
   },
   computed: {
