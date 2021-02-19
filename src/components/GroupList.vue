@@ -78,6 +78,9 @@ export default {
     storedUserInitials() {
       return this.$store.getters.getUserInitials;
     },
+    storedServerURL() {
+      return this.$store.getters.getServerURL;
+    },
     storedSocket() {
       return this.$store.getters.getSocket;
     },
@@ -153,7 +156,7 @@ export default {
       }
     },
     async GetGroups() {
-      var url = "https://slack.api.tristanmacelli.com/v1/channels";
+      var url = this.storedServerURL + "v1/channels";
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -177,7 +180,7 @@ export default {
         });
     },
     async SignOut() {
-      let url = "https://slack.api.tristanmacelli.com/v1/sessions/mine";
+      let url = this.storedServerURL + "v1/sessions/mine";
       let sessionToken = localStorage.getItem("auth");
 
       // send a DELETE request with the above data

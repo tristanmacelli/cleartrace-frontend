@@ -59,8 +59,13 @@ export default {
       UserName: ""
     };
   },
+  computed: {
+    storedServerURL() {
+      return this.$store.getters.getServerURL;
+    }
+  },
   created: async function() {
-    let url = "https://slack.api.tristanmacelli.com/v1/users/";
+    let url = this.storedServerURL + "v1/users/";
     let sessionToken = localStorage.getItem("auth");
     axios
       .get(url, {
@@ -77,10 +82,9 @@ export default {
         this.UserName = response.data.UserName;
       });
   },
-
   methods: {
     async UpdateUser() {
-      var url = "https://slack.api.tristanmacelli.com/v1/users/me";
+      var url = this.storedServerURL + "v1/users/me";
       let firstName = this.FirstNameUpdate;
       let lastName = this.LastNameUpdate;
       if (!this.FirstNameUpdate || !this.LastNameUpdate) {

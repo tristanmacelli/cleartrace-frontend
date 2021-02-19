@@ -83,6 +83,9 @@ export default {
     disableSendMessage() {
       return this.newBody.length == 0;
     },
+    storedServerURL() {
+      return this.$store.getters.getServerURL;
+    },
     storedSocket() {
       return this.$store.getters.getSocket;
     },
@@ -134,9 +137,7 @@ export default {
   },
   methods: {
     async GetMessages() {
-      var url =
-        "https://slack.api.tristanmacelli.com/v1/channels/" +
-        this.storedGroupID;
+      var url = this.storedServerURL + "v1/channels/" + this.storedGroupID;
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -162,9 +163,7 @@ export default {
         });
     },
     async SendMessage() {
-      var url =
-        "https://slack.api.tristanmacelli.com/v1/channels/" +
-        this.storedGroupID;
+      var url = this.storedServerURL + "v1/channels/" + this.storedGroupID;
       let sessionToken = localStorage.getItem("auth");
 
       // Get user first name from store & add it to this object

@@ -21,6 +21,9 @@ export default {
     storedAuth() {
       return this.$store.getters.getAuthentication;
     },
+    storedServerURL() {
+      return this.$store.getters.getServerURL;
+    },
     storedSocket() {
       return this.$store.getters.getSocket;
     },
@@ -53,9 +56,7 @@ export default {
   },
   methods: {
     async GetSpecificGroup(groupName) {
-      var url =
-        "https://slack.api.tristanmacelli.com/v1/channels?startsWith=" +
-        groupName;
+      var url = this.storedServerURL + "v1/channels?startsWith=" + groupName;
       let sessionToken = localStorage.getItem("auth");
       // send a get request with the above data
       axios

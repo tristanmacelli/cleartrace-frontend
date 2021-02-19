@@ -21,6 +21,7 @@ const store = createStore({
       },
       isGroupListOpen: true,
       isMobile: false,
+      serverURL: "https://slack.api.tristanmacelli.com/",
       socket: null,
       user: null,
       window: {
@@ -50,7 +51,7 @@ const store = createStore({
         console.log("setUser triggered");
       }
       let sessionToken = localStorage.getItem("auth");
-      let url = "https://slack.api.tristanmacelli.com/v1/users/";
+      let url = state.serverURL + "v1/users/";
       axios
         .get(url, {
           headers: {
@@ -221,9 +222,16 @@ const store = createStore({
     getGeneral(state) {
       // eslint-disable-next-line
       if (state.debug) {
-        console.log("getUser triggered");
+        console.log("getGeneral triggered");
       }
       return state.general;
+    },
+    getServerURL(state) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("getServerURL triggered");
+      }
+      return state.serverURL;
     },
     getUser(state) {
       // eslint-disable-next-line

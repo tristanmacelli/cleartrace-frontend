@@ -90,6 +90,14 @@ export default {
       NewPassword: ""
     };
   },
+  computed: {
+    storedGroupID() {
+      return this.$store.getters.getGroupID;
+    },
+    storedServerURL() {
+      return this.$store.getters.getServerURL;
+    }
+  },
   emits: ["hideSignup"],
   methods: {
     Alert() {
@@ -99,7 +107,7 @@ export default {
       this.$emit("hideSignup");
     },
     async SignUp() {
-      let url = "https://slack.api.tristanmacelli.com/v1/users";
+      let url = this.storedServerURL + "v1/users";
       let username = this.NewFirstName + "." + this.NewLastName;
 
       if (!this.NewEmail || !this.NewPassword) {
@@ -129,12 +137,6 @@ export default {
             // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
           }
         });
-    }
-  },
-  computed: {
-    // a computed getter
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
     }
   }
 };
