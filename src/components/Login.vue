@@ -58,6 +58,14 @@ export default {
       LogInPass: ""
     };
   },
+  computed: {
+    storedGroupID() {
+      return this.$store.getters.getGroupID;
+    },
+    storedServerURL() {
+      return this.$store.getters.getServerURL;
+    }
+  },
   emits: ["displaySignup"],
   methods: {
     // Creating a new session based on the form values
@@ -69,7 +77,7 @@ export default {
       this.$emit("displaySignup");
     },
     async SignIn() {
-      let url = "https://slack.api.tristanmacelli.com/v1/sessions";
+      let url = this.storedServerURL + "v1/sessions";
       if (!this.LogInEmail || !this.LogInPass) {
         alert("Error: Invalid Credentials");
         return;
@@ -94,12 +102,6 @@ export default {
             // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
           }
         });
-    }
-  },
-  computed: {
-    // a computed getter
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
     }
   }
 };
