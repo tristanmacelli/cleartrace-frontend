@@ -7,7 +7,7 @@
     </p>
     <div>
       <p
-        @click="$emit('remove')"
+        @click="$emit('remove', this.index)"
         class="cursor-pointer text-sm px-1.5 pt-0.5 hover:bg-gray-200 rounded-3xl"
       >
         X
@@ -22,6 +22,10 @@ export default {
   props: {
     name: {
       type: String,
+      required: true
+    },
+    index: {
+      type: Number,
       required: true
     }
   }

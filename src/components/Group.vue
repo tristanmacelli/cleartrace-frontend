@@ -1,12 +1,18 @@
 <template>
   <div
-    class="grid grid-rows-2 grid-cols-2 px-4 py-3 truncate hover:bg-gray-300 rounded-md cursor-pointer"
+    class="flex flex-nowrap px-4 py-3 truncate rounded-md cursor-pointer"
     :class="{ 'sm:bg-gray-100': isStoredGroup }"
     v-on:click="SetGroup"
   >
-    <p>{{ name }}</p>
-    <p class="hidden truncate">{{ this.latestMessage }}</p>
-    <div class="row-span-2"><p @click="DisplayModalUpdate">(i)</p></div>
+    <div class="flex-grow self-center">
+      <p class="font-medium">{{ name }}</p>
+      <p class="font-extralight truncate">Hi Tristan</p>
+    </div>
+    <div
+      class="flex px-3 my-1 font-bold shadow-sm bg-white hover:bg-gray-200 border-gray-300 border rounded-3xl"
+    >
+      <p class="self-center" @click="DisplayModalUpdate">...</p>
+    </div>
   </div>
 </template>
 
@@ -54,14 +60,15 @@ export default {
       }
     },
     DisplayModalUpdate() {
-      let modalState;
-      modalState.type = "update";
-      modalState.group = {
-        creator: this.creator,
-        description: this.description,
-        id: this.id,
-        members: this.members,
-        name: this.name
+      let modalState = {
+        type: "update",
+        group: {
+          creator: this.creator,
+          description: this.description,
+          id: this.id,
+          members: this.members,
+          name: this.name
+        }
       };
       this.$emit("displayModal", modalState);
     }

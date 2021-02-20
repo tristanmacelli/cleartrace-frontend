@@ -140,8 +140,9 @@ export default {
       }
     },
     DisplayModalCreate() {
-      let modalState;
-      modalState.type = "create";
+      let modalState = {
+        type: "create"
+      };
       this.$emit("displayModal", modalState);
     },
     // Ideally this would be an event emitted from the group itself
