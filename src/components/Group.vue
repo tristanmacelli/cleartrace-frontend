@@ -5,8 +5,8 @@
     v-on:click="SetGroup"
   >
     <div class="flex-grow self-center">
-      <p class="font-medium">{{ name }}</p>
-      <p class="font-extralight truncate">Hi Tristan</p>
+      <p class="font-bold">{{ name }}</p>
+      <p class="font-extralight truncate">Latest Message: ...</p>
     </div>
     <div
       class="flex px-3 my-1 font-bold shadow-sm bg-white hover:bg-gray-200 border-gray-300 border rounded-3xl"

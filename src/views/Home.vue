@@ -6,15 +6,16 @@
     <div class="w-screen h-screen">
       <MessageList></MessageList>
       <GroupList
-        :newGroup="newlyCreatedGroup"
-        @display-create="this.DisplayCreate"
+        :setGroup="group"
+        @display-modal="this.DisplayModal"
       ></GroupList>
     </div>
     <GroupModal
-      v-if="this.displayCreate"
-      @create-group="SetNewGroup"
+      v-if="this.displayModal"
+      @set-group="SetGroup"
       @hide-modal="HideModal"
-      type="Create"
+      :group="modalGroup"
+      :type="modalType"
     ></GroupModal>
   </div>
 </template>
@@ -34,8 +35,10 @@ export default {
   },
   data() {
     return {
-      displayCreate: false,
-      newlyCreatedGroup: null
+      displayModal: false,
+      group: null,
+      modalGroup: "",
+      modalType: ""
     };
   },
   provide() {
@@ -44,15 +47,18 @@ export default {
     };
   },
   methods: {
-    DisplayCreate() {
-      this.displayCreate = true;
+    DisplayModal(modalState) {
+      this.modalType = modalState.type;
+      if (modalState.type === "update") {
+        this.modalGroup = modalState.group;
+      }
+      this.displayModal = true;
     },
     HideModal() {
-      this.displayCreate = false;
+      this.displayModal = false;
     },
-    SetNewGroup(group) {
-      group.id = "-99";
-      this.newlyCreatedGroup = group;
+    SetGroup(group) {
+      this.group = group;
     }
   },
   created: function() {
