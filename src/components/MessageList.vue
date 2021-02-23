@@ -5,7 +5,7 @@
   >
     <div class="flex no-wrap h-20 px-5 py-6">
       <p class="flex-grow font-semibold text-lg">
-        {{ this.storedGroupName }}
+        {{ this.groupName }}
       </p>
       <svg
         class="sm:hidden"
@@ -61,6 +61,7 @@
 <script>
 import axios from "axios";
 import Message from "./Message.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "messageList",
@@ -73,29 +74,17 @@ export default {
       messageList: []
     };
   },
-  computed: {
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
-    },
-    storedGroupName() {
-      return this.$store.getters.getGroupName;
-    },
-    disableSendMessage() {
-      return this.newBody.length == 0;
-    },
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    },
-    storedSocket() {
-      return this.$store.getters.getSocket;
-    },
-    storedUser() {
-      return this.$store.getters.getUser;
-    }
-  },
+  computed: mapState({
+    groupID: state => state.group.id,
+    groupName: state => state.group.name,
+    disableSendMessage: this.newBody.length == 0,
+    serverURL: state => state.serverURL,
+    socket: state => state.socket,
+    user: state => state.user
+  }),
   watch: {
     // Clears the current messages & updates
-    storedGroupID: async function() {
+    groupID: async function() {
       this.messageList = [];
       await this.GetMessages();
     }
@@ -106,7 +95,7 @@ export default {
     date = this.formatDate(date);
     let welcomeMessage = {
       id: "-1",
-      body: "Welcome to the " + this.storedGroupName + " group",
+      body: "Welcome to the " + this.groupName + " group",
       creator: {
         FirstName: "Automated",
         LastName: ""
@@ -118,7 +107,7 @@ export default {
     // Make query to server for last 100 messages
     await this.GetMessages();
 
-    this.storedSocket.onmessage = event => {
+    this.socket.onmessage = event => {
       console.log("Message Received!");
       // The data we created is in the event.data field
       // The current datatype of event is message
@@ -128,16 +117,17 @@ export default {
       if (receivedObj.type == "message-new") {
         // This is the "default behavior" when the user is viewing the group
         // that messages are coming in on
-        if (messageObj.channelID == this.storedGroupID) {
+        if (messageObj.channelID == this.groupID) {
           let message = this.PreprocessMessage(messageObj);
           this.messageList.push(message);
+          this.PlaySound();
         }
       }
     };
   },
   methods: {
     async GetMessages() {
-      var url = this.storedServerURL + "v1/channels/" + this.storedGroupID;
+      var url = this.serverURL + "v1/channels/" + this.groupID;
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -163,17 +153,17 @@ export default {
         });
     },
     async SendMessage() {
-      var url = this.storedServerURL + "v1/channels/" + this.storedGroupID;
+      var url = this.serverURL + "v1/channels/" + this.groupID;
       let sessionToken = localStorage.getItem("auth");
 
       // Get user first name from store & add it to this object
       let date = new Date();
       let formattedDate = this.formatDate(date);
       let messageObject = {
-        channelID: this.storedGroupID,
+        channelID: this.groupID,
         body: this.newBody,
         createdAt: formattedDate,
-        creator: this.storedUser
+        creator: this.user
       };
       this.messageList.push(messageObject);
 
@@ -197,6 +187,10 @@ export default {
       if (this.$store.getters.getIsMobile) {
         this.$store.commit("setIsGroupListOpen");
       }
+    },
+    PlaySound() {
+      let audio = new Audio(require("@/assets/electronic-chime.mp3"));
+      audio.play();
     },
     updateScroll() {
       let element = document.getElementById("view-messages");

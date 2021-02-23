@@ -49,6 +49,7 @@
 
 <script>
 import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   name: "login",
@@ -58,14 +59,10 @@ export default {
       LogInPass: ""
     };
   },
-  computed: {
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
-    },
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    }
-  },
+  computed: mapState({
+    groupID: state => state.group.id,
+    serverURL: state => state.serverURL
+  }),
   emits: ["displaySignup"],
   methods: {
     // Creating a new session based on the form values
@@ -77,7 +74,7 @@ export default {
       this.$emit("displaySignup");
     },
     async SignIn() {
-      let url = this.storedServerURL + "v1/sessions";
+      let url = this.serverURL + "v1/sessions";
       if (!this.LogInEmail || !this.LogInPass) {
         alert("Error: Invalid Credentials");
         return;
@@ -99,7 +96,7 @@ export default {
             this.$store.commit("setSocket");
             this.$store.commit("setUser");
             this.$router.push({ path: "/home" });
-            // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
+            // this.$router.push({ name: 'Home', params: { groupID: groupID } });
           }
         });
     }

@@ -5,7 +5,7 @@ const store = createStore({
   state() {
     return {
       authenticated: false,
-      debug: true,
+      debug: false,
       group: {
         id: "5fec04e96d55740010123439",
         name: "General"
@@ -30,6 +30,14 @@ const store = createStore({
       }
     };
   },
+  actions: {
+    async setUser(context) {
+      context.commit("setUser");
+    },
+    async setSocket(context) {
+      context.commit("setSocket");
+    }
+  },
   mutations: {
     setGroup(state, payload) {
       // eslint-disable-next-line
@@ -52,7 +60,7 @@ const store = createStore({
       }
       let sessionToken = localStorage.getItem("auth");
       let url = state.serverURL + "v1/users/";
-      axios
+      await axios
         .get(url, {
           headers: {
             Authorization: sessionToken

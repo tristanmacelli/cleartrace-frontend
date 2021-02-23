@@ -9,14 +9,17 @@
       <p class="font-extralight truncate">Latest Message: ...</p>
     </div>
     <div
+      @click="DisplayModalUpdate"
       class="flex px-3 my-1 font-bold shadow-sm bg-white hover:bg-gray-200 border-gray-300 border rounded-3xl"
     >
-      <p class="self-center" @click="DisplayModalUpdate">...</p>
+      <p class="self-center">...</p>
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "group",
   props: {
@@ -46,6 +49,10 @@ export default {
       latestMessage: ""
     };
   },
+  computed: mapState({
+    // If this is true we want to apply the same css rules as applied to the .group:hover class
+    isStoredGroup: state => this.id === state.group.id
+  }),
   emits: ["displayModal"],
   methods: {
     SetGroup() {
@@ -71,12 +78,6 @@ export default {
         }
       };
       this.$emit("displayModal", modalState);
-    }
-  },
-  computed: {
-    // If this is true we want to apply the same css rules as applied to the .group:hover class
-    isStoredGroup() {
-      return this.id == this.$store.getters.getGroupID;
     }
   }
 };

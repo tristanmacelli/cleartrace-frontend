@@ -1,65 +1,47 @@
 <template>
   <div id="app">
-    <!-- <router-link 
-      to="{ name: 'Home', params: {groupID: storedGroupID}}">
-    <router-link v-if="this.showHomeLink" to="/home">Home</router-link>
-    <router-link  
-      to="{ name: 'Account', params: {userID: storedUserID}}">
-    <router-link v-if="this.showAcctLink" to="/account">{{
-      storedUserFirstname
-    }}</router-link> -->
     <router-view />
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapState } from "vuex";
+
 export default {
   name: "app",
-  computed: {
-    // a computed getter
-    storedAuth() {
-      return this.$store.getters.getAuthentication;
-    },
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    },
-    storedSocket() {
-      return this.$store.getters.getSocket;
-    },
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
-    },
-    storedUserID() {
-      return this.$store.getters.getUserID;
-    },
-    storedUserFirstname() {
-      return this.$store.getters.getUserFirstname || "Account";
-    }
-  },
-  created: async function() {
+  computed: mapState({
+    authentication: state => state.authentication,
+    serverURL: state => state.serverURL,
+    socket: state => state.socket,
+    groupID: state => state.group.id,
+    userID: state => state.user.id
+  }),
+  async created() {
     this.$store.commit("setWindowDimensions");
     if (window.innerWidth < 640) {
       this.$store.commit("setIsMobile");
     }
     let sessionToken = localStorage.getItem("auth");
-    let isActiveSession = sessionToken && !this.storedAuth;
+    let isActiveSession = sessionToken && !this.authentication;
     if (isActiveSession) {
-      // console.log("Returning to an active session");
+      console.log("Returning to an active session");
       await this.GetGeneralGroup();
       this.$store.commit("setAuthentication");
-      this.$store.commit("setSocket");
-      this.$store.commit("setUser");
+      await this.$store.dispatch("setSocket");
+      await this.$store.dispatch("setUser");
       this.$router.push({ path: "/home" });
-      // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
+      // this.$router.push({ name: 'Home', params: { groupID: this.groupID } });
+    } else {
+      this.$router.push({ path: "/" });
     }
   },
   methods: {
     async GetSpecificGroup(groupName) {
-      var url = this.storedServerURL + "v1/channels?startsWith=" + groupName;
+      var url = this.serverURL + "v1/channels?startsWith=" + groupName;
       let sessionToken = localStorage.getItem("auth");
       // send a get request with the above data
-      axios
+      let response = await axios
         .get(url, {
           headers: {
             Authorization: sessionToken
@@ -71,6 +53,7 @@ export default {
         .then(response => {
           return response;
         });
+      return response;
     },
     async GetGeneralGroup() {
       let groups = await this.GetSpecificGroup("General");
@@ -95,13 +78,5 @@ export default {
 
 html {
   background-color: #e9ebee;
-}
-
-.fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
 }
 </style>

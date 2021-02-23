@@ -41,11 +41,6 @@ export default {
       modalType: ""
     };
   },
-  provide() {
-    return {
-      modalTitle: "New Group"
-    };
-  },
   methods: {
     DisplayModal(modalState) {
       this.modalType = modalState.type;

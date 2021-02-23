@@ -80,6 +80,8 @@
 
 <script>
 import axios from "axios";
+import { mapState } from "vuex";
+
 export default {
   name: "signup",
   data() {
@@ -90,14 +92,10 @@ export default {
       NewPassword: ""
     };
   },
-  computed: {
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
-    },
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    }
-  },
+  computed: mapState({
+    groupID: state => state.group.id,
+    serverURL: state => state.serverURL
+  }),
   emits: ["hideSignup"],
   methods: {
     Alert() {
@@ -107,7 +105,7 @@ export default {
       this.$emit("hideSignup");
     },
     async SignUp() {
-      let url = this.storedServerURL + "v1/users";
+      let url = this.serverURL + "v1/users";
       let username = this.NewFirstName + "." + this.NewLastName;
 
       if (!this.NewEmail || !this.NewPassword) {
@@ -134,7 +132,7 @@ export default {
             this.$store.commit("setSocket");
             this.$store.commit("setUser");
             this.$router.push({ path: "/home" });
-            // this.$router.push({ name: 'Home', params: { groupID: storedGroupID } });
+            // this.$router.push({ name: 'Home', params: { groupID: groupID } });
           }
         });
     }

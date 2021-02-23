@@ -1,5 +1,5 @@
 <template>
-  <Modal Description=" " @hide-modal="HideModal">
+  <Modal :Title="this.title" Description=" " @hide-modal="HideModal">
     <form
       v-on:submit.prevent="CreateGroup"
       accept-charset="UTF-8"
@@ -67,6 +67,7 @@ import axios from "axios";
 import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "groupModal",
@@ -88,32 +89,25 @@ export default {
   data() {
     return {
       awaitingSearch: false,
+      awaitingDescription: false,
+      awaitingTitle: false,
       description: "",
       members: [],
       name: "",
       names: [],
       query: "",
       searchResults: [],
-      showResults: false
+      showResults: false,
+      title: this.type === "update" ? "Update " + this.group.name : "New Group"
     };
   },
-  computed: {
-    storedGeneral() {
-      return this.$store.getters.getGeneral;
-    },
-    storedGroupID() {
-      return this.$store.getters.getGroupID;
-    },
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    },
-    storedUserID() {
-      return this.$store.getters.getUserID;
-    },
-    membersLength() {
-      return this.members.length;
-    }
-  },
+  computed: mapState({
+    general: state => state.general,
+    groupID: state => state.group.id,
+    serverURL: state => state.serverURL,
+    userID: state => state.user.id,
+    membersLength: this.memebers.length
+  }),
   emits: ["createGroup", "updateGroup", "hideModal"],
   watch: {
     query() {
@@ -128,14 +122,26 @@ export default {
     description(_, oldVal) {
       if (this.type == "update") {
         if (oldVal !== "") {
-          this.UpdateGroupDetails();
+          if (!this.awaitingDescription) {
+            setTimeout(() => {
+              this.UpdateGroupDetails();
+              this.awaitingDescription = false;
+            }, 1000); // 1 sec delay
+          }
+          this.awaitingDescription = true;
         }
       }
     },
     name(_, oldVal) {
       if (this.type == "update") {
         if (oldVal !== "") {
-          this.UpdateGroupDetails();
+          if (!this.awaitingTitle) {
+            setTimeout(() => {
+              this.UpdateGroupDetails();
+              this.awaitingTitle = false;
+            }, 1000); // 1 sec delay
+          }
+          this.awaitingTitle = true;
         }
       }
     }
@@ -154,7 +160,7 @@ export default {
           console.log(member);
           this.groups.push(member);
         });
-      let url = this.storedServerURL + "v1/users/search/";
+      let url = this.serverURL + "v1/users/search/";
       let sessionToken = localStorage.getItem("auth");
       console.log("user ids for fullnames");
       axios
@@ -188,7 +194,7 @@ export default {
         alert("Error: Invalid New Group Input");
         return;
       }
-      let url = this.storedServerURL + "v1/channels";
+      let url = this.serverURL + "v1/channels";
       let sessionToken = localStorage.getItem("auth");
       let title = this.names.toString();
       let date = new Date();
@@ -242,7 +248,7 @@ export default {
       this.searchResults = [];
       this.DisplayResults();
       // Show a loading animation component/svg
-      let url = this.storedServerURL + "v1/users/search/?q=" + this.query;
+      let url = this.serverURL + "v1/users/search/?q=" + this.query;
       let sessionToken = localStorage.getItem("auth");
 
       axios
@@ -263,7 +269,7 @@ export default {
               .reverse()
               .forEach(user => {
                 console.log(user);
-                if (user.ID != this.storedUserID) {
+                if (user.ID != this.userID) {
                   let reducedUsr = {
                     id: user.ID,
                     text: user.FirstName + " " + user.LastName,
@@ -282,7 +288,7 @@ export default {
         });
     },
     DeleteGroup() {
-      let url = this.storedServerURL + "v1/channels/" + this.storedGroupID;
+      let url = this.serverURL + "v1/channels/" + this.groupID;
       let sessionToken = localStorage.getItem("auth");
       axios
         .delete(url, {
@@ -295,13 +301,13 @@ export default {
         })
         .then(() => {
           // Go back to the general group when deleting the channel
-          this.$emit("setGroup", this.storedGeneral);
+          this.$emit("setGroup", this.general);
           this.HideModal();
         });
     },
     UpdateGroupDetails() {
       // Update name & description
-      let url = this.storedServerURL + "v1/channels/" + this.storedGroupID;
+      let url = this.serverURL + "v1/channels/" + this.groupID;
       let sessionToken = localStorage.getItem("auth");
       let body = {
         name: this.name,
@@ -315,6 +321,7 @@ export default {
           }
         })
         .catch(error => {
+          console.log(error);
           alert(error);
         })
         .then(response => {
@@ -333,8 +340,7 @@ export default {
         return;
       }
 
-      let url =
-        this.storedServerURL + "v1/channels/" + this.storedGroupID + "/members";
+      let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
       let sessionToken = localStorage.getItem("auth");
       axios
         .post(url, newMember.id, {
@@ -363,8 +369,7 @@ export default {
       }
 
       // Parse members & add them to new group obj before sending request
-      let url =
-        this.storedServerURL + "v1/channels/" + this.storedGroupID + "/members";
+      let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
       let sessionToken = localStorage.getItem("auth");
       axios
         .delete(url, id, {

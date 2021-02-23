@@ -49,6 +49,7 @@
 
 <script>
 import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   name: "user",
@@ -59,13 +60,9 @@ export default {
       UserName: ""
     };
   },
-  computed: {
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    }
-  },
+  computed: mapState(["serverURL"]),
   created: async function() {
-    let url = this.storedServerURL + "v1/users/";
+    let url = this.serverURL + "v1/users/";
     let sessionToken = localStorage.getItem("auth");
     axios
       .get(url, {
@@ -84,7 +81,7 @@ export default {
   },
   methods: {
     async UpdateUser() {
-      var url = this.storedServerURL + "v1/users/me";
+      var url = this.serverURL + "v1/users/me";
       let firstName = this.FirstNameUpdate;
       let lastName = this.LastNameUpdate;
       if (!this.FirstNameUpdate || !this.LastNameUpdate) {
