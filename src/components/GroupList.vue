@@ -80,25 +80,32 @@ export default {
       return this.$store.getters.getUserInitials;
     },
     ...mapState({
-      serverURL: state => state.serverURL,
+      groupBuffer: state => state.groupBuffer,
       isGroupListOpen: state => state.isGroupListOpen,
-      isMobile: state => state.isMobile
+      isMobile: state => state.isMobile,
+      serverURL: state => state.serverURL
     })
   },
   watch: {
-    setGroup() {
-      this.$store.commit("setGroup", {
-        group: this.setGroup
-      });
-      // If it is a deletion (General channel is received) call GetGroups() to update groupList
-      if (this.setGroup.creator.id === -1) {
-        this.GetGroups();
-        return;
+    groupBuffer() {
+      // In cases of update or delete (General channel was received)
+      if (
+        this.groupBuffer.type == "update" ||
+        this.groupBuffer.creator.id == -1
+      ) {
+        // TODO: lookup index of group to be able to remove it
+        let index = 0;
+        this.groups.splice(index, 1);
       }
-      // If not General channel, then new or updated channel
-      // If the change is an update, pop old the channel
-      // if (this.setGroup is an updated version) { this.groups.pop(oldGroupVersion) }
-      this.groups.push(this.setGroup);
+      if (
+        this.groupBuffer.type == "create" ||
+        this.groupBuffer.type == "update"
+      ) {
+        this.groups.push(this.groupBuffer);
+      }
+      // In all cases, the groupList should be updated, but created & updated groups
+      // will be pushed to the group list immediately increasing redundancy/reliability
+      this.GetGroups();
     }
   },
   emits: ["displayModal"],
@@ -165,6 +172,10 @@ export default {
           alert(error);
         })
         .then(response => {
+          if (response == null) {
+            return;
+          }
+          groups = [];
           let groups = response.data;
           groups
             .slice()

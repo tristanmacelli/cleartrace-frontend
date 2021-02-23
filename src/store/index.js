@@ -4,12 +4,17 @@ import { createStore } from "vuex";
 const store = createStore({
   state() {
     return {
+      // A switch for controlling navigation
       authenticated: false,
+      // Controls logging output for state actions, mutations, & getters
       debug: false,
       group: {
         id: "5fec04e96d55740010123439",
         name: "General"
       },
+      // Establishes a buffer to process group changes locally
+      groupBuffer: null,
+      // A fallback in case backend request fails on its initial attempt
       general: {
         id: "5fec04e96d55740010123439",
         name: "General",
@@ -52,6 +57,13 @@ const store = createStore({
         console.log("setGroup triggered with: ", payload);
       }
       state.general = payload.group;
+    },
+    setGroupBuffer(state, payload) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("setGroup triggered with: ", payload);
+      }
+      state.groupBuffer = payload.group;
     },
     async setUser(state) {
       // eslint-disable-next-line

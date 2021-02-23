@@ -5,10 +5,7 @@
   >
     <div class="w-screen h-screen">
       <MessageList></MessageList>
-      <GroupList
-        :setGroup="group"
-        @display-modal="this.DisplayModal"
-      ></GroupList>
+      <GroupList @display-modal="this.DisplayModal"></GroupList>
     </div>
     <GroupModal
       v-if="this.displayModal"
@@ -36,7 +33,6 @@ export default {
   data() {
     return {
       displayModal: false,
-      group: null,
       modalGroup: "",
       modalType: ""
     };
@@ -51,9 +47,6 @@ export default {
     },
     HideModal() {
       this.displayModal = false;
-    },
-    SetGroup(group) {
-      this.group = group;
     }
   },
   created: function() {

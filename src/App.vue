@@ -21,9 +21,9 @@ export default {
     if (isActiveSession) {
       console.log("Returning to an active session");
       await this.GetGeneralGroup();
-      this.$store.commit("setAuthentication");
       await this.$store.dispatch("setSocket");
       await this.$store.dispatch("setUser");
+      this.$store.commit("setAuthentication");
       this.$router.push({ path: "/home" });
       // this.$router.push({ name: 'Home', params: { groupID: this.groupID } });
     } else {

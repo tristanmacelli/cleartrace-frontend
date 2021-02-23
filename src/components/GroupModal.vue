@@ -112,7 +112,7 @@ export default {
       userID: state => state.user.id
     })
   },
-  emits: ["createGroup", "updateGroup", "hideModal"],
+  emits: ["hideModal"],
   watch: {
     query() {
       if (!this.awaitingSearch) {
@@ -225,8 +225,12 @@ export default {
           // This should be the newly created channel w/ id
           console.log(response.data);
           let newGroup = response.data;
+          // The type field allows groupList to properly consume the changes to the group
+          newGroup.type = "create";
           // Done in then to ensure backend generated id is correct
-          this.$emit("setGroup", newGroup);
+          this.$store.commit("setGroupBuffer", {
+            group: newGroup
+          });
           this.HideModal();
           // to ensure user is up to date
           this.GetMessages();
@@ -305,7 +309,12 @@ export default {
         })
         .then(() => {
           // Go back to the general group when deleting the channel
-          this.$emit("setGroup", this.general);
+          this.$store.commit("setGroup", {
+            group: this.general
+          });
+          this.$store.commit("setGroupBuffer", {
+            group: this.general
+          });
           this.HideModal();
         });
     },
@@ -329,8 +338,13 @@ export default {
           alert(error);
         })
         .then(response => {
+          let updatedGroup = response.data;
+          // The type field allows groupList to properly consume the changes to the group
+          updatedGroup.type = "update";
           console.log("Updating group details");
-          this.$emit("setGroup", response.data);
+          this.$store.commit("setGroupBuffer", {
+            group: response.data
+          });
         });
     },
     AddGroupMember(index) {
@@ -357,9 +371,13 @@ export default {
         })
         .then(response => {
           let updatedGroup = response.data;
+          // The type field allows groupList to properly consume the changes to the group
+          updatedGroup.type = "update";
           this.members.push(newMember.id);
           this.names.push(newMember.text);
-          this.$emit("setGroup", updatedGroup);
+          this.$store.commit("setGroupBuffer", {
+            group: updatedGroup
+          });
         });
     },
     RemoveGroupMember(index) {
@@ -385,9 +403,14 @@ export default {
           alert(error);
         })
         .then(response => {
+          let updatedGroup = response.data;
+          // The type field allows groupList to properly consume the changes to the group
+          updatedGroup.type = "update";
           this.names.splice(index, 1);
           this.members.splice(index, 1);
-          this.$emit("setGroup", response.data);
+          this.$store.commit("setGroupBuffer", {
+            group: updatedGroup
+          });
         });
     }
   }
