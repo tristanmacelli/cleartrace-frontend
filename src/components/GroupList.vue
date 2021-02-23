@@ -62,12 +62,6 @@ export default {
     Dropdown,
     List
   },
-  props: {
-    setGroup: {
-      type: Object,
-      required: false
-    }
-  },
   data() {
     return {
       groups: [],

@@ -36,7 +36,7 @@ export default {
   },
   computed: {
     isAuthor() {
-      return this.creator.FirstName == this.$store.getters.userFirstName;
+      return this.creator.FirstName == this.$store.getters.getUserFirstname;
     }
   },
   emits: ["remove"]

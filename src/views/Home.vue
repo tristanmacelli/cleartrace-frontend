@@ -9,7 +9,6 @@
     </div>
     <GroupModal
       v-if="this.displayModal"
-      @set-group="SetGroup"
       @hide-modal="HideModal"
       :group="modalGroup"
       :type="modalType"

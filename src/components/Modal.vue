@@ -39,7 +39,6 @@ export default {
       required: true
     }
   },
-  inject: ["modalTitle"],
   emits: ["hideModal"]
 };
 </script>

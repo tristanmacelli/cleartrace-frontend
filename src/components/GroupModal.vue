@@ -162,7 +162,7 @@ export default {
         .reverse()
         .forEach(member => {
           console.log(member);
-          this.groups.push(member);
+          this.members.push(member);
         });
       let url = this.serverURL + "v1/users/search/";
       let sessionToken = localStorage.getItem("auth");
@@ -177,10 +177,11 @@ export default {
           alert(error);
         })
         .then(response => {
+          let users = response.data;
           if (users == null) {
+            console.log("no users present");
             return;
           }
-          let users = response.data;
           users
             .slice()
             .reverse()
