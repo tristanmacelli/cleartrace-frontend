@@ -51,7 +51,9 @@ export default {
   },
   computed: mapState({
     // If this is true we want to apply the same css rules as applied to the .group:hover class
-    isStoredGroup: state => this.id === state.group.id
+    isStoredGroup(state) {
+      return this.id === state.group.id;
+    }
   }),
   emits: ["displayModal"],
   methods: {

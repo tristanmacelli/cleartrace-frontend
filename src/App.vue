@@ -10,13 +10,7 @@ import { mapState } from "vuex";
 
 export default {
   name: "app",
-  computed: mapState({
-    authentication: state => state.authentication,
-    serverURL: state => state.serverURL,
-    socket: state => state.socket,
-    groupID: state => state.group.id,
-    userID: state => state.user.id
-  }),
+  computed: mapState(["authentication", "serverURL"]),
   async created() {
     this.$store.commit("setWindowDimensions");
     if (window.innerWidth < 640) {
@@ -41,7 +35,7 @@ export default {
       var url = this.serverURL + "v1/channels?startsWith=" + groupName;
       let sessionToken = localStorage.getItem("auth");
       // send a get request with the above data
-      let response = await axios
+      let groups = await axios
         .get(url, {
           headers: {
             Authorization: sessionToken
@@ -51,9 +45,9 @@ export default {
           alert(error);
         })
         .then(response => {
-          return response;
+          return response.data;
         });
-      return response;
+      return groups;
     },
     async GetGeneralGroup() {
       let groups = await this.GetSpecificGroup("General");

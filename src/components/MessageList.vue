@@ -74,14 +74,18 @@ export default {
       messageList: []
     };
   },
-  computed: mapState({
-    groupID: state => state.group.id,
-    groupName: state => state.group.name,
-    disableSendMessage: this.newBody.length == 0,
-    serverURL: state => state.serverURL,
-    socket: state => state.socket,
-    user: state => state.user
-  }),
+  computed: {
+    disableSendMessage() {
+      return this.newBody.length === 0;
+    },
+    ...mapState({
+      groupID: state => state.group.id,
+      groupName: state => state.group.name,
+      serverURL: state => state.serverURL,
+      socket: state => state.socket,
+      user: state => state.user
+    })
+  },
   watch: {
     // Clears the current messages & updates
     groupID: async function() {

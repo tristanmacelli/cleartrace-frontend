@@ -3,7 +3,7 @@
   <div
     id="groupList"
     class="absolute sm:right-0 z-20 w-full sm:w-1/5 h-screen transform ease-in-out transition-all duration-300 bg-white"
-    :class="this.storedIsGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
+    :class="this.isGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
   >
     <div class="flex no-wrap px-4 pt-4 mb-10">
       <p class="mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
@@ -53,6 +53,7 @@ import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
 import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   name: "groupList",
@@ -78,18 +79,11 @@ export default {
     storedUserInitials() {
       return this.$store.getters.getUserInitials;
     },
-    storedServerURL() {
-      return this.$store.getters.getServerURL;
-    },
-    storedSocket() {
-      return this.$store.getters.getSocket;
-    },
-    storedIsGroupListOpen() {
-      return this.$store.getters.getIsGroupListOpen;
-    },
-    storedIsMobile() {
-      return this.$store.getters.getIsMobile;
-    }
+    ...mapState({
+      serverURL: state => state.serverURL,
+      isGroupListOpen: state => state.isGroupListOpen,
+      isMobile: state => state.isMobile
+    })
   },
   watch: {
     setGroup() {
@@ -115,7 +109,7 @@ export default {
     );
     this.width = window.innerWidth;
     await this.GetGroups();
-    // storedSocket.onmessage = event => {
+    // this.socket.onmessage = event => {
     //   // The data we created is in the event.data field
     //   // The current datatype of event is message
     //   let receivedObj = JSON.parse(event.data);
@@ -135,7 +129,7 @@ export default {
     },
     CloseGroupList() {
       // Transition #groupList to the right
-      if (this.storedIsMobile) {
+      if (this.isMobile) {
         this.$store.commit("clearIsGroupListOpen");
       }
     },
@@ -157,7 +151,7 @@ export default {
       }
     },
     async GetGroups() {
-      var url = this.storedServerURL + "v1/channels";
+      var url = this.serverURL + "v1/channels";
       let sessionToken = localStorage.getItem("auth");
 
       // send a get request with the above data
@@ -181,7 +175,7 @@ export default {
         });
     },
     async SignOut() {
-      let url = this.storedServerURL + "v1/sessions/mine";
+      let url = this.serverURL + "v1/sessions/mine";
       let sessionToken = localStorage.getItem("auth");
 
       // send a DELETE request with the above data

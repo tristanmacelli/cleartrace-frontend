@@ -101,13 +101,17 @@ export default {
       title: this.type === "update" ? "Update " + this.group.name : "New Group"
     };
   },
-  computed: mapState({
-    general: state => state.general,
-    groupID: state => state.group.id,
-    serverURL: state => state.serverURL,
-    userID: state => state.user.id,
-    membersLength: this.memebers.length
-  }),
+  computed: {
+    membersLength() {
+      return this.members.length;
+    },
+    ...mapState({
+      general: state => state.general,
+      groupID: state => state.group.id,
+      serverURL: state => state.serverURL,
+      userID: state => state.user.id
+    })
+  },
   emits: ["createGroup", "updateGroup", "hideModal"],
   watch: {
     query() {

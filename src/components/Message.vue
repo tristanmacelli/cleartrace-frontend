@@ -14,8 +14,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 export default {
   name: "message",
   props: {
@@ -36,10 +34,12 @@ export default {
       required: true
     }
   },
-  emits: ["remove"],
-  computed: mapState({
-    isAuthor: state => this.creator.FirstName == state.user.FirstName
-  })
+  computed: {
+    isAuthor() {
+      return this.creator.FirstName == this.$store.getters.userFirstName;
+    }
+  },
+  emits: ["remove"]
 };
 </script>
 
