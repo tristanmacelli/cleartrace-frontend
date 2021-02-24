@@ -233,8 +233,6 @@ export default {
             group: newGroup
           });
           this.HideModal();
-          // to ensure user is up to date
-          this.GetMessages();
         });
     },
     DisplayResults() {
@@ -297,27 +295,29 @@ export default {
         });
     },
     DeleteGroup() {
-      let url = this.serverURL + "v1/channels/" + this.groupID;
-      let sessionToken = localStorage.getItem("auth");
-      axios
-        .delete(url, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(() => {
-          // Go back to the general group when deleting the channel
-          this.$store.commit("setGroup", {
-            group: this.general
+      if (confirm("Are you sure you want to delete this group?")) {
+        let url = this.serverURL + "v1/channels/" + this.groupID;
+        let sessionToken = localStorage.getItem("auth");
+        axios
+          .delete(url, {
+            headers: {
+              Authorization: sessionToken
+            }
+          })
+          .catch(error => {
+            alert(error);
+          })
+          .then(() => {
+            // Go back to the general group when deleting the channel
+            this.$store.commit("setGroup", {
+              group: this.general
+            });
+            this.$store.commit("setGroupBuffer", {
+              group: this.general
+            });
+            this.HideModal();
           });
-          this.$store.commit("setGroupBuffer", {
-            group: this.general
-          });
-          this.HideModal();
-        });
+      }
     },
     UpdateGroupDetails() {
       // Update name & description
