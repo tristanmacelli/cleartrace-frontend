@@ -82,23 +82,12 @@ export default {
   },
   watch: {
     groupBuffer() {
-      // In cases of update or delete (General channel was received)
-      if (
-        this.groupBuffer.type == "update" ||
-        this.groupBuffer.creator.id == -1
-      ) {
-        // TODO: lookup index of group to be able to remove it
-        let index = 0;
-        this.groups.splice(index, 1);
-      }
-      if (
-        this.groupBuffer.type == "create" ||
-        this.groupBuffer.type == "update"
-      ) {
+      if (this.groupBuffer.type == "create") {
         this.groups.push(this.groupBuffer);
       }
-      // In all cases, the groupList should be updated, but created & updated groups
+      // In all cases, the groupList should be updated, but created groups
       // will be pushed to the group list immediately increasing redundancy/reliability
+      this.groups = [];
       this.GetGroups();
     }
   },
