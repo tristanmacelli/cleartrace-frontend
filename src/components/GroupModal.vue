@@ -361,8 +361,11 @@ export default {
 
       let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
       let sessionToken = localStorage.getItem("auth");
+      let body = {
+        id: newMember.id
+      };
       axios
-        .post(url, newMember.id, {
+        .post(url, body, {
           headers: {
             Authorization: sessionToken
           }
@@ -382,7 +385,6 @@ export default {
         });
     },
     RemoveGroupMember(index) {
-      let id = this.members[index];
       if (this.type === "create") {
         console.log(this.names[index]);
         console.log(this.members[index]);
@@ -390,12 +392,15 @@ export default {
         this.members.splice(index, 1);
         return;
       }
-
+      let id = this.members[index];
       // Parse members & add them to new group obj before sending request
       let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
       let sessionToken = localStorage.getItem("auth");
+      let body = {
+        id: id
+      };
       axios
-        .delete(url, id, {
+        .delete(url, body, {
           headers: {
             Authorization: sessionToken
           }

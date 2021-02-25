@@ -95,18 +95,20 @@ export default {
   },
   created: async function() {
     // Create initial message
-    let date = new Date();
-    date = this.formatDate(date);
-    let welcomeMessage = {
-      id: "-1",
-      body: "Welcome to the " + this.groupName + " group",
-      creator: {
-        FirstName: "Automated",
-        LastName: ""
-      },
-      createdAt: date
-    };
-    this.messageList.push(welcomeMessage);
+    if (this.groupName == "General") {
+      let date = new Date();
+      date = this.formatDate(date);
+      let welcomeMessage = {
+        id: "-1",
+        body: "Welcome to the " + this.groupName + " group",
+        creator: {
+          FirstName: "Automated",
+          LastName: ""
+        },
+        createdAt: date
+      };
+      this.messageList.push(welcomeMessage);
+    }
 
     // Make query to server for last 100 messages
     await this.GetMessages();
@@ -169,8 +171,10 @@ export default {
         createdAt: formattedDate,
         creator: this.user
       };
-      this.messageList.push(messageObject);
-
+      // Setting the msg id locally to -1 (will self-correct on page refresh)
+      let temporary = messageObject;
+      temporary.id = "-1";
+      this.messageList.push(temporary);
       // send a get request with the above data
       axios
         .post(url, messageObject, {

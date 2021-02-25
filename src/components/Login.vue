@@ -28,7 +28,7 @@
       />
       <a
         href="/login/reset"
-        class="my-2 text-sm text-center text-blue-500 hover:underline"
+        class="justify-self-center w-32 my-2 text-sm text-center text-blue-500 hover:underline"
         @click.prevent="this.Alert"
         >Forgot Password?</a
       >
