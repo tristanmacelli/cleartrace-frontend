@@ -1,6 +1,8 @@
 import axios from "axios";
-import { createStore } from "vuex";
+import { createStore, createLogger } from "vuex";
 
+const debug = process.env.NODE_ENV !== "production";
+const plugins = debug ? [createLogger({})] : [];
 const store = createStore({
   state() {
     return {
@@ -335,7 +337,9 @@ const store = createStore({
       }
       return state.isSignUpActive;
     }
-  }
+  },
+  strict: debug,
+  plugins
 });
 
 export default store;
