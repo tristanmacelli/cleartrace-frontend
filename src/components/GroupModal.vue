@@ -156,17 +156,15 @@ export default {
       this.description = this.group.description;
       // TODO: Check that the order of indexing of members and names lines up
       //       in after initializing them here
-      console.log("member ids");
       this.group.members
         .slice()
         .reverse()
         .forEach(member => {
-          console.log(member);
           this.members.push(member);
         });
       let url = this.serverURL + "v1/users/search/";
       let sessionToken = localStorage.getItem("auth");
-      console.log("user ids for fullnames");
+
       axios
         .post(url, this.group.members, {
           headers: {
@@ -186,7 +184,6 @@ export default {
             .slice()
             .reverse()
             .forEach(user => {
-              console.log(user.ID);
               let fullname = user.FirstName + " " + user.LastName;
               this.names.push(fullname);
             });
@@ -223,8 +220,6 @@ export default {
           alert(error);
         })
         .then(response => {
-          // This should be the newly created channel w/ id
-          console.log(response.data);
           let newGroup = response.data;
           // The type field allows groupList to properly consume the changes to the group
           newGroup.type = "create";
@@ -268,14 +263,12 @@ export default {
           alert(error);
         })
         .then(response => {
-          // console.log(response.data);
           let users = response.data;
           if (response.data) {
             users
               .slice()
               .reverse()
               .forEach(user => {
-                console.log(user);
                 if (user.ID != this.userID) {
                   let reducedUsr = {
                     id: user.ID,
@@ -351,19 +344,18 @@ export default {
     AddGroupMember(index) {
       this.HideResults();
       let newMember = this.searchResults[index];
-      console.log(index);
-      console.log(newMember);
+
       if (this.type === "create") {
         this.members.push(newMember.id);
         this.names.push(newMember.text);
         return;
       }
-
       let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
       let sessionToken = localStorage.getItem("auth");
       let body = {
         id: newMember.id
       };
+
       axios
         .post(url, body, {
           headers: {
@@ -374,9 +366,11 @@ export default {
           alert(error);
         })
         .then(response => {
-          let updatedGroup = response.data;
           // The type field allows groupList to properly consume the changes to the group
-          updatedGroup.type = "update";
+          let updatedGroup = {
+            message: response.data,
+            type: "update"
+          };
           this.members.push(newMember.id);
           this.names.push(newMember.text);
           this.$store.commit("setGroupBuffer", {
@@ -396,22 +390,27 @@ export default {
       // Parse members & add them to new group obj before sending request
       let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
       let sessionToken = localStorage.getItem("auth");
-      let body = {
+      let data = {
         id: id
       };
+      let headers = {
+        Authorization: sessionToken
+      };
       axios
-        .delete(url, body, {
-          headers: {
-            Authorization: sessionToken
-          }
+        .delete(url, {
+          headers,
+          data
         })
         .catch(error => {
+          console.log("error:", error);
           alert(error);
         })
         .then(response => {
-          let updatedGroup = response.data;
           // The type field allows groupList to properly consume the changes to the group
-          updatedGroup.type = "update";
+          let updatedGroup = {
+            message: response.data,
+            type: "update"
+          };
           this.names.splice(index, 1);
           this.members.splice(index, 1);
           this.$store.commit("setGroupBuffer", {
