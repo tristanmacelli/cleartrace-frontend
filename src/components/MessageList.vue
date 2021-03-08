@@ -4,7 +4,7 @@
     class="flex flex-col absolute z-10 w-full sm:w-4/5 h-full border-r border-gray-300"
   >
     <div class="flex no-wrap h-20 px-5 py-6">
-      <p class="flex-grow font-semibold text-lg">
+      <p class="flex-grow font-semibold text-lg self-center">
         {{ this.groupName }}
       </p>
       <svg
