@@ -35,7 +35,7 @@
     <div class="px-2">
       <group
         @click="this.CloseGroupList"
-        @display-modal="this.DisplayModalUpdate"
+        @display-modal="this.DisplayModal"
         v-for="grp in groups"
         :key="grp.id"
         :creator="grp.creator"
@@ -82,13 +82,24 @@ export default {
   },
   watch: {
     groupBuffer() {
+      // There aren't any changes to process when opening the group modal
+      if (this.groupBuffer.showModal) {
+        return;
+      }
+      // created groups are pushed to the group list immediately, increasing redundancy/reliability
       if (this.groupBuffer.type == "create") {
         this.groups.push(this.groupBuffer);
       }
-      // In all cases, the groupList should be updated, but created groups
-      // will be pushed to the group list immediately increasing redundancy/reliability
-      this.groups = [];
+      // In all cases, the groupList should be updated
       this.GetGroups();
+      let newBuffer = {
+        group: null,
+        type: null,
+        showModal: false
+      };
+      this.$store.commit("setGroupBuffer", {
+        groupBuffer: newBuffer
+      });
     }
   },
   emits: ["displayModal"],
@@ -124,14 +135,18 @@ export default {
       }
     },
     DisplayModalCreate() {
-      let modalState = {
-        type: "create"
+      let newBuffer = {
+        group: null,
+        type: "create",
+        showModal: true
       };
-      this.$emit("displayModal", modalState);
+      this.$store.commit("setGroupBuffer", {
+        groupBuffer: newBuffer
+      });
+      this.DisplayModal();
     },
-    // Ideally this would be an event emitted from the group itself
-    DisplayModalUpdate(modalState) {
-      this.$emit("displayModal", modalState);
+    DisplayModal() {
+      this.$emit("displayModal");
     },
     async HandleListItem(index) {
       if (index == 2) {
@@ -158,6 +173,7 @@ export default {
           if (response == null) {
             return;
           }
+          this.groups = [];
           groups = [];
           let groups = response.data;
           groups

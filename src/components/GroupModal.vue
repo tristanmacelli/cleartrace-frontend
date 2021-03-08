@@ -9,13 +9,13 @@
       <input
         v-if="this.type === 'update'"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-        v-model="groupName"
+        v-model="group.name"
         type="text"
       />
       <input
         v-if="this.type === 'update'"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-        v-model="description"
+        v-model="group.description"
         type="text"
       />
       <input
@@ -76,29 +76,19 @@ export default {
     GroupMember,
     Modal
   },
-  props: {
-    group: {
-      type: Object,
-      required: false
-    },
-    type: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
       awaitingSearch: false,
       awaitingDescription: false,
       awaitingTitle: false,
-      description: "",
-      groupName: "",
+      group: null,
       members: [],
       names: [],
       query: "",
       searchResults: [],
       showResults: false,
-      title: this.type === "update" ? "Update " + this.group.name : "New Group"
+      title: this.type === "update" ? "Update " + this.group.name : "New Group",
+      type: ""
     };
   },
   computed: {
@@ -106,6 +96,7 @@ export default {
       return this.members.length;
     },
     ...mapState({
+      groupBuffer: state => state.groupBuffer,
       general: state => state.general,
       groupID: state => state.group.id,
       serverURL: state => state.serverURL,
@@ -151,9 +142,10 @@ export default {
     }
   },
   created: function() {
+    this.type = this.groupBuffer.type;
+    this.group = this.groupBuffer.group;
+
     if (this.type === "update") {
-      this.groupName = this.group.name;
-      this.description = this.group.description;
       let url = this.serverURL + "v1/users/search/";
       let sessionToken = localStorage.getItem("auth");
 
@@ -213,12 +205,15 @@ export default {
           alert(error);
         })
         .then(response => {
-          let newGroup = response.data;
           // The type field allows groupList to properly consume the changes to the group
-          newGroup.type = "create";
+          let newBuffer = {
+            group: response.data,
+            type: "create",
+            showModal: false
+          };
           // Done in then to ensure backend generated id is correct
           this.$store.commit("setGroupBuffer", {
-            group: newGroup
+            groupBuffer: newBuffer
           });
           this.HideModal();
         });
@@ -298,8 +293,13 @@ export default {
             this.$store.commit("setGroup", {
               group: this.general
             });
+            let newBuffer = {
+              group: this.general,
+              type: "update",
+              showModal: false
+            };
             this.$store.commit("setGroupBuffer", {
-              group: this.general
+              groupBuffer: newBuffer
             });
             this.HideModal();
           });
@@ -324,11 +324,14 @@ export default {
           alert(error);
         })
         .then(response => {
-          let updatedGroup = response.data;
           // The type field allows groupList to properly consume the changes to the group
-          updatedGroup.type = "update";
+          let newBuffer = {
+            group: response.data,
+            type: "update",
+            showModal: false
+          };
           this.$store.commit("setGroupBuffer", {
-            group: response.data
+            groupBuffer: newBuffer
           });
         });
     },
@@ -360,12 +363,13 @@ export default {
           this.members.push(newMember.id);
           this.names.push(newMember.text);
           // The type field allows groupList to properly consume the changes to the group
-          let updatedGroup = {
-            message: response.data,
-            type: "update"
+          let newBuffer = {
+            group: response.data,
+            type: "update",
+            showModal: false
           };
           this.$store.commit("setGroupBuffer", {
-            group: updatedGroup
+            groupBuffer: newBuffer
           });
         });
     },
@@ -395,14 +399,15 @@ export default {
         })
         .then(response => {
           // The type field allows groupList to properly consume the changes to the group
-          let updatedGroup = {
-            message: response.data,
-            type: "update"
-          };
           this.names.splice(index, 1);
           this.members.splice(index, 1);
+          let newBuffer = {
+            message: response.data,
+            type: "update",
+            showModal: false
+          };
           this.$store.commit("setGroupBuffer", {
-            group: updatedGroup
+            groupBuffer: newBuffer
           });
         });
     }

@@ -15,7 +15,11 @@ const store = createStore({
         name: "General"
       },
       // Establishes a buffer to process group changes locally
-      groupBuffer: null,
+      groupBuffer: {
+        group: null,
+        type: null,
+        showModal: false
+      },
       // A fallback in case backend request fails on its initial attempt
       general: {
         id: "5fec04e96d55740010123439",
@@ -65,7 +69,7 @@ const store = createStore({
       if (state.debug) {
         console.log("setGroup triggered with: ", payload);
       }
-      state.groupBuffer = payload.group;
+      state.groupBuffer = payload.groupBuffer;
     },
     async setUser(state) {
       // eslint-disable-next-line

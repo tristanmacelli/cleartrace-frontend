@@ -7,12 +7,7 @@
       <MessageList></MessageList>
       <GroupList @display-modal="this.DisplayModal"></GroupList>
     </div>
-    <GroupModal
-      v-if="this.displayModal"
-      @hide-modal="HideModal"
-      :group="modalGroup"
-      :type="modalType"
-    ></GroupModal>
+    <GroupModal v-if="this.displayModal" @hide-modal="HideModal"></GroupModal>
   </div>
 </template>
 
@@ -37,11 +32,7 @@ export default {
     };
   },
   methods: {
-    DisplayModal(modalState) {
-      this.modalType = modalState.type;
-      if (modalState.type === "update") {
-        this.modalGroup = modalState.group;
-      }
+    DisplayModal() {
       this.displayModal = true;
     },
     HideModal() {

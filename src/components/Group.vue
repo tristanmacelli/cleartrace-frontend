@@ -70,16 +70,20 @@ export default {
     },
     DisplayModalUpdate() {
       let modalState = {
-        type: "update",
         group: {
           creator: this.creator,
           description: this.description,
           id: this.id,
           members: this.members,
           name: this.name
-        }
+        },
+        type: "update",
+        showModal: true
       };
-      this.$emit("displayModal", modalState);
+      this.$store.commit("setGroupBuffer", {
+        groupBuffer: modalState
+      });
+      this.$emit("displayModal");
     }
   }
 };
