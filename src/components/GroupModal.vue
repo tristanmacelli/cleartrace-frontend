@@ -9,7 +9,7 @@
       <input
         v-if="this.type === 'update'"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-        v-model="name"
+        v-model="groupName"
         type="text"
       />
       <input
@@ -92,8 +92,8 @@ export default {
       awaitingDescription: false,
       awaitingTitle: false,
       description: "",
+      groupName: "",
       members: [],
-      name: "",
       names: [],
       query: "",
       searchResults: [],
@@ -136,7 +136,7 @@ export default {
         }
       }
     },
-    name(_, oldVal) {
+    groupName(_, oldVal) {
       if (this.type == "update") {
         if (oldVal !== "") {
           if (!this.awaitingTitle) {
@@ -152,16 +152,8 @@ export default {
   },
   created: function() {
     if (this.type === "update") {
-      this.name = this.group.name;
+      this.groupName = this.group.name;
       this.description = this.group.description;
-      // TODO: Check that the order of indexing of members and names lines up
-      //       in after initializing them here
-      this.group.members
-        .slice()
-        .reverse()
-        .forEach(member => {
-          this.members.push(member);
-        });
       let url = this.serverURL + "v1/users/search/";
       let sessionToken = localStorage.getItem("auth");
 
@@ -177,7 +169,7 @@ export default {
         .then(response => {
           let users = response.data;
           if (users == null) {
-            console.log("no users present");
+            alert("no users present");
             return;
           }
           users
@@ -185,6 +177,7 @@ export default {
             .reverse()
             .forEach(user => {
               let fullname = user.FirstName + " " + user.LastName;
+              this.members.push(user.ID);
               this.names.push(fullname);
             });
         });
@@ -317,7 +310,7 @@ export default {
       let url = this.serverURL + "v1/channels/" + this.groupID;
       let sessionToken = localStorage.getItem("auth");
       let body = {
-        name: this.name,
+        name: this.groupName,
         description: this.description
       };
 
@@ -328,14 +321,12 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error);
           alert(error);
         })
         .then(response => {
           let updatedGroup = response.data;
           // The type field allows groupList to properly consume the changes to the group
           updatedGroup.type = "update";
-          console.log("Updating group details");
           this.$store.commit("setGroupBuffer", {
             group: response.data
           });
@@ -366,13 +357,13 @@ export default {
           alert(error);
         })
         .then(response => {
+          this.members.push(newMember.id);
+          this.names.push(newMember.text);
           // The type field allows groupList to properly consume the changes to the group
           let updatedGroup = {
             message: response.data,
             type: "update"
           };
-          this.members.push(newMember.id);
-          this.names.push(newMember.text);
           this.$store.commit("setGroupBuffer", {
             group: updatedGroup
           });
@@ -380,8 +371,6 @@ export default {
     },
     RemoveGroupMember(index) {
       if (this.type === "create") {
-        console.log(this.names[index]);
-        console.log(this.members[index]);
         this.names.splice(index, 1);
         this.members.splice(index, 1);
         return;
@@ -402,7 +391,6 @@ export default {
           data
         })
         .catch(error => {
-          console.log("error:", error);
           alert(error);
         })
         .then(response => {
