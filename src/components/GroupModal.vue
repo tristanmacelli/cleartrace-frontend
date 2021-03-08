@@ -310,8 +310,8 @@ export default {
       let url = this.serverURL + "v1/channels/" + this.groupID;
       let sessionToken = localStorage.getItem("auth");
       let body = {
-        name: this.groupName,
-        description: this.description
+        name: this.group.name,
+        description: this.group.description
       };
 
       axios
