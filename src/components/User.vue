@@ -11,7 +11,7 @@
             <td><p>Username:</p></td>
             <td>
               <p id="account-username">
-                {{ UserName }}
+                {{ userName }}
               </p>
             </td>
           </tr>
@@ -26,18 +26,10 @@
           </tr>
           <tr>
             <td>
-              <input
-                id="account-firstname"
-                type="text"
-                v-model="FirstNameUpdate"
-              />
+              <input id="account-firstname" type="text" v-model="firstName" />
             </td>
             <td>
-              <input
-                id="account-lastname"
-                type="text"
-                v-model="LastNameUpdate"
-              />
+              <input id="account-lastname" type="text" v-model="lastName" />
             </td>
             <td><input type="submit" id="userBtn" value="CHANGE" /></td>
           </tr>
@@ -48,64 +40,16 @@
 </template>
 
 <script>
-import axios from "axios";
-import { mapState } from "vuex";
-
+import { Users } from "@/api/users";
 export default {
   name: "user",
-  data() {
+  setup() {
+    const { firstName, lastName, userName } = Users();
     return {
-      FirstNameUpdate: "",
-      LastNameUpdate: "",
-      UserName: ""
+      firstName,
+      lastName,
+      userName
     };
-  },
-  computed: mapState(["serverURL"]),
-  created: async function() {
-    let url = this.serverURL + "v1/users/";
-    let sessionToken = localStorage.getItem("auth");
-    axios
-      .get(url, {
-        headers: {
-          Authorization: sessionToken
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      })
-      .then(response => {
-        this.FirstNameUpdate = response.data.FirstName;
-        this.LastNameUpdate = response.data.LastName;
-        this.UserName = response.data.UserName;
-      });
-  },
-  methods: {
-    async UpdateUser() {
-      var url = this.serverURL + "v1/users/me";
-      let firstName = this.FirstNameUpdate;
-      let lastName = this.LastNameUpdate;
-      if (!this.FirstNameUpdate || !this.LastNameUpdate) {
-        alert("Error: Invalid name change, names must not be blank");
-        return;
-      }
-
-      let sessionToken = localStorage.getItem("auth");
-
-      // send a get request with the above data
-      axios
-        .patch(url, {
-          headers: {
-            Authorization: sessionToken
-          },
-          FirstName: firstName,
-          LastName: lastName
-        })
-        .catch(error => {
-          alert(error);
-        });
-      // Since there are no errors and the name fields are updated locally, there is no need to
-      // make a request for user information until the user returns to this page later
-    }
   }
 };
 </script>

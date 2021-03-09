@@ -11,6 +11,8 @@ export const Users = () => {
   const password = ref("");
   const firstName = ref("");
   const lastName = ref("");
+  const user = computed(() => store.state.user);
+  const userName = ref(user.value.UserName);
   const serverURL = computed(() => store.state.serverURL);
   // const groupID = computed(() => store.state.group.id);
 
@@ -124,14 +126,41 @@ export const Users = () => {
     return resp;
   }
 
+  async function UpdateUser() {
+    var url = serverURL.value + "v1/users/me";
+    if (!firstName.value || !lastName.value) {
+      alert("Error: Invalid name change, names must not be blank");
+      return;
+    }
+
+    let sessionToken = localStorage.getItem("auth");
+
+    // send a get request with the above data
+    axios
+      .patch(url, {
+        headers: {
+          Authorization: sessionToken
+        },
+        FirstName: firstName,
+        LastName: lastName
+      })
+      .catch(error => {
+        alert(error);
+      });
+    // Since there are no errors and the name fields are updated locally, there is no need to
+    // make a request for user information until the user returns to this page later
+  }
+
   return {
     email,
     password,
     firstName,
     lastName,
+    userName,
     SignIn,
     SignOut,
     SignUp,
-    GetUser
+    GetUser,
+    UpdateUser
   };
 };
