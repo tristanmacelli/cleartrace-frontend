@@ -54,9 +54,16 @@ import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+import { Users } from "@/api/users";
 
 export default {
   name: "groupList",
+  setup() {
+    const { SignOut } = Users();
+    return {
+      SignOut
+    };
+  },
   components: {
     Group,
     Dropdown,
@@ -182,29 +189,6 @@ export default {
             .forEach(group => {
               this.groups.push(group);
             });
-        });
-    },
-    async SignOut() {
-      let url = this.serverURL + "v1/sessions/mine";
-      let sessionToken = localStorage.getItem("auth");
-
-      // send a DELETE request with the above data
-      axios
-        .delete(url, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(() => {
-          localStorage.removeItem("auth");
-          this.$store.commit("clearAuthentication");
-          this.$store.commit("clearSocket");
-          if (this.$router.currentRoute != "/") {
-            this.$router.push({ path: "/" });
-          }
         });
     }
   }

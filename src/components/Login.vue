@@ -11,13 +11,13 @@
     >
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
-        v-model="LogInEmail"
+        v-model="email"
         type="text"
         placeholder="Email"
       />
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
-        v-model="LogInPass"
+        v-model="password"
         type="password"
         placeholder="Password"
       />
@@ -48,21 +48,18 @@
 </template>
 
 <script>
-import axios from "axios";
-import { mapState } from "vuex";
+import { Users } from "@/api/users";
 
 export default {
   name: "login",
-  data() {
+  setup() {
+    const { email, password, SignIn } = Users();
     return {
-      LogInEmail: "",
-      LogInPass: ""
+      email,
+      password,
+      SignIn
     };
   },
-  computed: mapState({
-    groupID: state => state.group.id,
-    serverURL: state => state.serverURL
-  }),
   emits: ["displaySignup"],
   methods: {
     // Creating a new session based on the form values
@@ -72,33 +69,6 @@ export default {
     },
     DisplaySignUp() {
       this.$emit("displaySignup");
-    },
-    async SignIn() {
-      let url = this.serverURL + "v1/sessions";
-      if (!this.LogInEmail || !this.LogInPass) {
-        alert("Error: Invalid Credentials");
-        return;
-      }
-
-      axios
-        .post(url, {
-          Email: this.LogInEmail,
-          Password: this.LogInPass
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          let sessionToken = response.headers["authorization"];
-          if (sessionToken) {
-            localStorage.setItem("auth", sessionToken);
-            this.$store.commit("setAuthentication");
-            this.$store.commit("setSocket");
-            this.$store.commit("setUser");
-            this.$router.push({ path: "/home" });
-            // this.$router.push({ name: 'Home', params: { groupID: groupID } });
-          }
-        });
     }
   }
 };

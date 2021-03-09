@@ -1,107 +1,137 @@
 import axios from "axios";
 
-export async function SignIn(serverURL, email, password) {
-  let url = serverURL + "v1/sessions";
-  if (!email || !password) {
-    alert("Error: Invalid Credentials");
-    return;
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+
+export const Users = () => {
+  const store = useStore();
+  const router = useRouter();
+  const email = ref("");
+  const password = ref("");
+  const firstName = ref("");
+  const lastName = ref("");
+  const serverURL = computed(() => store.state.serverURL);
+  // const groupID = computed(() => store.state.group.id);
+
+  async function SignIn() {
+    let url = serverURL.value + "v1/sessions";
+    if (!email.value || !password.value) {
+      alert("Error: Invalid Credentials");
+      return;
+    }
+
+    await axios
+      .post(url, {
+        Email: email.value,
+        Password: password.value
+      })
+      .then(response => {
+        let sessionToken = response.headers["authorization"];
+        if (sessionToken) {
+          localStorage.setItem("auth", sessionToken);
+          store.commit("setAuthentication");
+          store.commit("setSocket");
+          store.commit("setUser");
+          router.push({ path: "/home" });
+          // router.push({ name: 'Home', params: { groupID: groupID } });
+        }
+      })
+      .catch(error => {
+        alert(error);
+      });
   }
 
-  axios
-    .post(url, {
-      Email: email,
-      Password: password
-    })
-    .catch(error => {
-      alert(error);
-    })
-    .then(response => {
-      let sessionToken = response.headers["authorization"];
-      if (sessionToken) {
-        localStorage.setItem("auth", sessionToken);
-        this.$store.commit("setAuthentication");
-        this.$store.commit("setSocket");
-        this.$store.commit("setUser");
-        this.$router.push({ path: "/home" });
-        // this.$router.push({ name: 'Home', params: { groupID: groupID } });
-      }
-    });
-}
+  async function SignOut() {
+    let url = serverURL.value + "v1/sessions/mine";
+    let sessionToken = localStorage.getItem("auth");
 
-export async function SignOut(serverURL) {
-  let url = serverURL + "v1/sessions/mine";
-  let sessionToken = localStorage.getItem("auth");
-
-  // send a DELETE request with the above data
-  axios
-    .delete(url, {
-      headers: {
-        Authorization: sessionToken
-      }
-    })
-    .catch(error => {
-      alert(error);
-    })
-    .then(() => {
-      localStorage.removeItem("auth");
-      this.$store.commit("clearAuthentication");
-      this.$store.commit("clearSocket");
-      if (this.$router.currentRoute != "/") {
-        this.$router.push({ path: "/" });
-      }
-    });
-}
-
-export async function SignUp(serverURL, email, password, firstName, lastName) {
-  let url = serverURL + "v1/users";
-  let username = firstName + "." + lastName;
-
-  if (!email || !password) {
-    alert("Error: Invalid New User Input");
-    return;
+    // send a DELETE request with the above data
+    await axios
+      .delete(url, {
+        headers: {
+          Authorization: sessionToken
+        }
+      })
+      .then(() => {
+        localStorage.removeItem("auth");
+        store.commit("clearAuthentication");
+        store.commit("clearSocket");
+        if (router.currentRoute != "/") {
+          router.push({ path: "/" });
+        }
+      })
+      .catch(error => {
+        alert(error);
+      });
   }
-  axios
-    .post(url, {
+
+  async function SignUp() {
+    let url = serverURL.value + "v1/users";
+    let username = firstName.value + "." + lastName.value;
+
+    if (!email.value || !password.value) {
+      alert("Error: Invalid New User Input");
+      return;
+    }
+    let user = {
       Email: email,
       Password: password,
       PasswordConf: password,
       UserName: username,
       FirstName: firstName,
       LastName: lastName
-    })
-    .catch(error => {
-      alert(error);
-    })
-    .then(response => {
-      let sessionToken = response.headers["authorization"];
-      if (sessionToken) {
-        localStorage.setItem("auth", sessionToken);
-        this.$store.commit("setAuthentication");
-        this.$store.commit("setSocket");
-        this.$store.commit("setUser");
-        this.$router.push({ path: "/home" });
-        // this.$router.push({ name: 'Home', params: { groupID: groupID } });
-      }
-    });
-}
+    };
+    await axios
+      .post(url, {
+        user
+      })
+      .then(response => {
+        let sessionToken = response.headers["authorization"];
+        if (sessionToken) {
+          localStorage.setItem("auth", sessionToken);
+          store.commit("setAuthentication");
+          store.commit("setSocket");
+          store.commit("setUser");
+          router.push({ path: "/home" });
+          // router.push({ name: 'Home', params: { groupID: groupID } });
+        }
+      })
+      .catch(error => {
+        alert(error);
+      });
+  }
+  async function GetUser(serverURL) {
+    let sessionToken = localStorage.getItem("auth");
+    let url = serverURL + "v1/users/";
+    let resp = await axios
+      .get(url, {
+        headers: {
+          Authorization: sessionToken
+        }
+      })
+      .then(response => {
+        // state.user = response.data;
+        return response;
+      })
+      .catch(error => {
+        // eslint-disable-next-line
+        // if (debug) {
+        //   console.log(error);
+        // }
+        return error;
+      });
+    return resp;
+  }
 
-export async function GetUser(serverURL, debug) {
-  let sessionToken = localStorage.getItem("auth");
-  let url = serverURL + "v1/users/";
-  await axios
-    .get(url, {
-      headers: {
-        Authorization: sessionToken
-      }
-    })
-    .catch(error => {
-      // eslint-disable-next-line
-      if (debug) {
-        console.log(error);
-      }
-    })
-    .then(response => {
-      console.log(response);
-      // state.user = response.data;
-    });
-}
+  return {
+    email,
+    password,
+    firstName,
+    lastName,
+    SignIn,
+    SignOut,
+    SignUp,
+    GetUser
+  };
+};

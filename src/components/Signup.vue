@@ -79,23 +79,20 @@
 </template>
 
 <script>
-import axios from "axios";
-import { mapState } from "vuex";
+import { Users } from "@/api/users";
 
 export default {
   name: "signup",
-  data() {
+  setup() {
+    const { email, password, firstName, lastName, SignUp } = Users();
     return {
-      NewFirstName: "",
-      NewLastName: "",
-      NewEmail: "",
-      NewPassword: ""
+      email,
+      password,
+      firstName,
+      lastName,
+      SignUp
     };
   },
-  computed: mapState({
-    groupID: state => state.group.id,
-    serverURL: state => state.serverURL
-  }),
   emits: ["hideSignup"],
   methods: {
     Alert() {
@@ -103,38 +100,6 @@ export default {
     },
     HideSignUp() {
       this.$emit("hideSignup");
-    },
-    async SignUp() {
-      let url = this.serverURL + "v1/users";
-      let username = this.NewFirstName + "." + this.NewLastName;
-
-      if (!this.NewEmail || !this.NewPassword) {
-        alert("Error: Invalid New User Input");
-        return;
-      }
-      axios
-        .post(url, {
-          Email: this.NewEmail,
-          Password: this.NewPassword,
-          PasswordConf: this.NewPassword,
-          UserName: username,
-          FirstName: this.NewFirstName,
-          LastName: this.NewLastName
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          let sessionToken = response.headers["authorization"];
-          if (sessionToken) {
-            localStorage.setItem("auth", sessionToken);
-            this.$store.commit("setAuthentication");
-            this.$store.commit("setSocket");
-            this.$store.commit("setUser");
-            this.$router.push({ path: "/home" });
-            // this.$router.push({ name: 'Home', params: { groupID: groupID } });
-          }
-        });
     }
   }
 };
