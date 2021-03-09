@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
 
 export const Messages = () => {
@@ -22,9 +22,6 @@ export const Messages = () => {
           Authorization: sessionToken
         }
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(response => {
         let messages = response.data;
         messages
@@ -36,6 +33,9 @@ export const Messages = () => {
           });
         // TODO: Local function call
         this.updateScroll();
+      })
+      .catch(error => {
+        alert(error);
       });
   }
   async function SendMessage() {
@@ -63,13 +63,13 @@ export const Messages = () => {
           Authorization: sessionToken
         }
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(() => {
         body.value = "";
         // TODO: Local function call
         this.updateScroll();
+      })
+      .catch(error => {
+        alert(error);
       });
   }
 
@@ -79,16 +79,77 @@ export const Messages = () => {
   };
 };
 
-// TODO: Figure out how to handle local function calls
 export const Groups = () => {
   const store = useStore();
   const serverURL = computed(() => store.state.serverURL);
   const general = computed(() => store.state.general);
-  const names = ref([]);
-  const members = ref([]);
   const group = ref({});
   const groups = ref([]);
-  const index = ref(-1);
+  const members = ref([]);
+  const memberIDs = computed(() => members.value.forEach(member => member.id));
+  const memberNames = computed(() =>
+    members.value.forEach(member => member.name)
+  );
+  const type = ref("");
+  const awaitingDescription = ref(false);
+  const awaitingTitle = ref(false);
+
+  watch(group.value.description, (_, oldVal) => {
+    if (this.type == "update") {
+      if (oldVal !== "") {
+        if (!awaitingDescription.value) {
+          setTimeout(() => {
+            this.UpdateGroupDetails();
+            awaitingDescription.value = false;
+          }, 1000); // 1 sec delay
+        }
+        awaitingDescription.value = true;
+      }
+    }
+  });
+  watch(group.value.name, (_, oldVal) => {
+    if (this.type == "update") {
+      if (oldVal !== "") {
+        if (!awaitingTitle.value) {
+          setTimeout(() => {
+            this.UpdateGroupDetails();
+            awaitingTitle.value = false;
+          }, 1000); // 1 sec delay
+        }
+        awaitingTitle.value = true;
+      }
+    }
+  });
+
+  async function GetSpecificGroup(groupName) {
+    var url = serverURL.value + "v1/channels?startsWith=" + groupName;
+    let sessionToken = localStorage.getItem("auth");
+    // send a get request with the above data
+    let groups = await axios
+      .get(url, {
+        headers: {
+          Authorization: sessionToken
+        }
+      })
+      .then(response => {
+        return response.data;
+      })
+      .catch(error => {
+        alert(error);
+      });
+    return groups;
+  }
+
+  async function GetGeneralGroup() {
+    let groups = await this.GetSpecificGroup("General");
+    let general = groups[0];
+    this.$store.commit("setGroup", {
+      group: general
+    });
+    this.$store.commit("setGeneral", {
+      group: general
+    });
+  }
 
   async function CreateGroup() {
     if (members.value.length == 0) {
@@ -97,15 +158,16 @@ export const Groups = () => {
     }
     let url = serverURL.value + "v1/channels";
     let sessionToken = localStorage.getItem("auth");
-    let title = names.value.toString();
+    let names = memberNames.value.toString();
+    let ids = memberIDs.value.toString();
     let date = new Date();
     // title = title.substring(1, title.length - 2);
     // Create Group object
     let groupObject = {
-      name: title,
+      name: names,
       description: "*~Enter a description~*",
       private: true,
-      members: members,
+      members: ids,
       createdAt: date,
       editedAt: null
     };
@@ -114,9 +176,6 @@ export const Groups = () => {
         headers: {
           Authorization: sessionToken
         }
-      })
-      .catch(error => {
-        alert(error);
       })
       .then(response => {
         // The type field allows groupList to properly consume the changes to the group
@@ -129,8 +188,9 @@ export const Groups = () => {
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
         });
-        // TODO: Figure out how to handle local function calls
-        this.HideModal();
+      })
+      .catch(error => {
+        alert(error);
       });
   }
   async function GetGroups() {
@@ -144,9 +204,6 @@ export const Groups = () => {
           Authorization: sessionToken
         }
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(response => {
         if (response == null) {
           return;
@@ -159,6 +216,9 @@ export const Groups = () => {
           .forEach(group => {
             groups.value.push(group);
           });
+      })
+      .catch(error => {
+        alert(error);
       });
   }
   async function UpdateGroupDetails() {
@@ -176,9 +236,6 @@ export const Groups = () => {
           Authorization: sessionToken
         }
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(response => {
         // The type field allows groupList to properly consume the changes to the group
         let newBuffer = {
@@ -189,6 +246,9 @@ export const Groups = () => {
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
         });
+      })
+      .catch(error => {
+        alert(error);
       });
   }
   async function DeleteGroup() {
@@ -219,18 +279,15 @@ export const Groups = () => {
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
         });
-        // TODO: Figure out how to handle local function calls
-        this.HideModal();
       });
   }
-  async function AddGroupMember() {
-    // TODO: Figure out how to handle local function calls
-    this.HideResults();
-    let newMember = this.searchResults[index];
-
+  async function AddGroupMember(newMember) {
     if (this.type === "create") {
-      this.members.push(newMember.id);
-      this.names.push(newMember.text);
+      let member = {
+        id: newMember.id,
+        name: newMember.text
+      };
+      this.members.push(member);
       return;
     }
     let url = serverURL.value + "v1/channels/" + group.value.ID + "/members";
@@ -245,12 +302,12 @@ export const Groups = () => {
           Authorization: sessionToken
         }
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(response => {
-        this.members.push(newMember.id);
-        this.names.push(newMember.text);
+        let member = {
+          id: newMember.id,
+          name: newMember.text
+        };
+        this.members.push(member);
         // The type field allows groupList to properly consume the changes to the group
         let newBuffer = {
           group: response.data,
@@ -260,11 +317,13 @@ export const Groups = () => {
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
         });
+      })
+      .catch(error => {
+        alert(error);
       });
   }
-  async function RemoveGroupMember() {
+  async function RemoveGroupMember(index) {
     if (this.type === "create") {
-      this.names.splice(index, 1);
       this.members.splice(index, 1);
       return;
     }
@@ -283,12 +342,8 @@ export const Groups = () => {
         headers,
         data
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(response => {
         // The type field allows groupList to properly consume the changes to the group
-        this.names.splice(index, 1);
         this.members.splice(index, 1);
         let newBuffer = {
           message: response.data,
@@ -298,9 +353,19 @@ export const Groups = () => {
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
         });
+      })
+      .catch(error => {
+        alert(error);
       });
   }
   return {
+    group,
+    groups,
+    members,
+    memberNames,
+    type,
+    GetSpecificGroup,
+    GetGeneralGroup,
     CreateGroup,
     UpdateGroupDetails,
     GetGroups,

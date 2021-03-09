@@ -157,8 +157,8 @@ export default {
     DisplayModal() {
       this.$emit("displayModal");
     },
-    async HandleListItem(index) {
-      if (index == 2) {
+    async HandleListItem(item) {
+      if (item.id == 2) {
         this.SignOut();
       } else {
         this.AlertUnregistered();

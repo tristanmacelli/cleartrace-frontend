@@ -1,7 +1,7 @@
 <template>
   <Modal :Title="this.title" Description=" " @hide-modal="HideModal">
     <form
-      v-on:submit.prevent="CreateGroup"
+      v-on:submit.prevent="SubmitForm"
       accept-charset="UTF-8"
       class="grid gap-y-2 w-full"
     >
@@ -27,7 +27,7 @@
       <h4 class="font-bold h-8 text-center">Members:</h4>
       <div class="flex flex-wrap gap-y-1 max-h-32 overflow-y-auto">
         <group-member
-          v-for="(name, index) in names"
+          v-for="(name, index) in memberNames"
           :key="index"
           :index="index"
           :name="name"
@@ -44,9 +44,8 @@
       <!-- This slot allows for a Update Group modal (Delete group button here) -->
       <input
         v-if="this.type === 'update'"
-        @click="DeleteGroup"
         class="w-full px-16 py-2 bg-red-500 font-bold text-white cursor-pointer rounded-md"
-        type="button"
+        type="submit"
         value="Delete"
       />
     </form>
@@ -62,15 +61,52 @@
 </template>
 
 <script>
-import axios from "axios";
 // @ is an alias to /src
 import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
+// import { CreateGroup, UpdateGroupDetails, DeleteGroup, AddGroupMember, RemoveGroupMember } from "@/api/messaging.service.js";
 import { mapState } from "vuex";
+import { Groups } from "@/api/messaging.service";
+import { Search } from "@/api/users";
 
 export default {
   name: "groupModal",
+  setup() {
+    const {
+      members,
+      memberNames,
+      type,
+      CreateGroup,
+      DeleteGroup,
+      UpdateGroupDetails,
+      AddGroupMember,
+      RemoveGroupMember
+    } = Groups();
+    const {
+      searchResults,
+      query,
+      users,
+      SearchUsers,
+      GetUsersFromIDs
+    } = Search();
+
+    return {
+      members,
+      memberNames,
+      type,
+      CreateGroup,
+      DeleteGroup,
+      UpdateGroupDetails,
+      AddGroupMember,
+      RemoveGroupMember,
+      searchResults,
+      query,
+      users,
+      SearchUsers,
+      GetUsersFromIDs
+    };
+  },
   components: {
     List,
     GroupMember,
@@ -78,26 +114,14 @@ export default {
   },
   data() {
     return {
-      awaitingSearch: false,
-      awaitingDescription: false,
-      awaitingTitle: false,
       group: null,
-      members: [],
-      names: [],
-      query: "",
-      searchResults: [],
       showResults: false,
-      title: this.type === "update" ? "Update " + this.group.name : "New Group",
-      type: ""
+      title: this.type === "update" ? "Update " + this.group.name : "New Group"
     };
   },
   computed: {
-    membersLength() {
-      return this.members.length;
-    },
     ...mapState({
       groupBuffer: state => state.groupBuffer,
-      general: state => state.general,
       groupID: state => state.group.id,
       serverURL: state => state.serverURL,
       userID: state => state.user.id
@@ -105,119 +129,27 @@ export default {
   },
   emits: ["hideModal"],
   watch: {
-    query() {
-      if (!this.awaitingSearch) {
-        setTimeout(() => {
-          this.SearchUsers();
-          this.awaitingSearch = false;
-        }, 1000); // 1 sec delay
-      }
-      this.awaitingSearch = true;
-    },
-    description(_, oldVal) {
-      if (this.type == "update") {
-        if (oldVal !== "") {
-          if (!this.awaitingDescription) {
-            setTimeout(() => {
-              this.UpdateGroupDetails();
-              this.awaitingDescription = false;
-            }, 1000); // 1 sec delay
-          }
-          this.awaitingDescription = true;
-        }
+    query(curVal) {
+      if (curVal != "") {
+        this.DisplayResults();
       }
     },
-    groupName(_, oldVal) {
-      if (this.type == "update") {
-        if (oldVal !== "") {
-          if (!this.awaitingTitle) {
-            setTimeout(() => {
-              this.UpdateGroupDetails();
-              this.awaitingTitle = false;
-            }, 1000); // 1 sec delay
-          }
-          this.awaitingTitle = true;
-        }
+    members(curVal, oldVal) {
+      if (curVal.length > oldVal.length) {
+        this.HideResults();
       }
     }
   },
-  created: function() {
+  created: async function() {
     this.type = this.groupBuffer.type;
     this.group = this.groupBuffer.group;
 
     if (this.type === "update") {
-      let url = this.serverURL + "v1/users/search/";
-      let sessionToken = localStorage.getItem("auth");
-
-      axios
-        .post(url, this.group.members, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          let users = response.data;
-          if (users == null) {
-            alert("no users present");
-            return;
-          }
-          users
-            .slice()
-            .reverse()
-            .forEach(user => {
-              let fullname = user.FirstName + " " + user.LastName;
-              this.members.push(user.ID);
-              this.names.push(fullname);
-            });
-        });
+      await this.GetUsersFromIDs();
+      this.members = this.users;
     }
   },
   methods: {
-    CreateGroup() {
-      if (this.members.length == 0) {
-        alert("Error: Invalid New Group Input");
-        return;
-      }
-      let url = this.serverURL + "v1/channels";
-      let sessionToken = localStorage.getItem("auth");
-      let title = this.names.toString();
-      let date = new Date();
-      // title = title.substring(1, title.length - 2);
-      // Create Group object
-      let groupObject = {
-        name: title,
-        description: "*~Enter a description~*",
-        private: true,
-        members: this.members,
-        createdAt: date,
-        editedAt: null
-      };
-      axios
-        .post(url, groupObject, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          // The type field allows groupList to properly consume the changes to the group
-          let newBuffer = {
-            group: response.data,
-            type: "create",
-            showModal: false
-          };
-          // Done in then to ensure backend generated id is correct
-          this.$store.commit("setGroupBuffer", {
-            groupBuffer: newBuffer
-          });
-          this.HideModal();
-        });
-    },
     DisplayResults() {
       this.showResults = true;
     },
@@ -227,189 +159,13 @@ export default {
     HideModal() {
       this.$emit("hideModal");
     },
-    SearchUsers() {
-      // Do not query the backend if there is nothing to querys
-      if (this.query.length == 0) {
-        // Clear results when there is no query
-        this.searchResults = [];
-        return;
+    async SubmitForm() {
+      if (this.type == "create") {
+        await this.CreateGroup();
+      } else {
+        await this.DeleteGroup();
       }
-      // Clear results on a new search
-      this.searchResults = [];
-      this.DisplayResults();
-      // Show a loading animation component/svg
-      let url = this.serverURL + "v1/users/search/?q=" + this.query;
-      let sessionToken = localStorage.getItem("auth");
-
-      axios
-        .get(url, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          let users = response.data;
-          if (response.data) {
-            users
-              .slice()
-              .reverse()
-              .forEach(user => {
-                if (user.ID != this.userID) {
-                  let reducedUsr = {
-                    id: user.ID,
-                    text: user.FirstName + " " + user.LastName,
-                    img: user.PhotoURL
-                  };
-                  this.searchResults.push(reducedUsr);
-                }
-              });
-            if (this.searchResults.length > 0) {
-              // Hide loading animation component
-            }
-            return;
-          }
-          // Hide results list if there are no results
-          this.HideResults();
-        });
-    },
-    DeleteGroup() {
-      if (confirm("Are you sure you want to delete this group?")) {
-        let url = this.serverURL + "v1/channels/" + this.groupID;
-        let sessionToken = localStorage.getItem("auth");
-        axios
-          .delete(url, {
-            headers: {
-              Authorization: sessionToken
-            }
-          })
-          .catch(error => {
-            alert(error);
-          })
-          .then(() => {
-            // Go back to the general group when deleting the channel
-            this.$store.commit("setGroup", {
-              group: this.general
-            });
-            let newBuffer = {
-              group: this.general,
-              type: "update",
-              showModal: false
-            };
-            this.$store.commit("setGroupBuffer", {
-              groupBuffer: newBuffer
-            });
-            this.HideModal();
-          });
-      }
-    },
-    UpdateGroupDetails() {
-      // Update name & description
-      let url = this.serverURL + "v1/channels/" + this.groupID;
-      let sessionToken = localStorage.getItem("auth");
-      let body = {
-        name: this.group.name,
-        description: this.group.description
-      };
-
-      axios
-        .patch(url, body, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          // The type field allows groupList to properly consume the changes to the group
-          let newBuffer = {
-            group: response.data,
-            type: "update",
-            showModal: false
-          };
-          this.$store.commit("setGroupBuffer", {
-            groupBuffer: newBuffer
-          });
-        });
-    },
-    AddGroupMember(index) {
-      this.HideResults();
-      let newMember = this.searchResults[index];
-
-      if (this.type === "create") {
-        this.members.push(newMember.id);
-        this.names.push(newMember.text);
-        return;
-      }
-      let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
-      let sessionToken = localStorage.getItem("auth");
-      let body = {
-        id: newMember.id
-      };
-
-      axios
-        .post(url, body, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          this.members.push(newMember.id);
-          this.names.push(newMember.text);
-          // The type field allows groupList to properly consume the changes to the group
-          let newBuffer = {
-            group: response.data,
-            type: "update",
-            showModal: false
-          };
-          this.$store.commit("setGroupBuffer", {
-            groupBuffer: newBuffer
-          });
-        });
-    },
-    RemoveGroupMember(index) {
-      if (this.type === "create") {
-        this.names.splice(index, 1);
-        this.members.splice(index, 1);
-        return;
-      }
-      let id = this.members[index];
-      // Parse members & add them to new group obj before sending request
-      let url = this.serverURL + "v1/channels/" + this.groupID + "/members";
-      let sessionToken = localStorage.getItem("auth");
-      let data = {
-        id: id
-      };
-      let headers = {
-        Authorization: sessionToken
-      };
-      axios
-        .delete(url, {
-          headers,
-          data
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          // The type field allows groupList to properly consume the changes to the group
-          this.names.splice(index, 1);
-          this.members.splice(index, 1);
-          let newBuffer = {
-            message: response.data,
-            type: "update",
-            showModal: false
-          };
-          this.$store.commit("setGroupBuffer", {
-            groupBuffer: newBuffer
-          });
-        });
+      this.HideModal();
     }
   }
 };

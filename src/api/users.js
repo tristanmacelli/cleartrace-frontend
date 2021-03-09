@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { computed, ref } from "vue";
+import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
@@ -161,5 +161,113 @@ export const Users = () => {
     SignUp,
     GetUser,
     UpdateUser
+  };
+};
+
+export const Search = () => {
+  const store = useStore();
+  const serverURL = computed(() => store.state.serverURL);
+  const userIDs = ref([]);
+  const users = ref([]);
+  const query = ref("");
+  const searchResults = ref([]);
+  const awaitingSearch = ref(false);
+
+  watch(query.value, () => {
+    if (!awaitingSearch.value) {
+      setTimeout(() => {
+        this.SearchUsers();
+        awaitingSearch.value = false;
+      }, 1000); // 1 sec delay
+    }
+    awaitingSearch.value = true;
+  });
+
+  async function SearchUsers() {
+    // Do not query the backend if there is nothing to querys
+    if (query.value.length == 0) {
+      // Clear results when there is no query
+      searchResults.value = [];
+      return;
+    }
+    // Clear results on a new search
+    searchResults.value = [];
+    this.DisplayResults();
+    // Show a loading animation component/svg
+    let url = serverURL.value + "v1/users/search/?q=" + query.value;
+    let sessionToken = localStorage.getItem("auth");
+
+    axios
+      .get(url, {
+        headers: {
+          Authorization: sessionToken
+        }
+      })
+      .catch(error => {
+        alert(error);
+      })
+      .then(response => {
+        let receivedUsers = response.data;
+        if (response.data) {
+          receivedUsers
+            .slice()
+            .reverse()
+            .forEach(user => {
+              if (user.ID != this.userID) {
+                let reducedUsr = {
+                  id: user.ID,
+                  text: user.FirstName + " " + user.LastName,
+                  img: user.PhotoURL
+                };
+                searchResults.value.push(reducedUsr);
+              }
+            });
+          if (searchResults.value.length > 0) {
+            // Hide loading animation component
+          }
+          return;
+        }
+        // Hide results list if there are no results
+        this.HideResults();
+      });
+  }
+
+  async function GetUsersFromIDs() {
+    let url = serverURL.value + "v1/users/search/";
+    let sessionToken = localStorage.getItem("auth");
+
+    await axios
+      .post(url, userIDs.value, {
+        headers: {
+          Authorization: sessionToken
+        }
+      })
+      .catch(error => {
+        alert(error);
+      })
+      .then(response => {
+        let receivedUsers = response.data;
+        if (receivedUsers == null) {
+          alert("no users present");
+          return;
+        }
+        receivedUsers
+          .slice()
+          .reverse()
+          .forEach(user => {
+            let member = {
+              id: user.ID,
+              name: user.FirstName + " " + user.LastName
+            };
+            users.value.push(member);
+          });
+      });
+  }
+  return {
+    query,
+    searchResults,
+    users,
+    GetUsersFromIDs,
+    SearchUsers
   };
 };

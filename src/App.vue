@@ -5,12 +5,18 @@
 </template>
 
 <script>
-import axios from "axios";
 import { mapState } from "vuex";
+import { Groups } from "@/api/messaging.service";
 
 export default {
   name: "app",
-  computed: mapState(["authentication", "serverURL"]),
+  setup() {
+    const { GetGeneralGroup } = Groups();
+    return {
+      GetGeneralGroup
+    };
+  },
+  computed: mapState(["authentication"]),
   async created() {
     this.$store.commit("setWindowDimensions");
     if (window.innerWidth < 640) {
@@ -28,36 +34,6 @@ export default {
       // this.$router.push({ name: 'Home', params: { groupID: this.groupID } });
     } else {
       this.$router.push({ path: "/" });
-    }
-  },
-  methods: {
-    async GetSpecificGroup(groupName) {
-      var url = this.serverURL + "v1/channels?startsWith=" + groupName;
-      let sessionToken = localStorage.getItem("auth");
-      // send a get request with the above data
-      let groups = await axios
-        .get(url, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          return response.data;
-        });
-      return groups;
-    },
-    async GetGeneralGroup() {
-      let groups = await this.GetSpecificGroup("General");
-      let general = groups[0];
-      this.$store.commit("setGroup", {
-        group: general
-      });
-      this.$store.commit("setGeneral", {
-        group: general
-      });
     }
   }
 };

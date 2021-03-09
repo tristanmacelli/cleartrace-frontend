@@ -9,7 +9,7 @@
         :key="item.id"
         :class="index === this.currentItem ? 'bg-gray-200' : 'bg-white'"
         class="w-full py-2 px-4 text-left bg-white hover:bg-gray-300 cursor-pointer"
-        @click="$emit('activeListItem', index)"
+        @click="HandleListItem(item)"
       >
         {{ item.text }}
       </li>
@@ -48,8 +48,8 @@ export default {
         this.currentItem--;
       }
     },
-    HandleListItem(index) {
-      this.$emit("activeListItem", index);
+    HandleListItem(item) {
+      this.$emit("activeListItem", item);
     }
   }
 };
