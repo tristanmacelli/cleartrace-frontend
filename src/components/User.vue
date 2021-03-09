@@ -11,7 +11,7 @@
             <td><p>Username:</p></td>
             <td>
               <p id="account-username">
-                {{ userName }}
+                {{ user.name }}
               </p>
             </td>
           </tr>
@@ -44,11 +44,11 @@ import { Users } from "@/api/users";
 export default {
   name: "user",
   setup() {
-    const { firstName, lastName, userName } = Users();
+    const { firstName, lastName, user } = Users();
     return {
       firstName,
       lastName,
-      userName
+      user
     };
   }
 };

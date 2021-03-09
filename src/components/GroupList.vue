@@ -60,8 +60,9 @@ export default {
   name: "groupList",
   setup() {
     const { GetGroups } = Groups();
-    const { SignOut } = Users();
+    const { user, SignOut } = Users();
     return {
+      user,
       GetGroups,
       SignOut
     };
@@ -80,13 +81,12 @@ export default {
   },
   computed: {
     storedUserInitials() {
-      return this.$store.getters.getUserInitials;
+      return this.user.FirstName.charAt(0) + this.user.LastName.charAt(0);
     },
     ...mapState({
       groupBuffer: state => state.groupBuffer,
       isGroupListOpen: state => state.isGroupListOpen,
-      isMobile: state => state.isMobile,
-      serverURL: state => state.serverURL
+      isMobile: state => state.isMobile
     })
   },
   watch: {

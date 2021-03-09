@@ -5,7 +5,7 @@
   >
     <div class="flex no-wrap h-20 px-5 py-6">
       <p class="flex-grow font-semibold text-lg self-center">
-        {{ this.groupName }}
+        {{ this.group.name }}
       </p>
       <svg
         class="sm:hidden"
@@ -43,7 +43,7 @@
         <input
           class="flex-grow h-8 pl-3 pt-1 bg-gray-200 focus:outline-none rounded-2xl"
           id="messageBody"
-          v-model="newBody"
+          v-model="body"
           type="text"
           placeholder="Type a message..."
         />
@@ -59,48 +59,48 @@
 </template>
 
 <script>
-import axios from "axios";
 import Message from "./Message.vue";
 import { mapState } from "vuex";
+import { Messages } from "@/api/messaging.service";
 
 export default {
   name: "messageList",
+  setup() {
+    const { group, body, GetMessages, SendMessage } = Messages();
+    return {
+      group,
+      body,
+      GetMessages,
+      SendMessage
+    };
+  },
   components: {
     Message
   },
-  data() {
-    return {
-      newBody: "",
-      messageList: []
-    };
-  },
   computed: {
     disableSendMessage() {
-      return this.newBody.length === 0;
+      return this.body.length === 0;
     },
     ...mapState({
-      groupID: state => state.group.id,
-      groupName: state => state.group.name,
-      serverURL: state => state.serverURL,
-      socket: state => state.socket,
-      user: state => state.user
+      socket: state => state.socket
     })
   },
   watch: {
     // Clears the current messages & updates
-    groupID: async function() {
+    // Make sure this still works with the composition API/our API extracted
+    group: async function() {
       this.messageList = [];
       await this.GetMessages();
     }
   },
   created: async function() {
     // Create initial message
-    if (this.groupName == "General") {
+    if (this.group.name == "General") {
       let date = new Date();
       date = this.formatDate(date);
       let welcomeMessage = {
         id: "-1",
-        body: "Welcome to the " + this.groupName + " group",
+        body: "Welcome to the " + this.group.name + " group",
         creator: {
           FirstName: "Automated",
           LastName: ""
@@ -132,64 +132,6 @@ export default {
     };
   },
   methods: {
-    async GetMessages() {
-      var url = this.serverURL + "v1/channels/" + this.groupID;
-      let sessionToken = localStorage.getItem("auth");
-
-      // send a get request with the above data
-      axios
-        .get(url, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          let messages = response.data;
-          messages
-            .slice()
-            .reverse()
-            .forEach(message => {
-              message = this.PreprocessMessage(message);
-              this.messageList.push(message);
-            });
-          this.updateScroll();
-        });
-    },
-    async SendMessage() {
-      var url = this.serverURL + "v1/channels/" + this.groupID;
-      let sessionToken = localStorage.getItem("auth");
-
-      // Get user first name from store & add it to this object
-      let date = new Date();
-      let formattedDate = this.formatDate(date);
-      let messageObject = {
-        channelID: this.groupID,
-        body: this.newBody,
-        createdAt: formattedDate,
-        creator: this.user
-      };
-      // Setting the msg id locally to -1 (will self-correct on page refresh)
-      let temporary = messageObject;
-      temporary.id = "-1";
-      this.messageList.push(temporary);
-      // send a get request with the above data
-      axios
-        .post(url, messageObject, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(() => {
-          this.newBody = "";
-          this.updateScroll();
-        });
-    },
     OpenGroupList() {
       // Transition #groupList to the right
       if (this.$store.getters.getIsMobile) {

@@ -12,7 +12,6 @@ export const Users = () => {
   const firstName = ref("");
   const lastName = ref("");
   const user = computed(() => store.state.user);
-  const userName = ref(user.value.UserName);
   const serverURL = computed(() => store.state.serverURL);
   // const groupID = computed(() => store.state.group.id);
 
@@ -156,7 +155,7 @@ export const Users = () => {
     password,
     firstName,
     lastName,
-    userName,
+    user,
     SignIn,
     SignOut,
     SignUp,
