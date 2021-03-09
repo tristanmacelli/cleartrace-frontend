@@ -52,15 +52,17 @@
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
-import axios from "axios";
 import { mapState } from "vuex";
 import { Users } from "@/api/users";
+import { Groups } from "@/api/users";
 
 export default {
   name: "groupList",
   setup() {
+    const { GetGroups } = Groups();
     const { SignOut } = Users();
     return {
+      GetGroups,
       SignOut
     };
   },
@@ -161,35 +163,6 @@ export default {
       } else {
         this.AlertUnregistered();
       }
-    },
-    async GetGroups() {
-      var url = this.serverURL + "v1/channels";
-      let sessionToken = localStorage.getItem("auth");
-
-      // send a get request with the above data
-      axios
-        .get(url, {
-          headers: {
-            Authorization: sessionToken
-          }
-        })
-        .catch(error => {
-          alert(error);
-        })
-        .then(response => {
-          if (response == null) {
-            return;
-          }
-          this.groups = [];
-          groups = [];
-          let groups = response.data;
-          groups
-            .slice()
-            .reverse()
-            .forEach(group => {
-              this.groups.push(group);
-            });
-        });
     }
   }
 };
