@@ -23,10 +23,10 @@ export default {
   setup() {
     const showDropdown = ref(false);
     const ToggleDropdown = () => {
-      this.showDropdown = !this.showDropdown;
+      showDropdown.value = !showDropdown.value;
     };
     const HideDropdown = () => {
-      this.showDropdown = false;
+      showDropdown.value = false;
     };
     return {
       showDropdown,
