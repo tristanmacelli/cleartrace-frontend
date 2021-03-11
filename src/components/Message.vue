@@ -14,6 +14,9 @@
 </template>
 
 <script>
+import { computed } from "vue";
+import { useStore } from "vuex";
+
 export default {
   name: "message",
   props: {
@@ -34,10 +37,12 @@ export default {
       required: true
     }
   },
-  computed: {
-    isAuthor() {
-      return this.creator.FirstName == this.$store.getters.getUserFirstname;
-    }
+  setup(props) {
+    const store = useStore();
+    const isAuthor = computed(
+      () => props.creator.FirstName == store.user.FirstName
+    );
+    return { isAuthor };
   },
   emits: ["remove"]
 };

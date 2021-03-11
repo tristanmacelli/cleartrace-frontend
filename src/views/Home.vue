@@ -55,10 +55,10 @@ export default {
     const displayModal = ref(false);
     const modalType = ref("");
     const DisplayModal = () => {
-      this.displayModal = true;
+      displayModal.value = true;
     };
     const HideModal = () => {
-      this.displayModal = false;
+      displayModal.value = false;
     };
 
     return { error, displayModal, modalType, DisplayModal, HideModal };

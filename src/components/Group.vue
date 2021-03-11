@@ -18,7 +18,8 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { useStore } from "vuex";
+import { computed, ref } from "vue";
 
 export default {
   name: "group",
@@ -44,47 +45,43 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      latestMessage: ""
-    };
-  },
-  computed: mapState({
+  setup(props, context) {
+    const store = useStore();
+    const latestMessage = ref("");
     // If this is true we want to apply the same css rules as applied to the .group:hover class
-    isStoredGroup(state) {
-      return this.id === state.group.id;
-    }
-  }),
-  emits: ["displayModal"],
-  methods: {
-    SetGroup() {
-      if (!this.isStoredGroup) {
+    const isStoredGroup = computed(() => props.id == store.group.id);
+
+    const SetGroup = () => {
+      if (!isStoredGroup.value) {
         let groupObj = {
-          id: this.id,
-          name: this.name
+          id: props.id,
+          name: props.name
         };
-        this.$store.commit("setGroup", {
+        store.commit("setGroup", {
           group: groupObj
         });
       }
-    },
-    DisplayModalUpdate() {
+    };
+    const DisplayModalUpdate = () => {
       let modalState = {
         group: {
-          creator: this.creator,
-          description: this.description,
-          id: this.id,
-          members: this.members,
-          name: this.name
+          creator: props.creator,
+          description: props.description,
+          id: props.id,
+          members: props.members,
+          name: props.name
         },
         type: "update",
         showModal: true
       };
-      this.$store.commit("setGroupBuffer", {
+      store.commit("setGroupBuffer", {
         groupBuffer: modalState
       });
-      this.$emit("displayModal");
-    }
-  }
+      context.emit("displayModal");
+    };
+
+    return { isStoredGroup, latestMessage, DisplayModalUpdate, SetGroup };
+  },
+  emits: ["displayModal"]
 };
 </script>

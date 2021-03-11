@@ -35,14 +35,14 @@ export default {
     const currentItem = ref(-1);
     const NextItem = () => {
       console.log("Calling NextItem");
-      if (this.currentItem < 19) {
-        this.currentItem++;
+      if (currentItem.value < 19) {
+        currentItem.value++;
       }
     };
     const PrevItem = () => {
       console.log("Calling PrevItem");
-      if (this.currentItem > -1) {
-        this.currentItem--;
+      if (currentItem.value > -1) {
+        currentItem.value--;
       }
     };
     const HandleListItem = item => {

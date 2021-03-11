@@ -83,13 +83,13 @@ import { Users } from "@/api/users";
 
 export default {
   name: "signup",
-  setup() {
+  setup(_, context) {
     const { email, password, firstName, lastName, SignUp } = Users();
     const Alert = () => {
       confirm("We're sorry but this feature is still under development :(");
     };
     const HideSignUp = () => {
-      this.$emit("hideSignup");
+      context.emit("hideSignup");
     };
     return {
       email,
