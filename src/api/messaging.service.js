@@ -11,6 +11,29 @@ export const Messages = () => {
   const serverURL = computed(() => store.state.serverURL);
   const user = computed(() => store.state.user);
 
+  function FormatDate(date) {
+    let dd = "AM";
+    let hh = date.getHours();
+    let m = date.getMinutes();
+    let h = hh;
+    if (hh >= 12) {
+      h = hh - 12;
+      dd = "PM";
+    }
+    if (h == 0) {
+      h = 12;
+    }
+    h = h < 10 ? "0" + h : h;
+    m = m < 10 ? "0" + m : m;
+    return h + ":" + m + " " + dd;
+  }
+
+  function PreprocessMessage(message) {
+    let newCreatedAt = new Date(message.createdAt);
+    message.createdAt = this.formatDate(newCreatedAt);
+    return message;
+  }
+
   async function GetMessages() {
     var url = serverURL.value + "v1/channels/" + group.value.ID;
     let sessionToken = localStorage.getItem("auth");
@@ -24,6 +47,7 @@ export const Messages = () => {
       })
       .then(response => {
         let messages = response.data;
+        messageList.value = [];
         messages
           .slice()
           .reverse()
@@ -31,8 +55,6 @@ export const Messages = () => {
             message = this.PreprocessMessage(message);
             messageList.value.push(message);
           });
-        // TODO: Local function call
-        this.updateScroll();
       })
       .catch(error => {
         alert(error);
@@ -44,8 +66,7 @@ export const Messages = () => {
 
     // Get user first name from store & add it to this object
     let date = new Date();
-    // TODO: Local function call
-    let formattedDate = this.formatDate(date);
+    let formattedDate = this.FormatDate(date);
     let messageObject = {
       channelID: group.value.ID,
       body: body,
@@ -65,8 +86,6 @@ export const Messages = () => {
       })
       .then(() => {
         body.value = "";
-        // TODO: Local function call
-        this.updateScroll();
       })
       .catch(error => {
         alert(error);
@@ -77,8 +96,10 @@ export const Messages = () => {
     body,
     group,
     messageList,
-    SendMessage,
-    GetMessages
+    FormatDate,
+    GetMessages,
+    PreprocessMessage,
+    SendMessage
   };
 };
 
@@ -87,6 +108,7 @@ export const Groups = () => {
   const awaitingGroupDetails = ref(false);
   const general = computed(() => store.state.general);
   const group = ref({});
+  const groupBuffer = computed(() => store.groupBuffer);
   const groups = ref([]);
   const members = ref([]);
   const memberIDs = computed(() => members.value.forEach(member => member.id));
@@ -94,10 +116,9 @@ export const Groups = () => {
     members.value.forEach(member => member.name)
   );
   const serverURL = computed(() => store.state.serverURL);
-  const type = ref("");
 
   watch(group.value, (newVal, oldVal) => {
-    if (this.type != "update") {
+    if (this.groupBuffer.type != "update") {
       return;
     }
     let updatedGroupDetails =
@@ -278,7 +299,7 @@ export const Groups = () => {
       });
   }
   async function AddGroupMember(newMember) {
-    if (this.type === "create") {
+    if (this.groupBuffer.type === "create") {
       let member = {
         id: newMember.id,
         name: newMember.text
@@ -319,7 +340,7 @@ export const Groups = () => {
       });
   }
   async function RemoveGroupMember(index) {
-    if (this.type === "create") {
+    if (this.groupBuffer.type === "create") {
       this.members.splice(index, 1);
       return;
     }
@@ -356,10 +377,10 @@ export const Groups = () => {
   }
   return {
     group,
+    groupBuffer,
     groups,
     members,
     memberNames,
-    type,
     GetSpecificGroup,
     GetGeneralGroup,
     CreateGroup,

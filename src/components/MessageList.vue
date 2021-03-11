@@ -60,60 +60,48 @@
 
 <script>
 import Message from "./Message.vue";
-import { mapState } from "vuex";
+import { computed } from "vue";
+import { useStore } from "vuex";
 import { Messages } from "@/api/messaging.service";
 
 export default {
   name: "messageList",
-  setup() {
-    const { group, body, GetMessages, SendMessage } = Messages();
-    return {
-      group,
-      body,
-      GetMessages,
-      SendMessage
-    };
-  },
   components: {
     Message
   },
-  computed: {
-    disableSendMessage() {
-      return this.body.length === 0;
-    },
-    ...mapState({
-      socket: state => state.socket
-    })
-  },
-  watch: {
-    // Clears the current messages & updates
-    // Make sure this still works with the composition API/our API extracted
-    group: async function() {
-      this.messageList = [];
-      await this.GetMessages();
-    }
-  },
-  created: async function() {
+  async setup() {
+    const {
+      group,
+      body,
+      messageList,
+      FormatDate,
+      GetMessages,
+      PreprocessMessage,
+      SendMessage
+    } = Messages();
+    const store = useStore();
+    const socket = computed(() => store.socket);
+    const disableSendMessage = computed(() => body.length === 0);
+
     // Create initial message
-    if (this.group.name == "General") {
+    if (group.name == "General") {
       let date = new Date();
-      date = this.formatDate(date);
+      date = FormatDate(date);
       let welcomeMessage = {
         id: "-1",
-        body: "Welcome to the " + this.group.name + " group",
+        body: "Welcome to the " + group.name + " group",
         creator: {
           FirstName: "Automated",
           LastName: ""
         },
         createdAt: date
       };
-      this.messageList.push(welcomeMessage);
+      messageList.push(welcomeMessage);
     }
-
     // Make query to server for last 100 messages
-    await this.GetMessages();
+    await GetMessages();
 
-    this.socket.onmessage = event => {
+    socket.value.onmessage = event => {
       console.log("Message Received!");
       // The data we created is in the event.data field
       // The current datatype of event is message
@@ -124,12 +112,32 @@ export default {
         // This is the "default behavior" when the user is viewing the group
         // that messages are coming in on
         if (messageObj.channelID == this.groupID) {
-          let message = this.PreprocessMessage(messageObj);
-          this.messageList.push(message);
-          this.PlaySound();
+          let message = PreprocessMessage(messageObj);
+          messageList.push(message);
+          // this.PlaySound();
         }
       }
     };
+
+    return {
+      body,
+      disableSendMessage,
+      group,
+      socket,
+      messageList,
+      GetMessages,
+      SendMessage
+    };
+  },
+  watch: {
+    // Clears the current messages & updates
+    // Make sure this still works with the composition API/our API extracted
+    group: async function() {
+      await this.GetMessages();
+    },
+    messageList: function() {
+      this.updateScroll();
+    }
   },
   methods: {
     OpenGroupList() {
@@ -145,27 +153,6 @@ export default {
     updateScroll() {
       let element = document.getElementById("view-messages");
       element.scrollTop = element.scrollHeight;
-    },
-    PreprocessMessage(message) {
-      let newCreatedAt = new Date(message.createdAt);
-      message.createdAt = this.formatDate(newCreatedAt);
-      return message;
-    },
-    formatDate(date) {
-      let dd = "AM";
-      let hh = date.getHours();
-      let m = date.getMinutes();
-      let h = hh;
-      if (hh >= 12) {
-        h = hh - 12;
-        dd = "PM";
-      }
-      if (h == 0) {
-        h = 12;
-      }
-      h = h < 10 ? "0" + h : h;
-      m = m < 10 ? "0" + m : m;
-      return h + ":" + m + " " + dd;
     }
   }
 };
