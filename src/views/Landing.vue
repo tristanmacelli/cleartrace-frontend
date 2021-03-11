@@ -15,6 +15,7 @@
 import Title from "@/components/Title.vue";
 import Login from "@/components/Login.vue";
 import Signup from "@/components/Signup.vue";
+import { ref } from "vue";
 
 export default {
   name: "Landing",
@@ -23,18 +24,21 @@ export default {
     Login,
     Signup
   },
-  data() {
-    return {
-      displaySignUp: false
-    };
-  },
-  methods: {
-    DisplaySignUp() {
+  setup() {
+    const displaySignUp = ref(false);
+
+    const DisplaySignUp = () => {
       this.displaySignUp = true;
-    },
-    HideSignUp() {
+    };
+    const HideSignUp = () => {
       this.displaySignUp = false;
-    }
+    };
+
+    return {
+      displaySignUp,
+      DisplaySignUp,
+      HideSignUp
+    };
   }
 };
 </script>

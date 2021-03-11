@@ -1,40 +1,41 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <Suspense>
+    <div id="app">
+      <router-view />
+    </div>
+  </Suspense>
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { Groups } from "@/api/messaging.service";
+import { computed, onErrorCaptured, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 export default {
   name: "app",
   setup() {
-    const { GetGeneralGroup } = Groups();
-    return {
-      GetGeneralGroup
-    };
-  },
-  computed: mapState(["authentication"]),
-  async created() {
-    this.$store.commit("setWindowDimensions");
+    const store = useStore();
+    const router = useRouter();
+    const authentication = computed(() => store.state.authentication);
+    const error = ref(null);
+    onErrorCaptured(caughtError => {
+      error.value = caughtError;
+      return true;
+    });
+
+    store.commit("setWindowDimensions");
     if (window.innerWidth < 640) {
-      this.$store.commit("setIsMobile");
+      store.commit("setIsMobile");
     }
     let sessionToken = localStorage.getItem("auth");
-    let isActiveSession = sessionToken && !this.authentication;
+    let isActiveSession = sessionToken && !authentication.value;
     if (isActiveSession) {
       console.log("Returning to an active session");
-      await this.GetGeneralGroup();
-      await this.$store.dispatch("setSocket");
-      await this.$store.dispatch("setUser");
-      this.$store.commit("setAuthentication");
-      this.$router.push({ path: "/home" });
-      // this.$router.push({ name: 'Home', params: { groupID: this.groupID } });
-    } else {
-      this.$router.push({ path: "/" });
+      store.commit("setAuthentication");
+      router.push({ path: "/home" });
+      // router.push({ name: 'Home', params: { groupID: this.groupID } });
     }
+    return { error };
   }
 };
 </script>
