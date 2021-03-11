@@ -84,14 +84,14 @@ const store = createStore({
             Authorization: sessionToken
           }
         })
+        .then(response => {
+          state.user = response.data;
+        })
         .catch(error => {
           // eslint-disable-next-line
           if (state.debug) {
             console.log(error);
           }
-        })
-        .then(response => {
-          state.user = response.data;
         });
     },
     clearUser(state) {
@@ -208,20 +208,6 @@ const store = createStore({
         console.log("clearIsMobile triggered");
       }
       state.isMobile = false;
-    },
-    setIsSignUpActive(state) {
-      // eslint-disable-next-line
-      if (state.debug) {
-        console.log("setIsSignUpActive triggered");
-      }
-      state.isSignUpActive = true;
-    },
-    clearIsSignUpActive(state) {
-      // eslint-disable-next-line
-      if (state.debug) {
-        console.log("clearIsSignUpActive triggered");
-      }
-      state.isSignUpActive = false;
     }
   },
   getters: {
@@ -333,13 +319,6 @@ const store = createStore({
         console.log("getIsMobile triggered");
       }
       return state.isMobile;
-    },
-    getIsSignUpActive(state) {
-      // eslint-disable-next-line
-      if (state.debug) {
-        console.log("getIsSignUpActive triggered");
-      }
-      return state.isSignUpActive;
     }
   },
   strict: debug,

@@ -85,22 +85,22 @@ export default {
   name: "signup",
   setup() {
     const { email, password, firstName, lastName, SignUp } = Users();
+    const Alert = () => {
+      confirm("We're sorry but this feature is still under development :(");
+    };
+    const HideSignUp = () => {
+      this.$emit("hideSignup");
+    };
     return {
       email,
       password,
       firstName,
       lastName,
+      Alert,
+      HideSignUp,
       SignUp
     };
   },
-  emits: ["hideSignup"],
-  methods: {
-    Alert() {
-      confirm("We're sorry but this feature is still under development :(");
-    },
-    HideSignUp() {
-      this.$emit("hideSignup");
-    }
-  }
+  emits: ["hideSignup"]
 };
 </script>

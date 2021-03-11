@@ -17,20 +17,22 @@
 </template>
 
 <script>
+import { ref } from "vue";
 export default {
   name: "dropdown",
-  data() {
-    return {
-      showDropdown: false
-    };
-  },
-  methods: {
-    ToggleDropdown() {
+  setup() {
+    const showDropdown = ref(false);
+    const ToggleDropdown = () => {
       this.showDropdown = !this.showDropdown;
-    },
-    HideDropdown() {
+    };
+    const HideDropdown = () => {
       this.showDropdown = false;
-    }
+    };
+    return {
+      showDropdown,
+      HideDropdown,
+      ToggleDropdown
+    };
   }
 };
 </script>

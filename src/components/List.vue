@@ -7,7 +7,7 @@
       <li
         v-for="(item, index) in this.items"
         :key="item.id"
-        :class="index === this.currentItem ? 'bg-gray-200' : 'bg-white'"
+        :class="index === this.currentItem ? 'bg-blue-600' : 'bg-white'"
         class="w-full py-2 px-4 text-left bg-white hover:bg-gray-300 cursor-pointer"
         @click="HandleListItem(item)"
       >
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { ref } from "vue";
 export default {
   name: "list",
   props: {
@@ -30,27 +31,29 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      currentItem: -1
-    };
-  },
-  methods: {
-    NextItem() {
+  setup(_, context) {
+    const currentItem = ref(-1);
+    const NextItem = () => {
       console.log("Calling NextItem");
       if (this.currentItem < 19) {
         this.currentItem++;
       }
-    },
-    PrevItem() {
+    };
+    const PrevItem = () => {
       console.log("Calling PrevItem");
       if (this.currentItem > -1) {
         this.currentItem--;
       }
-    },
-    HandleListItem(item) {
-      this.$emit("activeListItem", item);
-    }
+    };
+    const HandleListItem = item => {
+      context.emit("activeListItem", item);
+    };
+    return {
+      currentItem,
+      HandleListItem,
+      NextItem,
+      PrevItem
+    };
   }
 };
 </script>

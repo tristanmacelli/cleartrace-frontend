@@ -72,6 +72,11 @@ import { Search } from "@/api/users";
 
 export default {
   name: "groupModal",
+  components: {
+    List,
+    GroupMember,
+    Modal
+  },
   setup() {
     const {
       members,
@@ -106,11 +111,6 @@ export default {
       SearchUsers,
       GetUsersFromIDs
     };
-  },
-  components: {
-    List,
-    GroupMember,
-    Modal
   },
   data() {
     return {

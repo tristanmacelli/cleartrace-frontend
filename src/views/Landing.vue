@@ -28,10 +28,10 @@ export default {
     const displaySignUp = ref(false);
 
     const DisplaySignUp = () => {
-      this.displaySignUp = true;
+      displaySignUp.value = true;
     };
     const HideSignUp = () => {
-      this.displaySignUp = false;
+      displaySignUp.value = false;
     };
 
     return {

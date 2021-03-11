@@ -52,24 +52,23 @@ import { Users } from "@/api/users";
 
 export default {
   name: "login",
-  setup() {
+  setup(_, context) {
     const { email, password, SignIn } = Users();
+    // Creating a new session based on the form values
+    const Alert = () => {
+      confirm("We're sorry but this feature is still under development :(");
+    };
+    const DisplaySignUp = () => {
+      context.emit("displaySignup");
+    };
     return {
       email,
       password,
+      Alert,
+      DisplaySignUp,
       SignIn
     };
   },
-  emits: ["displaySignup"],
-  methods: {
-    // Creating a new session based on the form values
-    Alert() {
-      confirm("We're sorry but this feature is still under development :(");
-      this.$store.commit("setSignUpModal");
-    },
-    DisplaySignUp() {
-      this.$emit("displaySignup");
-    }
-  }
+  emits: ["displaySignup"]
 };
 </script>
