@@ -8,11 +8,12 @@ export const Users = () => {
   const store = useStore();
   const router = useRouter();
   const email = ref("");
-  const password = ref("");
   const firstName = ref("");
+  const initials = ref("");
   const lastName = ref("");
-  const user = computed(() => store.state.user);
+  const password = ref("");
   const serverURL = computed(() => store.state.serverURL);
+  const user = computed(() => store.state.user);
   // const groupID = computed(() => store.state.group.id);
 
   async function SignIn() {
@@ -150,15 +151,22 @@ export const Users = () => {
     // make a request for user information until the user returns to this page later
   }
 
+  function GetInitials() {
+    initials.value =
+      user.value.FirstName.charAt(0) + user.value.LastName.charAt(0);
+  }
+
   return {
     email,
-    password,
     firstName,
+    initials,
     lastName,
+    password,
     user,
     SignIn,
     SignOut,
     SignUp,
+    GetInitials,
     GetUser,
     UpdateUser
   };
@@ -166,12 +174,12 @@ export const Users = () => {
 
 export const Search = () => {
   const store = useStore();
+  const awaitingSearch = ref(false);
+  const query = ref("");
+  const searchResults = ref([]);
   const serverURL = computed(() => store.state.serverURL);
   const userIDs = ref([]);
   const users = ref([]);
-  const query = ref("");
-  const searchResults = ref([]);
-  const awaitingSearch = ref(false);
 
   watch(query.value, () => {
     if (!awaitingSearch.value) {

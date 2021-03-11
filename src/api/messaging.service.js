@@ -5,11 +5,11 @@ import { useStore } from "vuex";
 
 export const Messages = () => {
   const store = useStore();
-  const serverURL = computed(() => store.state.serverURL);
-  const group = computed(() => store.state.group);
-  const user = computed(() => store.state.user);
   const body = ref("");
+  const group = computed(() => store.state.group);
   const messageList = ref([]);
+  const serverURL = computed(() => store.state.serverURL);
+  const user = computed(() => store.state.user);
 
   async function GetMessages() {
     var url = serverURL.value + "v1/channels/" + group.value.ID;
@@ -74,6 +74,9 @@ export const Messages = () => {
   }
 
   return {
+    body,
+    group,
+    messageList,
     SendMessage,
     GetMessages
   };
@@ -81,7 +84,7 @@ export const Messages = () => {
 
 export const Groups = () => {
   const store = useStore();
-  const serverURL = computed(() => store.state.serverURL);
+  const awaitingGroupDetails = ref(false);
   const general = computed(() => store.state.general);
   const group = ref({});
   const groups = ref([]);
@@ -90,35 +93,28 @@ export const Groups = () => {
   const memberNames = computed(() =>
     members.value.forEach(member => member.name)
   );
+  const serverURL = computed(() => store.state.serverURL);
   const type = ref("");
-  const awaitingDescription = ref(false);
-  const awaitingTitle = ref(false);
 
-  watch(group.value.description, (_, oldVal) => {
-    if (this.type == "update") {
-      if (oldVal !== "") {
-        if (!awaitingDescription.value) {
-          setTimeout(() => {
-            this.UpdateGroupDetails();
-            awaitingDescription.value = false;
-          }, 1000); // 1 sec delay
-        }
-        awaitingDescription.value = true;
-      }
+  watch(group.value, (newVal, oldVal) => {
+    if (this.type != "update") {
+      return;
     }
-  });
-  watch(group.value.name, (_, oldVal) => {
-    if (this.type == "update") {
-      if (oldVal !== "") {
-        if (!awaitingTitle.value) {
-          setTimeout(() => {
-            this.UpdateGroupDetails();
-            awaitingTitle.value = false;
-          }, 1000); // 1 sec delay
-        }
-        awaitingTitle.value = true;
-      }
+    let updatedGroupDetails =
+      oldVal.description !== "" &&
+      oldVal.name !== "" &&
+      newVal.name != oldVal.name &&
+      newVal.description != oldVal.description;
+    if (!updatedGroupDetails) {
+      return;
     }
+    if (!awaitingGroupDetails.value) {
+      setTimeout(() => {
+        this.UpdateGroupDetails();
+        awaitingGroupDetails.value = false;
+      }, 1000); // 1 sec delay
+    }
+    awaitingGroupDetails.value = true;
   });
 
   async function GetSpecificGroup(groupName) {
@@ -141,12 +137,12 @@ export const Groups = () => {
   }
 
   async function GetGeneralGroup() {
-    let groups = await this.GetSpecificGroup("General");
+    let groups = await GetSpecificGroup("General");
     let general = groups[0];
-    this.$store.commit("setGroup", {
+    store.commit("setGroup", {
       group: general
     });
-    this.$store.commit("setGeneral", {
+    store.commit("setGeneral", {
       group: general
     });
   }
