@@ -9,13 +9,13 @@
       <input
         v-if="isModalTypeUpdate"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-        v-model="group.name"
+        v-model="name"
         type="text"
       />
       <input
         v-if="isModalTypeUpdate"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
-        v-model="group.description"
+        v-model="description"
         type="text"
       />
       <input
@@ -79,10 +79,11 @@ export default {
   },
   async setup() {
     const {
-      group,
+      description,
       groupBuffer,
       members,
       memberNames,
+      name,
       CreateGroup,
       DeleteGroup,
       UpdateGroupDetails,
@@ -100,10 +101,12 @@ export default {
     const isModalTypeUpdate = groupBuffer.value.type === "update";
     const showResults = ref(false);
     const title = computed(() =>
-      isModalTypeUpdate ? "Update " + group.value.name : "New Group"
+      isModalTypeUpdate ? "Update " + name.value : "New Group"
     );
-    group.value = groupBuffer.value.group;
-    userIDs.value = group.value.members;
+    let group = groupBuffer.value.group;
+    description.value = group.description;
+    name.value = group.name;
+    userIDs.value = group.members;
 
     if (isModalTypeUpdate) {
       await GetUsersFromIDs();
@@ -111,11 +114,12 @@ export default {
     }
 
     return {
-      group,
+      description,
       groupBuffer,
       isModalTypeUpdate,
       members,
       memberNames,
+      name,
       showResults,
       title,
       CreateGroup,
@@ -137,10 +141,14 @@ export default {
         this.DisplayResults();
       }
     },
-    members(curVal, oldVal) {
-      if (curVal.length > oldVal.length) {
-        this.HideResults();
-      }
+    memberNames: {
+      handler: function(curVal, oldVal) {
+        if (curVal.length > oldVal.length) {
+          this.query = "";
+          this.HideResults();
+        }
+      },
+      deep: true
     }
   },
   methods: {

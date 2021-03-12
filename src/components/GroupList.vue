@@ -97,7 +97,7 @@ export default {
   watch: {
     groupBuffer() {
       // There aren't any changes to process when opening the group modal
-      if (this.groupBuffer.showModal) {
+      if (!this.groupBuffer.processableEntity) {
         return;
       }
       // created groups are pushed to the group list immediately, increasing redundancy/reliability
@@ -108,7 +108,8 @@ export default {
       this.GetGroups();
       let newBuffer = {
         group: null,
-        type: null,
+        type: "",
+        processableEntity: false,
         showModal: false
       };
       this.$store.commit("setGroupBuffer", {
@@ -144,8 +145,9 @@ export default {
     DisplayModalCreate() {
       let newBuffer = {
         group: null,
-        type: "create",
-        showModal: true
+        processableEntity: true,
+        showModal: true,
+        type: "create"
       };
       this.$store.commit("setGroupBuffer", {
         groupBuffer: newBuffer
@@ -153,7 +155,6 @@ export default {
       this.DisplayModal();
     },
     DisplayModal() {
-      console.log("Calling DisplayModal from GroupList.vue");
       this.$emit("displayModal");
     },
     async HandleListItem(item) {

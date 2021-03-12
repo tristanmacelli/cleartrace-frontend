@@ -17,8 +17,9 @@ const store = createStore({
       // Establishes a buffer to process group changes locally
       groupBuffer: {
         group: null,
-        type: null,
-        showModal: false
+        processableEntity: false,
+        showModal: false,
+        type: null
       },
       // A fallback in case backend request fails on its initial attempt
       general: {

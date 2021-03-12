@@ -71,8 +71,9 @@ export default {
           members: props.members,
           name: props.name
         },
-        type: "update",
-        showModal: true
+        processableEntity: false,
+        showModal: true,
+        type: "update"
       };
       store.commit("setGroupBuffer", {
         groupBuffer: modalState
