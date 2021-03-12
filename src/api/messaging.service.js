@@ -30,12 +30,12 @@ export const Messages = () => {
 
   function PreprocessMessage(message) {
     let newCreatedAt = new Date(message.createdAt);
-    message.createdAt = this.formatDate(newCreatedAt);
+    message.createdAt = FormatDate(newCreatedAt);
     return message;
   }
 
   async function GetMessages() {
-    var url = serverURL.value + "v1/channels/" + group.value.ID;
+    var url = serverURL.value + "v1/channels/" + group.value.id;
     let sessionToken = localStorage.getItem("auth");
 
     // send a get request with the above data
@@ -55,7 +55,7 @@ export const Messages = () => {
           .slice()
           .reverse()
           .forEach(message => {
-            message = this.PreprocessMessage(message);
+            message = PreprocessMessage(message);
             messageList.value.push(message);
           });
       })
@@ -64,14 +64,14 @@ export const Messages = () => {
       });
   }
   async function SendMessage() {
-    var url = serverURL.value + "v1/channels/" + group.value.ID;
+    var url = serverURL.value + "v1/channels/" + group.value.id;
     let sessionToken = localStorage.getItem("auth");
 
     // Get user first name from store & add it to this object
     let date = new Date();
-    let formattedDate = this.FormatDate(date);
+    let formattedDate = FormatDate(date);
     let messageObject = {
-      channelID: group.value.ID,
+      channelID: group.value.id,
       body: body,
       createdAt: formattedDate,
       creator: user
@@ -109,25 +109,21 @@ export const Messages = () => {
 export const Groups = () => {
   const store = useStore();
   const awaitingGroupDetails = ref(false);
+  const description = ref("");
   const general = computed(() => store.state.general);
-  const group = ref({});
   const groupBuffer = computed(() => store.state.groupBuffer);
+  const groupID = computed(() => groupBuffer.value.group.id);
   const groups = ref([]);
+  const isModalTypeUpdate = groupBuffer.value.type === "update";
   const members = ref([]);
   const memberIDs = ref([]);
   const memberNames = ref([]);
+  const name = ref("");
   const serverURL = computed(() => store.state.serverURL);
 
-  watch(group, (newVal, oldVal) => {
-    if (groupBuffer.value.type != "update") {
-      return;
-    }
-    let updatedGroupDetails =
-      oldVal.description !== "" &&
-      oldVal.name !== "" &&
-      newVal.name != oldVal.name &&
-      newVal.description != oldVal.description;
-    if (!updatedGroupDetails) {
+  function updateDetailsWatchHandler(oldValue) {
+    // Don't update when previous was empty
+    if (oldValue === "") {
       return;
     }
     if (!awaitingGroupDetails.value) {
@@ -137,12 +133,26 @@ export const Groups = () => {
       }, 1000); // 1 sec delay
     }
     awaitingGroupDetails.value = true;
-  });
+  }
 
-  watch(members, () => {
-    members.value.forEach(member => memberNames.value.push(member.name));
-    members.value.forEach(member => memberIDs.value.push(member.id));
-  });
+  if (isModalTypeUpdate) {
+    watch(name, (_, oldValue) => updateDetailsWatchHandler(oldValue));
+    watch(description, (_, oldValue) => updateDetailsWatchHandler(oldValue));
+  }
+
+  // TODO: fix id & name association
+  watch(
+    members,
+    () => {
+      memberIDs.value = [];
+      memberNames.value = [];
+      members.value.forEach(member => memberIDs.value.push(member.id));
+      members.value.forEach(member => memberNames.value.push(member.name));
+    },
+    {
+      deep: true
+    }
+  );
 
   async function GetSpecificGroup(groupName) {
     var url = serverURL.value + "v1/channels?startsWith=" + groupName;
@@ -204,8 +214,9 @@ export const Groups = () => {
         // The type field allows groupList to properly consume the changes to the group
         let newBuffer = {
           group: response.data,
-          type: "create",
-          showModal: false
+          processableEntity: true,
+          showModal: false,
+          type: "create"
         };
         // Done in then to ensure backend generated id is correct
         store.commit("setGroupBuffer", {
@@ -246,11 +257,11 @@ export const Groups = () => {
   }
   async function UpdateGroupDetails() {
     // Update name & description
-    let url = serverURL.value + "v1/channels/" + group.value.ID;
+    let url = serverURL.value + "v1/channels/" + groupID.value;
     let sessionToken = localStorage.getItem("auth");
     let body = {
-      name: group.value.name,
-      description: group.value.description
+      name: name.value,
+      description: description.value
     };
 
     axios
@@ -263,8 +274,9 @@ export const Groups = () => {
         // The type field allows groupList to properly consume the changes to the group
         let newBuffer = {
           group: response.data,
-          type: "update",
-          showModal: false
+          processableEntity: true,
+          showModal: false,
+          type: "update"
         };
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
@@ -278,7 +290,7 @@ export const Groups = () => {
     if (!confirm("Are you sure you want to delete this group?")) {
       return;
     }
-    let url = serverURL.value + "v1/channels/" + group.value.ID;
+    let url = serverURL.value + "v1/channels/" + groupID.value;
     let sessionToken = localStorage.getItem("auth");
     axios
       .delete(url, {
@@ -296,8 +308,9 @@ export const Groups = () => {
         });
         let newBuffer = {
           group: general,
-          type: "update",
-          showModal: false
+          processableEntity: true,
+          showModal: false,
+          type: "update"
         };
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
@@ -305,37 +318,37 @@ export const Groups = () => {
       });
   }
   async function AddGroupMember(newMember) {
-    if (this.groupBuffer.type === "create") {
+    if (groupBuffer.value.type === "create") {
       let member = {
         id: newMember.id,
         name: newMember.text
       };
-      this.members.push(member);
+      members.value.push(member);
       return;
     }
-    let url = serverURL.value + "v1/channels/" + group.value.ID + "/members";
-    let sessionToken = localStorage.getItem("auth");
-    let body = {
-      id: newMember.id
+    let url = serverURL.value + "v1/channels/" + groupID.value + "/members";
+    let headers = { Authorization: localStorage.getItem("auth") };
+    let body = { id: newMember.id };
+    let requestConfig = {
+      method: "post",
+      url: url,
+      headers: headers,
+      data: body
     };
 
-    axios
-      .post(url, body, {
-        headers: {
-          Authorization: sessionToken
-        }
-      })
+    axios(requestConfig)
       .then(response => {
         let member = {
           id: newMember.id,
           name: newMember.text
         };
-        this.members.push(member);
+        members.value.push(member);
         // The type field allows groupList to properly consume the changes to the group
         let newBuffer = {
           group: response.data,
-          type: "update",
-          showModal: false
+          processableEntity: true,
+          showModal: false,
+          type: "update"
         };
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
@@ -346,13 +359,13 @@ export const Groups = () => {
       });
   }
   async function RemoveGroupMember(index) {
-    if (this.groupBuffer.type === "create") {
-      this.members.splice(index, 1);
+    if (groupBuffer.value.type === "create") {
+      members.value.splice(index, 1);
       return;
     }
-    let id = this.members[index];
+    let id = members.value[index];
     // Parse members & add them to new group obj before sending request
-    let url = serverURL.value + "v1/channels/" + group.value.ID + "/members";
+    let url = serverURL.value + "v1/channels/" + groupID.value + "/members";
     let sessionToken = localStorage.getItem("auth");
     let data = {
       id: id
@@ -367,11 +380,12 @@ export const Groups = () => {
       })
       .then(response => {
         // The type field allows groupList to properly consume the changes to the group
-        this.members.splice(index, 1);
+        members.value.splice(index, 1);
         let newBuffer = {
           message: response.data,
-          type: "update",
-          showModal: false
+          processableEntity: true,
+          showModal: false,
+          type: "update"
         };
         store.commit("setGroupBuffer", {
           groupBuffer: newBuffer
@@ -382,12 +396,15 @@ export const Groups = () => {
       });
   }
   return {
-    group,
+    description,
+    groupID,
     groupBuffer,
     groups,
+    isModalTypeUpdate,
     members,
     memberIDs,
     memberNames,
+    name,
     GetSpecificGroup,
     GetGeneralGroup,
     CreateGroup,

@@ -178,13 +178,14 @@ export const Search = () => {
   const query = ref("");
   const searchResults = ref([]);
   const serverURL = computed(() => store.state.serverURL);
+  const userID = computed(() => store.state.user.id);
   const userIDs = ref([]);
   const users = ref([]);
 
   watch(query, () => {
     if (!awaitingSearch.value) {
       setTimeout(() => {
-        this.SearchUsers();
+        SearchUsers();
         awaitingSearch.value = false;
       }, 1000); // 1 sec delay
     }
@@ -200,7 +201,6 @@ export const Search = () => {
     }
     // Clear results on a new search
     searchResults.value = [];
-    this.DisplayResults();
     // Show a loading animation component/svg
     let url = serverURL.value + "v1/users/search/?q=" + query.value;
     let sessionToken = localStorage.getItem("auth");
@@ -221,7 +221,7 @@ export const Search = () => {
             .slice()
             .reverse()
             .forEach(user => {
-              if (user.ID != this.userID) {
+              if (user.ID != userID.value) {
                 let reducedUsr = {
                   id: user.ID,
                   text: user.FirstName + " " + user.LastName,
@@ -236,7 +236,6 @@ export const Search = () => {
           return;
         }
         // Hide results list if there are no results
-        this.HideResults();
       });
   }
 

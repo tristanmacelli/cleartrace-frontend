@@ -81,6 +81,7 @@ export default {
     const {
       description,
       groupBuffer,
+      isModalTypeUpdate,
       members,
       memberNames,
       name,
@@ -98,7 +99,7 @@ export default {
       SearchUsers,
       GetUsersFromIDs
     } = Search();
-    const isModalTypeUpdate = groupBuffer.value.type === "update";
+
     const showResults = ref(false);
     const title = computed(() =>
       isModalTypeUpdate ? "Update " + name.value : "New Group"
