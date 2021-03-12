@@ -72,7 +72,6 @@ export default {
           name: props.name
         },
         processableEntity: false,
-        showModal: true,
         type: "update"
       };
       store.commit("setGroupBuffer", {

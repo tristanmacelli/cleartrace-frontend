@@ -18,7 +18,6 @@ const store = createStore({
       groupBuffer: {
         group: null,
         processableEntity: false,
-        showModal: false,
         type: null
       },
       // A fallback in case backend request fails on its initial attempt

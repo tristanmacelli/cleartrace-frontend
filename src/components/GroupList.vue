@@ -107,10 +107,9 @@ export default {
       // In all cases, the groupList should be updated
       this.GetGroups();
       let newBuffer = {
-        group: null,
-        type: "",
+        group: this.groupBuffer.group,
         processableEntity: false,
-        showModal: false
+        type: this.groupBuffer.type
       };
       this.$store.commit("setGroupBuffer", {
         groupBuffer: newBuffer
@@ -146,7 +145,6 @@ export default {
       let newBuffer = {
         group: null,
         processableEntity: true,
-        showModal: true,
         type: "create"
       };
       this.$store.commit("setGroupBuffer", {

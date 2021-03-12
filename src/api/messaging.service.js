@@ -215,7 +215,6 @@ export const Groups = () => {
         let newBuffer = {
           group: response.data,
           processableEntity: true,
-          showModal: false,
           type: "create"
         };
         // Done in then to ensure backend generated id is correct
@@ -275,7 +274,6 @@ export const Groups = () => {
         let newBuffer = {
           group: response.data,
           processableEntity: true,
-          showModal: false,
           type: "update"
         };
         store.commit("setGroupBuffer", {
@@ -309,7 +307,6 @@ export const Groups = () => {
         let newBuffer = {
           group: general,
           processableEntity: true,
-          showModal: false,
           type: "update"
         };
         store.commit("setGroupBuffer", {
@@ -337,7 +334,7 @@ export const Groups = () => {
     };
 
     axios(requestConfig)
-      .then(response => {
+      .then(() => {
         let member = {
           id: newMember.id,
           name: newMember.text
@@ -345,9 +342,8 @@ export const Groups = () => {
         members.value.push(member);
         // The type field allows groupList to properly consume the changes to the group
         let newBuffer = {
-          group: response.data,
+          group: groupBuffer.value.group,
           processableEntity: true,
-          showModal: false,
           type: "update"
         };
         store.commit("setGroupBuffer", {
@@ -363,7 +359,7 @@ export const Groups = () => {
       members.value.splice(index, 1);
       return;
     }
-    let id = members.value[index];
+    let id = members.value[index].id;
     // Parse members & add them to new group obj before sending request
     let url = serverURL.value + "v1/channels/" + groupID.value + "/members";
     let sessionToken = localStorage.getItem("auth");
@@ -378,13 +374,12 @@ export const Groups = () => {
         headers,
         data
       })
-      .then(response => {
+      .then(() => {
         // The type field allows groupList to properly consume the changes to the group
         members.value.splice(index, 1);
         let newBuffer = {
-          message: response.data,
+          group: groupBuffer.value.group,
           processableEntity: true,
-          showModal: false,
           type: "update"
         };
         store.commit("setGroupBuffer", {
