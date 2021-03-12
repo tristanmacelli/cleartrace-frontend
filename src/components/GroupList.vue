@@ -7,7 +7,7 @@
   >
     <div class="flex no-wrap px-4 pt-4 mb-10">
       <p class="mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
-        {{ this.storedUserInitials }}
+        <!-- {{ this.initials }} -->
       </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>
       <button
@@ -52,42 +52,47 @@
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
-import { mapState } from "vuex";
+import { useStore } from "vuex";
+import { computed, ref } from "vue";
 import { Users } from "@/api/users";
-import { Groups } from "@/api/users";
+import { Groups } from "@/api/messaging.service";
 
 export default {
   name: "groupList",
-  setup() {
-    const { GetGroups } = Groups();
-    const { user, SignOut } = Users();
-    return {
-      user,
-      GetGroups,
-      SignOut
-    };
-  },
   components: {
     Group,
     Dropdown,
     List
   },
-  data() {
+  async setup() {
+    const store = useStore();
+    const { groups, GetGroups } = Groups();
+    const { SignOut } = Users();
+
+    const listItems = ref([]);
+    const width = ref(0);
+    const isGroupListOpen = computed(() => store.state.isGroupListOpen);
+    const isMobile = computed(() => store.state.isMobile);
+    const groupBuffer = computed(() => store.state.groupBuffer);
+    const initials = computed(() => store.getters.getUserInitials);
+
+    let items = ["Profile", "Settings", "Sign Out"];
+    items.forEach((item, index) =>
+      listItems.value.push({ id: index, text: item })
+    );
+    width.value = window.innerWidth;
+    await GetGroups();
+
     return {
-      groups: [],
-      listItems: [],
-      width: 0
+      initials,
+      isGroupListOpen,
+      isMobile,
+      groups,
+      groupBuffer,
+      listItems,
+      GetGroups,
+      SignOut
     };
-  },
-  computed: {
-    storedUserInitials() {
-      return this.user.FirstName.charAt(0) + this.user.LastName.charAt(0);
-    },
-    ...mapState({
-      groupBuffer: state => state.groupBuffer,
-      isGroupListOpen: state => state.isGroupListOpen,
-      isMobile: state => state.isMobile
-    })
   },
   watch: {
     groupBuffer() {
@@ -112,19 +117,12 @@ export default {
     }
   },
   emits: ["displayModal"],
-  created: async function() {
-    let items = ["Profile", "Settings", "Sign Out"];
-    items.forEach((item, index) =>
-      this.listItems.push({ id: index, text: item })
-    );
-    this.width = window.innerWidth;
-    await this.GetGroups();
+  beforeMount: async function() {
     // this.socket.onmessage = event => {
     //   // The data we created is in the event.data field
     //   // The current datatype of event is message
     //   let receivedObj = JSON.parse(event.data);
     //   let messageObj = receivedObj.message;
-
     //   if (receivedObj.type == "message-new") {
     //     if (messageObj.groupID != this.GroupID) {
     //       // Send a notification (noise, highlight group with message, update group w/ number
@@ -155,6 +153,7 @@ export default {
       this.DisplayModal();
     },
     DisplayModal() {
+      console.log("Calling DisplayModal from GroupList.vue");
       this.$emit("displayModal");
     },
     async HandleListItem(item) {

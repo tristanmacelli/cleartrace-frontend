@@ -80,7 +80,7 @@ export default {
       SendMessage
     } = Messages();
     const store = useStore();
-    const socket = computed(() => store.socket);
+    const socket = computed(() => store.state.socket);
     const disableSendMessage = computed(() => body.length === 0);
 
     // Create initial message
@@ -101,6 +101,7 @@ export default {
     // Make query to server for last 100 messages
     await GetMessages();
 
+    // if (socket.value) {
     socket.value.onmessage = event => {
       console.log("Message Received!");
       // The data we created is in the event.data field
@@ -118,6 +119,7 @@ export default {
         }
       }
     };
+    // }
 
     return {
       body,

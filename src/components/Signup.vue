@@ -30,14 +30,14 @@
         <input
           type="text"
           class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-          v-model="NewFirstName"
+          v-model="firstName"
           id="firstname"
           placeholder="First name"
         />
         <input
           type="text"
           class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-          v-model="NewLastName"
+          v-model="lastName"
           id="lastname"
           placeholder="Last name"
         />
@@ -45,14 +45,14 @@
       <input
         type="text"
         class="w-full p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-        v-model="NewEmail"
+        v-model="email"
         id="email"
         placeholder="Email"
       />
       <input
         type="password"
         class="w-full p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-        v-model="NewPassword"
+        v-model="password"
         id="pass"
         placeholder="New password"
       />

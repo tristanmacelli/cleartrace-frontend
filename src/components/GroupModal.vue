@@ -7,13 +7,13 @@
     >
       <!-- This slot allows for a Update Group modal -->
       <input
-        v-if="this.type === 'update'"
+        v-if="isModalTypeUpdate"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="group.name"
         type="text"
       />
       <input
-        v-if="this.type === 'update'"
+        v-if="isModalTypeUpdate"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="group.description"
         type="text"
@@ -36,14 +36,14 @@
         </group-member>
       </div>
       <input
-        v-if="this.type === 'create'"
+        v-if="!isModalTypeUpdate"
         class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
         type="submit"
         value="Create"
       />
       <!-- This slot allows for a Update Group modal (Delete group button here) -->
       <input
-        v-if="this.type === 'update'"
+        v-if="isModalTypeUpdate"
         class="w-full px-16 py-2 bg-red-500 font-bold text-white cursor-pointer rounded-md"
         type="submit"
         value="Delete"
@@ -66,7 +66,7 @@ import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
 // import { CreateGroup, UpdateGroupDetails, DeleteGroup, AddGroupMember, RemoveGroupMember } from "@/api/messaging.service.js";
-import { mapState } from "vuex";
+import { computed, ref } from "vue";
 import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
 
@@ -77,11 +77,12 @@ export default {
     GroupMember,
     Modal
   },
-  setup() {
+  async setup() {
     const {
+      group,
+      groupBuffer,
       members,
       memberNames,
-      type,
       CreateGroup,
       DeleteGroup,
       UpdateGroupDetails,
@@ -92,14 +93,31 @@ export default {
       searchResults,
       query,
       users,
+      userIDs,
       SearchUsers,
       GetUsersFromIDs
     } = Search();
+    const isModalTypeUpdate = groupBuffer.value.type === "update";
+    const showResults = ref(false);
+    const title = computed(() =>
+      isModalTypeUpdate ? "Update " + group.value.name : "New Group"
+    );
+    group.value = groupBuffer.value.group;
+    userIDs.value = group.value.members;
+
+    if (isModalTypeUpdate) {
+      await GetUsersFromIDs();
+      members.value = users.value;
+    }
 
     return {
+      group,
+      groupBuffer,
+      isModalTypeUpdate,
       members,
       memberNames,
-      type,
+      showResults,
+      title,
       CreateGroup,
       DeleteGroup,
       UpdateGroupDetails,
@@ -111,21 +129,6 @@ export default {
       SearchUsers,
       GetUsersFromIDs
     };
-  },
-  data() {
-    return {
-      group: null,
-      showResults: false,
-      title: this.type === "update" ? "Update " + this.group.name : "New Group"
-    };
-  },
-  computed: {
-    ...mapState({
-      groupBuffer: state => state.groupBuffer,
-      groupID: state => state.group.id,
-      serverURL: state => state.serverURL,
-      userID: state => state.user.id
-    })
   },
   emits: ["hideModal"],
   watch: {
@@ -140,15 +143,6 @@ export default {
       }
     }
   },
-  created: async function() {
-    this.type = this.groupBuffer.type;
-    this.group = this.groupBuffer.group;
-
-    if (this.type === "update") {
-      await this.GetUsersFromIDs();
-      this.members = this.users;
-    }
-  },
   methods: {
     DisplayResults() {
       this.showResults = true;
@@ -160,7 +154,7 @@ export default {
       this.$emit("hideModal");
     },
     async SubmitForm() {
-      if (this.type == "create") {
+      if (this.groupBuffer.type == "create") {
         await this.CreateGroup();
       } else {
         await this.DeleteGroup();

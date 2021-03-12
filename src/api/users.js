@@ -181,7 +181,7 @@ export const Search = () => {
   const userIDs = ref([]);
   const users = ref([]);
 
-  watch(query.value, () => {
+  watch(query, () => {
     if (!awaitingSearch.value) {
       setTimeout(() => {
         this.SearchUsers();
@@ -275,6 +275,7 @@ export const Search = () => {
     query,
     searchResults,
     users,
+    userIDs,
     GetUsersFromIDs,
     SearchUsers
   };

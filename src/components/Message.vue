@@ -40,7 +40,7 @@ export default {
   setup(props) {
     const store = useStore();
     const isAuthor = computed(
-      () => props.creator.FirstName == store.user.FirstName
+      () => props.creator.FirstName == store.state.user.FirstName
     );
     return { isAuthor };
   },

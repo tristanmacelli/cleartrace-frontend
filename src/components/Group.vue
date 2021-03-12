@@ -49,7 +49,7 @@ export default {
     const store = useStore();
     const latestMessage = ref("");
     // If this is true we want to apply the same css rules as applied to the .group:hover class
-    const isStoredGroup = computed(() => props.id == store.group.id);
+    const isStoredGroup = computed(() => props.id == store.state.group.id);
 
     const SetGroup = () => {
       if (!isStoredGroup.value) {

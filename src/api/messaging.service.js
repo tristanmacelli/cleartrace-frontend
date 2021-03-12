@@ -47,6 +47,9 @@ export const Messages = () => {
       })
       .then(response => {
         let messages = response.data;
+        if (!messages) {
+          return;
+        }
         messageList.value = [];
         messages
           .slice()
@@ -108,17 +111,15 @@ export const Groups = () => {
   const awaitingGroupDetails = ref(false);
   const general = computed(() => store.state.general);
   const group = ref({});
-  const groupBuffer = computed(() => store.groupBuffer);
+  const groupBuffer = computed(() => store.state.groupBuffer);
   const groups = ref([]);
   const members = ref([]);
-  const memberIDs = computed(() => members.value.forEach(member => member.id));
-  const memberNames = computed(() =>
-    members.value.forEach(member => member.name)
-  );
+  const memberIDs = ref([]);
+  const memberNames = ref([]);
   const serverURL = computed(() => store.state.serverURL);
 
-  watch(group.value, (newVal, oldVal) => {
-    if (this.groupBuffer.type != "update") {
+  watch(group, (newVal, oldVal) => {
+    if (groupBuffer.value.type != "update") {
       return;
     }
     let updatedGroupDetails =
@@ -131,11 +132,16 @@ export const Groups = () => {
     }
     if (!awaitingGroupDetails.value) {
       setTimeout(() => {
-        this.UpdateGroupDetails();
+        UpdateGroupDetails();
         awaitingGroupDetails.value = false;
       }, 1000); // 1 sec delay
     }
     awaitingGroupDetails.value = true;
+  });
+
+  watch(members, () => {
+    members.value.forEach(member => memberNames.value.push(member.name));
+    members.value.forEach(member => memberIDs.value.push(member.id));
   });
 
   async function GetSpecificGroup(groupName) {
@@ -380,6 +386,7 @@ export const Groups = () => {
     groupBuffer,
     groups,
     members,
+    memberIDs,
     memberNames,
     GetSpecificGroup,
     GetGeneralGroup,
