@@ -36,8 +36,9 @@
       <group
         @click="this.CloseGroupList"
         @display-modal="this.DisplayModal"
-        v-for="grp in groups"
-        :key="grp.id"
+        v-for="(grp, index) in groups"
+        :key="index"
+        :index="index"
         :creator="grp.creator"
         :description="grp.description"
         :id="grp.id"
@@ -100,11 +101,6 @@ export default {
       if (!this.groupBuffer.processableEntity) {
         return;
       }
-      // created groups are pushed to the group list immediately, increasing redundancy/reliability
-      if (this.groupBuffer.type == "create") {
-        this.groups.push(this.groupBuffer);
-      }
-      // In all cases, the groupList should be updated
       this.GetGroups();
       let newBuffer = {
         group: this.groupBuffer.group,
@@ -144,7 +140,7 @@ export default {
     DisplayModalCreate() {
       let newBuffer = {
         group: null,
-        processableEntity: true,
+        processableEntity: false,
         type: "create"
       };
       this.$store.commit("setGroupBuffer", {
