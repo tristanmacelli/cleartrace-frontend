@@ -11,7 +11,9 @@
         <GroupList @display-modal="this.DisplayModal"></GroupList>
       </Suspense>
     </div>
-    <GroupModal v-if="this.displayModal" @hide-modal="HideModal"></GroupModal>
+    <Suspense>
+      <GroupModal v-if="this.displayModal" @hide-modal="HideModal"></GroupModal>
+    </Suspense>
   </div>
 </template>
 
