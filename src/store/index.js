@@ -20,6 +20,7 @@ const store = createStore({
         processableEntity: false,
         type: null
       },
+      groupList: [],
       // A fallback in case backend request fails on its initial attempt
       general: {
         id: "5fec04e96d55740010123439",
@@ -50,13 +51,6 @@ const store = createStore({
     }
   },
   mutations: {
-    setGroup(state, payload) {
-      // eslint-disable-next-line
-      if (state.debug) {
-        console.log("setGroup triggered with: ", payload);
-      }
-      state.group = payload.group;
-    },
     setGeneral(state, payload) {
       // eslint-disable-next-line
       if (state.debug) {
@@ -64,12 +58,22 @@ const store = createStore({
       }
       state.general = payload.group;
     },
+    setGroup(state, payload) {
+      // eslint-disable-next-line
+      if (state.debug) {
+        console.log("setGroup triggered with: ", payload);
+      }
+      state.group = payload.group;
+    },
     setGroupBuffer(state, payload) {
       // eslint-disable-next-line
       if (state.debug) {
         console.log("setGroup triggered with: ", payload);
       }
       state.groupBuffer = payload.groupBuffer;
+    },
+    setGroupList(state, payload) {
+      state.groupList = payload.groupList;
     },
     async setUser(state) {
       // eslint-disable-next-line
