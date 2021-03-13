@@ -23,7 +23,10 @@
       <slot></slot>
     </div>
   </div>
-  <div class="absolute w-screen h-screen z-40 opacity-80 bg-gray-300"></div>
+  <div
+    @click.prevent="$emit('hideModal')"
+    class="absolute w-screen h-screen z-40 opacity-80 bg-gray-300"
+  ></div>
 </template>
 
 <script>
