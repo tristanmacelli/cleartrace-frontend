@@ -214,6 +214,8 @@ export const Groups = () => {
     await axios(requestConfig)
       .then(response => {
         let newGroup = response.data;
+        let index = groups.value.length;
+        newGroup.index = index;
         store.commit("addToGroupList", {
           group: newGroup
         });
