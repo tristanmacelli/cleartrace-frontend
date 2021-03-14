@@ -36,14 +36,14 @@
       <group
         @click="this.CloseGroupList"
         @display-modal="this.DisplayModal"
-        v-for="(grp, index) in groups"
-        :key="index"
-        :index="index"
-        :creator="grp.creator"
-        :description="grp.description"
-        :id="grp.id"
-        :members="grp.members"
-        :name="grp.name"
+        v-for="group in groups"
+        :key="group.index"
+        :index="group.index"
+        :creator="group.creator"
+        :description="group.description"
+        :id="group.id"
+        :members="group.members"
+        :name="group.name"
       ></group>
     </div>
   </div>
@@ -95,23 +95,6 @@ export default {
       SignOut
     };
   },
-  watch: {
-    groupBuffer() {
-      // There aren't any changes to process when opening the group modal
-      if (!this.groupBuffer.processableEntity) {
-        return;
-      }
-      this.GetGroups();
-      let newBuffer = {
-        group: this.groupBuffer.group,
-        processableEntity: false,
-        type: this.groupBuffer.type
-      };
-      this.$store.commit("setGroupBuffer", {
-        groupBuffer: newBuffer
-      });
-    }
-  },
   emits: ["displayModal"],
   beforeMount: async function() {
     // this.socket.onmessage = event => {
@@ -140,7 +123,6 @@ export default {
     DisplayModalCreate() {
       let newBuffer = {
         group: null,
-        processableEntity: false,
         type: "create"
       };
       this.$store.commit("setGroupBuffer", {

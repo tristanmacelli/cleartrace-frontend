@@ -17,7 +17,6 @@ const store = createStore({
       // Establishes a buffer to process group changes locally
       groupBuffer: {
         group: null,
-        processableEntity: false,
         type: null
       },
       groupList: [],
@@ -74,6 +73,19 @@ const store = createStore({
     },
     setGroupList(state, payload) {
       state.groupList = payload.groupList;
+    },
+    addToGroupList(state, payload) {
+      state.groupList.push(payload.group);
+    },
+    removeFromGroupList(state, payload) {
+      state.groupList.splice(payload.index, 1);
+    },
+    updateGroupInGroupList(state, payload) {
+      state.groupList.splice(payload.index, 1);
+      state.groupList.splice(payload.index, 0, payload.group);
+    },
+    clearGroupList(state) {
+      state.groupList = [];
     },
     async setUser(state) {
       // eslint-disable-next-line

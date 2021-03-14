@@ -65,8 +65,7 @@
 import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
-// import { CreateGroup, UpdateGroupDetails, DeleteGroup, AddGroupMember, RemoveGroupMember } from "@/api/messaging.service.js";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
 
@@ -81,6 +80,7 @@ export default {
     const {
       description,
       groupBuffer,
+      index,
       isModalTypeUpdate,
       members,
       memberNames,
@@ -101,15 +101,15 @@ export default {
     } = Search();
 
     const showResults = ref(false);
-    const title = computed(() =>
-      isModalTypeUpdate ? "Update " + name.value : "New Group"
-    );
-    let group = groupBuffer.value.group;
-    description.value = group.description;
-    name.value = group.name;
-    userIDs.value = group.members;
+    let title = "New Group";
 
     if (isModalTypeUpdate) {
+      let group = groupBuffer.value.group;
+      description.value = group.description;
+      index.value = group.index;
+      name.value = group.name;
+      title = "Update " + name.value;
+      userIDs.value = group.members;
       await GetUsersFromIDs();
       members.value = users.value;
     }

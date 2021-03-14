@@ -72,10 +72,10 @@ export default {
           creator: props.creator,
           description: props.description,
           id: props.id,
+          index: props.index,
           members: props.members,
           name: props.name
         },
-        processableEntity: false,
         type: "update"
       };
       store.commit("setGroupBuffer", {

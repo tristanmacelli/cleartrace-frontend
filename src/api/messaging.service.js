@@ -112,8 +112,9 @@ export const Groups = () => {
   const description = ref("");
   const general = computed(() => store.state.general);
   const groupBuffer = computed(() => store.state.groupBuffer);
-  const groupID = computed(() => groupBuffer.value.group.id);
-  const groups = ref([]);
+  const groupID = ref("");
+  const groups = computed(() => store.state.groupList);
+  const index = ref(-1);
   const isModalTypeUpdate = groupBuffer.value.type === "update";
   const members = ref([]);
   const memberIDs = ref([]);
@@ -134,13 +135,12 @@ export const Groups = () => {
     }
     awaitingGroupDetails.value = true;
   }
-
   if (isModalTypeUpdate) {
+    groupID.value = groupBuffer.value.group.id;
     watch(name, (_, oldValue) => updateDetailsWatchHandler(oldValue));
     watch(description, (_, oldValue) => updateDetailsWatchHandler(oldValue));
   }
 
-  // TODO: fix id & name association
   watch(
     members,
     () => {
@@ -192,34 +192,30 @@ export const Groups = () => {
     let url = serverURL.value + "v1/channels";
     let sessionToken = localStorage.getItem("auth");
     let names = memberNames.value.toString();
-    let ids = memberIDs.value.toString();
+    let ids = memberIDs.value;
     let date = new Date();
     // title = title.substring(1, title.length - 2);
     // Create Group object
     let groupObject = {
       name: names,
-      description: "*~Enter a description~*",
+      description: "*Enter a description*",
       private: true,
       members: ids,
       createdAt: date,
       editedAt: null
     };
-    axios
-      .post(url, groupObject, {
-        headers: {
-          Authorization: sessionToken
-        }
-      })
+    let headers = { Authorization: sessionToken };
+    let requestConfig = {
+      method: "post",
+      url: url,
+      headers: headers,
+      data: groupObject
+    };
+    await axios(requestConfig)
       .then(response => {
-        // The type field allows groupList to properly consume the changes to the group
-        let newBuffer = {
-          group: response.data,
-          processableEntity: true,
-          type: "create"
-        };
-        // Done in then to ensure backend generated id is correct
-        store.commit("setGroupBuffer", {
-          groupBuffer: newBuffer
+        let newGroup = response.data;
+        store.commit("addToGroupList", {
+          group: newGroup
         });
       })
       .catch(error => {
@@ -241,14 +237,14 @@ export const Groups = () => {
         if (response == null) {
           return;
         }
-        groups.value = [];
+        store.commit("clearGroupList");
         let receivedGroups = response.data;
-        receivedGroups
-          .slice()
-          .reverse()
-          .forEach(group => {
-            groups.value.push(group);
-          });
+        receivedGroups.forEach((group, index) => {
+          group.index = index;
+        });
+        store.commit("setGroupList", {
+          groupList: receivedGroups
+        });
       })
       .catch(error => {
         alert(error);
@@ -271,13 +267,11 @@ export const Groups = () => {
       })
       .then(response => {
         // The type field allows groupList to properly consume the changes to the group
-        let newBuffer = {
-          group: response.data,
-          processableEntity: true,
-          type: "update"
-        };
-        store.commit("setGroupBuffer", {
-          groupBuffer: newBuffer
+        let updatedGroup = response.data;
+        updatedGroup.index = index.value;
+        store.commit("updateGroupInGroupList", {
+          index: index.value,
+          group: updatedGroup
         });
       })
       .catch(error => {
@@ -296,22 +290,17 @@ export const Groups = () => {
           Authorization: sessionToken
         }
       })
-      .catch(error => {
-        alert(error);
-      })
       .then(() => {
         // Go back to the general group when deleting the channel
+        store.commit("removeFromGroupList", {
+          index: index.value
+        });
         store.commit("setGroup", {
-          group: general
+          group: general.value
         });
-        let newBuffer = {
-          group: general,
-          processableEntity: true,
-          type: "update"
-        };
-        store.commit("setGroupBuffer", {
-          groupBuffer: newBuffer
-        });
+      })
+      .catch(error => {
+        alert(error);
       });
   }
   async function AddGroupMember(newMember) {
@@ -339,27 +328,25 @@ export const Groups = () => {
           id: newMember.id,
           name: newMember.text
         };
-        members.value.push(member);
         // The type field allows groupList to properly consume the changes to the group
-        let newBuffer = {
-          group: groupBuffer.value.group,
-          processableEntity: true,
-          type: "update"
-        };
-        store.commit("setGroupBuffer", {
-          groupBuffer: newBuffer
+        members.value.push(member);
+        let updatedGroup = groupBuffer.value.group;
+        updatedGroup.members = members.value;
+        store.commit("updateGroupInGroupList", {
+          index: index.value,
+          group: updatedGroup
         });
       })
       .catch(error => {
         alert(error);
       });
   }
-  async function RemoveGroupMember(index) {
+  async function RemoveGroupMember(memberIndex) {
     if (groupBuffer.value.type === "create") {
-      members.value.splice(index, 1);
+      members.value.splice(memberIndex, 1);
       return;
     }
-    let id = members.value[index].id;
+    let id = members.value[memberIndex].id;
     // Parse members & add them to new group obj before sending request
     let url = serverURL.value + "v1/channels/" + groupID.value + "/members";
     let sessionToken = localStorage.getItem("auth");
@@ -376,14 +363,12 @@ export const Groups = () => {
       })
       .then(() => {
         // The type field allows groupList to properly consume the changes to the group
-        members.value.splice(index, 1);
-        let newBuffer = {
-          group: groupBuffer.value.group,
-          processableEntity: true,
-          type: "update"
-        };
-        store.commit("setGroupBuffer", {
-          groupBuffer: newBuffer
+        members.value.splice(memberIndex, 1);
+        let updatedGroup = groupBuffer.value.group;
+        updatedGroup.members = members.value;
+        store.commit("updateGroupInGroupList", {
+          index: index.value,
+          group: updatedGroup
         });
       })
       .catch(error => {
@@ -392,9 +377,10 @@ export const Groups = () => {
   }
   return {
     description,
-    groupID,
     groupBuffer,
+    groupID,
     groups,
+    index,
     isModalTypeUpdate,
     members,
     memberIDs,
