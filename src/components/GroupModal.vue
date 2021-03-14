@@ -79,7 +79,7 @@ export default {
   async setup() {
     const {
       description,
-      groupBuffer,
+      groupModalData,
       index,
       isModalTypeUpdate,
       members,
@@ -104,7 +104,7 @@ export default {
     let title = "New Group";
 
     if (isModalTypeUpdate) {
-      let group = groupBuffer.value.group;
+      let group = groupModalData.value.group;
       description.value = group.description;
       index.value = group.index;
       name.value = group.name;
@@ -116,7 +116,7 @@ export default {
 
     return {
       description,
-      groupBuffer,
+      groupModalData,
       isModalTypeUpdate,
       members,
       memberNames,
@@ -163,7 +163,7 @@ export default {
       this.$emit("hideModal");
     },
     async SubmitForm() {
-      if (this.groupBuffer.type == "create") {
+      if (this.groupModalData.type == "create") {
         await this.CreateGroup();
       } else {
         await this.DeleteGroup();

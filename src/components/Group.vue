@@ -78,8 +78,8 @@ export default {
         },
         type: "update"
       };
-      store.commit("setGroupBuffer", {
-        groupBuffer: modalState
+      store.commit("setgroupModalData", {
+        groupModalData: modalState
       });
       context.emit("displayModal");
     };

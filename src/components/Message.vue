@@ -8,7 +8,6 @@
         creator.FirstName + " " + creator.LastName
       }}</strong>
       {{ body + " " + createdAt }}
-      <!-- <button @click="$emit('remove')">(X)</button> -->
     </p>
   </div>
 </template>

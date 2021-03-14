@@ -111,11 +111,13 @@ export const Groups = () => {
   const awaitingGroupDetails = ref(false);
   const description = ref("");
   const general = computed(() => store.state.general);
-  const groupBuffer = computed(() => store.state.groupBuffer);
+  const groupModalData = computed(() => store.state.groupModalData);
   const groupID = ref("");
+  // Ideally this will work, otherwise it should be made into a ref here,
+  // updated by a watcher in GroupList.vue
   const groups = computed(() => store.state.groupList);
   const index = ref(-1);
-  const isModalTypeUpdate = groupBuffer.value.type === "update";
+  const isModalTypeUpdate = groupModalData.value.type === "update";
   const members = ref([]);
   const memberIDs = ref([]);
   const memberNames = ref([]);
@@ -136,7 +138,7 @@ export const Groups = () => {
     awaitingGroupDetails.value = true;
   }
   if (isModalTypeUpdate) {
-    groupID.value = groupBuffer.value.group.id;
+    groupID.value = groupModalData.value.group.id;
     watch(name, (_, oldValue) => updateDetailsWatchHandler(oldValue));
     watch(description, (_, oldValue) => updateDetailsWatchHandler(oldValue));
   }
@@ -306,7 +308,7 @@ export const Groups = () => {
       });
   }
   async function AddGroupMember(newMember) {
-    if (groupBuffer.value.type === "create") {
+    if (groupModalData.value.type === "create") {
       let member = {
         id: newMember.id,
         name: newMember.text
@@ -332,8 +334,10 @@ export const Groups = () => {
         };
         // The type field allows groupList to properly consume the changes to the group
         members.value.push(member);
-        let updatedGroup = groupBuffer.value.group;
+        let updatedGroup = groupModalData.value.group;
         updatedGroup.members = members.value;
+        updatedGroup.name = name.value;
+        updatedGroup.description = description.value;
         store.commit("updateGroupInGroupList", {
           index: index.value,
           group: updatedGroup
@@ -344,7 +348,7 @@ export const Groups = () => {
       });
   }
   async function RemoveGroupMember(memberIndex) {
-    if (groupBuffer.value.type === "create") {
+    if (groupModalData.value.type === "create") {
       members.value.splice(memberIndex, 1);
       return;
     }
@@ -366,8 +370,10 @@ export const Groups = () => {
       .then(() => {
         // The type field allows groupList to properly consume the changes to the group
         members.value.splice(memberIndex, 1);
-        let updatedGroup = groupBuffer.value.group;
+        let updatedGroup = groupModalData.value.group;
         updatedGroup.members = members.value;
+        updatedGroup.name = name.value;
+        updatedGroup.description = description.value;
         store.commit("updateGroupInGroupList", {
           index: index.value,
           group: updatedGroup
@@ -379,7 +385,7 @@ export const Groups = () => {
   }
   return {
     description,
-    groupBuffer,
+    groupModalData,
     groupID,
     groups,
     index,

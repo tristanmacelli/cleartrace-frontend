@@ -74,7 +74,7 @@ export default {
     const width = ref(0);
     const isGroupListOpen = computed(() => store.state.isGroupListOpen);
     const isMobile = computed(() => store.state.isMobile);
-    const groupBuffer = computed(() => store.state.groupBuffer);
+    const groupModalData = computed(() => store.state.groupModalData);
     const initials = computed(() => store.getters.getUserInitials);
 
     let items = ["Profile", "Settings", "Sign Out"];
@@ -89,7 +89,7 @@ export default {
       isGroupListOpen,
       isMobile,
       groups,
-      groupBuffer,
+      groupModalData,
       listItems,
       GetGroups,
       SignOut
@@ -125,8 +125,8 @@ export default {
         group: null,
         type: "create"
       };
-      this.$store.commit("setGroupBuffer", {
-        groupBuffer: newBuffer
+      this.$store.commit("setgroupModalData", {
+        groupModalData: newBuffer
       });
       this.DisplayModal();
     },

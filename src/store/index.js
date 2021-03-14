@@ -14,8 +14,8 @@ const store = createStore({
         id: "5fec04e96d55740010123439",
         name: "General"
       },
-      // Establishes a buffer to process group changes locally
-      groupBuffer: {
+      // TODO: Rename to groupModalData
+      groupModalData: {
         group: null,
         type: null
       },
@@ -64,12 +64,12 @@ const store = createStore({
       }
       state.group = payload.group;
     },
-    setGroupBuffer(state, payload) {
+    setgroupModalData(state, payload) {
       // eslint-disable-next-line
       if (state.debug) {
         console.log("setGroup triggered with: ", payload);
       }
-      state.groupBuffer = payload.groupBuffer;
+      state.groupModalData = payload.groupModalData;
     },
     setGroupList(state, payload) {
       state.groupList = payload.groupList;
