@@ -101,25 +101,21 @@ export default {
     // Make query to server for last 100 messages
     await GetMessages();
 
-    // if (socket.value) {
     socket.value.onmessage = event => {
       console.log("Message Received!");
-      // The data we created is in the event.data field
       // The current datatype of event is message
-      let receivedObj = JSON.parse(event.data);
-      let messageObj = receivedObj.message;
+      let receivedData = JSON.parse(event.data);
+      let message = receivedData.message;
 
-      if (receivedObj.type == "message-new") {
-        // This is the "default behavior" when the user is viewing the group
-        // that messages are coming in on
-        if (messageObj.channelID == this.groupID) {
-          let message = PreprocessMessage(messageObj);
+      if (receivedData.type == "message-new") {
+        // This is "default behavior", when messages are received on the active group
+        if (message.channelID == this.groupID) {
+          let message = PreprocessMessage(message);
           messageList.push(message);
           // this.PlaySound();
         }
       }
     };
-    // }
 
     return {
       body,
@@ -148,6 +144,7 @@ export default {
         this.$store.commit("setIsGroupListOpen");
       }
     },
+    // TODO: add settings page with setting to allow sounds to be played on user device
     PlaySound() {
       let audio = new Audio(require("@/assets/electronic-chime.mp3"));
       audio.play();

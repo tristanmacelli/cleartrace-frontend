@@ -14,7 +14,6 @@ const store = createStore({
         id: "5fec04e96d55740010123439",
         name: "General"
       },
-      // TODO: Rename to groupModalData
       groupModalData: {
         group: null,
         type: null
