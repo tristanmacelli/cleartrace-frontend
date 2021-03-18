@@ -6,8 +6,8 @@
     :class="this.isGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
   >
     <!-- TheRightMenu.vue -->
-    <div class="flex no-wrap items-center px-4 h-20">
-      <p class="h-8 mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
+    <div class="flex no-wrap items-center px-2 h-20">
+      <p class="h-8 mx-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
         {{ this.initials }}
       </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>

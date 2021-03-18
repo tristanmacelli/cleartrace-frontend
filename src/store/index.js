@@ -21,13 +21,15 @@ const store = createStore({
       groupList: [],
       // A fallback in case backend request fails on its initial attempt
       general: {
-        id: "5fec04e96d55740010123439",
-        name: "General",
-        description: "an open channel for all",
-        members: [],
+        createdAt: null,
         creator: {
           id: -1
-        }
+        },
+        description: "an open channel for all",
+        id: "5fec04e96d55740010123439",
+        members: [null],
+        name: "General",
+        private: false
       },
       isGroupListOpen: true,
       isMobile: false,

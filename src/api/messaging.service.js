@@ -177,12 +177,12 @@ export const Groups = () => {
 
   async function GetGeneralGroup() {
     let groups = await GetSpecificGroup("General");
-    let general = groups[0];
+    let generalGroup = groups[0];
     store.commit("setGroup", {
-      group: general
+      group: generalGroup
     });
     store.commit("setGeneral", {
-      group: general
+      group: generalGroup
     });
   }
 
@@ -242,10 +242,14 @@ export const Groups = () => {
           return;
         }
         store.commit("clearGroupList");
-        let receivedGroups = response.data;
-        receivedGroups.forEach((group, index) => {
-          group.index = index;
-        });
+        let receivedGroups = [];
+        response.data
+          .slice()
+          .reverse()
+          .forEach((group, index) => {
+            group.index = index;
+            receivedGroups.push(group);
+          });
         store.commit("setGroupList", {
           groupList: receivedGroups
         });
@@ -296,11 +300,11 @@ export const Groups = () => {
       })
       .then(() => {
         // Go back to the general group when deleting the channel
-        store.commit("removeFromGroupList", {
-          index: index.value
-        });
         store.commit("setGroup", {
           group: general.value
+        });
+        store.commit("removeFromGroupList", {
+          index: index.value
         });
       })
       .catch(error => {
