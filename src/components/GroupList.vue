@@ -5,13 +5,14 @@
     class="absolute sm:right-0 z-20 w-full sm:w-1/5 h-screen transform ease-in-out transition-all duration-300 bg-white"
     :class="this.isGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
   >
-    <div class="flex no-wrap px-4 pt-4 mb-10">
-      <p class="mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
-        <!-- {{ this.initials }} -->
+    <!-- TheRightMenu.vue -->
+    <div class="flex no-wrap items-center px-4 h-20">
+      <p class="h-8 mr-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
+        {{ this.initials }}
       </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>
       <button
-        class="mr-2 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
+        class="h-8 mx-1.5 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
         @click="this.DisplayModalCreate"
       >
         <svg class="w-8 h-8 p-2" viewBox="0 0 512 512">
@@ -32,6 +33,7 @@
         ></list>
       </Dropdown>
     </div>
+    <!-- TheGroupList.vue -->
     <div class="px-2">
       <group
         @click="this.CloseGroupList"
@@ -74,7 +76,6 @@ export default {
     const width = ref(0);
     const isGroupListOpen = computed(() => store.state.isGroupListOpen);
     const isMobile = computed(() => store.state.isMobile);
-    const groupModalData = computed(() => store.state.groupModalData);
     const initials = computed(() => store.getters.getUserInitials);
 
     let items = ["Profile", "Settings", "Sign Out"];
@@ -89,7 +90,6 @@ export default {
       isGroupListOpen,
       isMobile,
       groups,
-      groupModalData,
       listItems,
       GetGroups,
       SignOut
