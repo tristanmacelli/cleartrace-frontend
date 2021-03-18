@@ -1,6 +1,6 @@
 <template>
   <div id="account" class="h-screen bg-cover">
-    <User></User>
+    <User />
   </div>
 </template>
 

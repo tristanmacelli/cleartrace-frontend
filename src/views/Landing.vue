@@ -4,9 +4,9 @@
     class="w-screen h-screen bg bg-cover flex flex-col sm:flex-row sm:flex-nowrap 
            gap-y-2 md:space-y-0 lg:grid-cols-2 sm:gap-x-4 lg:gap-x-40 items-center justify-center"
   >
-    <Title></Title>
-    <Login @display-signup="DisplaySignUp"></Login>
-    <Signup v-if="displaySignUp" @hide-signup="HideSignUp"></Signup>
+    <Title />
+    <Login @display-signup="DisplaySignUp" />
+    <Signup v-if="displaySignUp" @hide-signup="HideSignUp" />
   </div>
 </template>
 
