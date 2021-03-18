@@ -33,8 +33,6 @@ export const Users = () => {
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
           store.commit("setAuthentication");
-          store.commit("setSocket");
-          store.commit("setUser");
           router.push({ path: "/home" });
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
@@ -93,8 +91,6 @@ export const Users = () => {
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
           store.commit("setAuthentication");
-          store.commit("setSocket");
-          store.commit("setUser");
           router.push({ path: "/home" });
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
