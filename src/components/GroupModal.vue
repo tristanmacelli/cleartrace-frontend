@@ -79,6 +79,7 @@ export default {
   async setup() {
     const {
       description,
+      general,
       groupModalData,
       index,
       isModalTypeUpdate,
@@ -108,10 +109,11 @@ export default {
       description.value = group.description;
       index.value = group.index;
       name.value = group.name;
-      title = "Update " + name.value;
+      title = "Update Group";
       userIDs.value = group.members;
       await GetUsersFromIDs();
       members.value = users.value;
+      group = general.value;
     }
 
     return {

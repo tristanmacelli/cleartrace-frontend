@@ -72,9 +72,9 @@ export const Messages = () => {
     let formattedDate = FormatDate(date);
     let messageObject = {
       channelID: group.value.id,
-      body: body,
+      body: body.value,
       createdAt: formattedDate,
-      creator: user
+      creator: user.value
     };
     // Setting the msg id locally to -1 (will self-correct on page refresh)
     let temporary = messageObject;
@@ -274,7 +274,6 @@ export const Groups = () => {
         }
       })
       .then(response => {
-        // The type field allows groupList to properly consume the changes to the group
         let updatedGroup = response.data;
         updatedGroup.index = index.value;
         store.commit("updateGroupInGroupList", {
@@ -336,12 +335,15 @@ export const Groups = () => {
           id: newMember.id,
           name: newMember.text
         };
-        // The type field allows groupList to properly consume the changes to the group
-        members.value.push(member);
-        let updatedGroup = groupModalData.value.group;
-        updatedGroup.members = members.value;
-        updatedGroup.name = name.value;
-        updatedGroup.description = description.value;
+        let updatedGroup = {
+          creator: groupModalData.value.group.creator,
+          description: description.value,
+          index: groupModalData.value.group.index,
+          id: groupModalData.value.group.id,
+          members: members.value,
+          name: name.value
+        };
+        updatedGroup.members.push(member);
         store.commit("updateGroupInGroupList", {
           index: index.value,
           group: updatedGroup
@@ -372,12 +374,15 @@ export const Groups = () => {
         data
       })
       .then(() => {
-        // The type field allows groupList to properly consume the changes to the group
-        members.value.splice(memberIndex, 1);
-        let updatedGroup = groupModalData.value.group;
-        updatedGroup.members = members.value;
-        updatedGroup.name = name.value;
-        updatedGroup.description = description.value;
+        let updatedGroup = {
+          creator: groupModalData.value.group.creator,
+          description: description.value,
+          index: groupModalData.value.group.index,
+          id: groupModalData.value.group.id,
+          members: members.value,
+          name: name.value
+        };
+        updatedGroup.members.splice(memberIndex, 1);
         store.commit("updateGroupInGroupList", {
           index: index.value,
           group: updatedGroup
@@ -389,6 +394,7 @@ export const Groups = () => {
   }
   return {
     description,
+    general,
     groupModalData,
     groupID,
     groups,
