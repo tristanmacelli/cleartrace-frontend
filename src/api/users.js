@@ -75,12 +75,12 @@ export const Users = () => {
       return;
     }
     let user = {
-      Email: email,
-      Password: password,
-      PasswordConf: password,
+      Email: email.value,
+      Password: password.value,
+      PasswordConf: password.value,
       UserName: username,
-      FirstName: firstName,
-      LastName: lastName
+      FirstName: firstName.value,
+      LastName: lastName.value
     };
     await axios
       .post(url, {
