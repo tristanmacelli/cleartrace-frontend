@@ -38,7 +38,6 @@ export const Messages = () => {
     var url = serverURL.value + "v1/channels/" + group.value.id;
     let sessionToken = localStorage.getItem("auth");
 
-    // send a get request with the above data
     axios
       .get(url, {
         headers: {
@@ -67,7 +66,6 @@ export const Messages = () => {
     var url = serverURL.value + "v1/channels/" + group.value.id;
     let sessionToken = localStorage.getItem("auth");
 
-    // Get user first name from store & add it to this object
     let date = new Date();
     let formattedDate = FormatDate(date);
     let messageObject = {
@@ -80,7 +78,7 @@ export const Messages = () => {
     let temporary = messageObject;
     temporary.id = "-1";
     messageList.value.push(temporary);
-    // send a get request with the above data
+
     axios
       .post(url, messageObject, {
         headers: {
@@ -113,8 +111,6 @@ export const Groups = () => {
   const general = computed(() => store.state.general);
   const groupModalData = computed(() => store.state.groupModalData);
   const groupID = ref("");
-  // Ideally this will work, otherwise it should be made into a ref here,
-  // updated by a watcher in GroupList.vue
   const groups = computed(() => store.state.groupList);
   const index = ref(-1);
   const isModalTypeUpdate = groupModalData.value.type === "update";
@@ -159,7 +155,7 @@ export const Groups = () => {
   async function GetSpecificGroup(groupName) {
     var url = serverURL.value + "v1/channels?startsWith=" + groupName;
     let sessionToken = localStorage.getItem("auth");
-    // send a get request with the above data
+
     let groups = await axios
       .get(url, {
         headers: {
@@ -193,11 +189,10 @@ export const Groups = () => {
     }
     let url = serverURL.value + "v1/channels";
     let sessionToken = localStorage.getItem("auth");
+
     let names = memberNames.value.toString();
     let ids = memberIDs.value;
     let date = new Date();
-    // title = title.substring(1, title.length - 2);
-    // Create Group object
     let groupObject = {
       name: names,
       description: "*Enter a description*",
@@ -230,7 +225,6 @@ export const Groups = () => {
     var url = serverURL.value + "v1/channels";
     let sessionToken = localStorage.getItem("auth");
 
-    // send a get request with the above data
     axios
       .get(url, {
         headers: {
@@ -259,7 +253,6 @@ export const Groups = () => {
       });
   }
   async function UpdateGroupDetails() {
-    // Update name & description
     let url = serverURL.value + "v1/channels/" + groupID.value;
     let sessionToken = localStorage.getItem("auth");
     let body = {
@@ -359,7 +352,6 @@ export const Groups = () => {
       return;
     }
     let id = members.value[memberIndex].id;
-    // Parse members & add them to new group obj before sending request
     let url = serverURL.value + "v1/channels/" + groupID.value + "/members";
     let sessionToken = localStorage.getItem("auth");
     let data = {

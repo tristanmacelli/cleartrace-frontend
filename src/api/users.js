@@ -72,6 +72,7 @@ export const Users = () => {
 
     if (!email.value || !password.value) {
       alert("Error: Invalid New User Input");
+      // TODO: alter a field condition to style the input border red, indicating incorrect input
       return;
     }
     let user = {
