@@ -120,6 +120,12 @@ export const Groups = () => {
   const name = ref("");
   const serverURL = computed(() => store.state.serverURL);
 
+  function getMemberIDs() {
+    let ids = [];
+    members.value.forEach(member => ids.push(member.id));
+    return ids;
+  }
+
   function updateDetailsWatchHandler(oldValue) {
     // Don't update when previous was empty
     if (oldValue === "") {
@@ -328,15 +334,16 @@ export const Groups = () => {
           id: newMember.id,
           name: newMember.text
         };
+        members.value.push(member);
+        let ids = getMemberIDs();
         let updatedGroup = {
           creator: groupModalData.value.group.creator,
           description: description.value,
           index: groupModalData.value.group.index,
           id: groupModalData.value.group.id,
-          members: members.value,
+          members: ids,
           name: name.value
         };
-        updatedGroup.members.push(member);
         store.commit("updateGroupInGroupList", {
           index: index.value,
           group: updatedGroup
@@ -366,15 +373,16 @@ export const Groups = () => {
         data
       })
       .then(() => {
+        members.value.splice(memberIndex, 1);
+        let ids = getMemberIDs();
         let updatedGroup = {
           creator: groupModalData.value.group.creator,
           description: description.value,
           index: groupModalData.value.group.index,
           id: groupModalData.value.group.id,
-          members: members.value,
+          members: ids,
           name: name.value
         };
-        updatedGroup.members.splice(memberIndex, 1);
         store.commit("updateGroupInGroupList", {
           index: index.value,
           group: updatedGroup
