@@ -3,7 +3,11 @@
   <div
     id="groupList"
     class="absolute sm:right-0 z-20 w-full sm:w-1/5 h-screen transform ease-in-out transition-all duration-300 bg-white"
-    :class="this.isGroupListOpen ? 'translate-x-0' : 'translate-x-full'"
+    :class="
+      this.isGroupListOpen
+        ? 'translate-x-0 show-groups-list'
+        : 'translate-x-full hide-groups-list'
+    "
   >
     <!-- TheRightMenu.vue -->
     <div class="flex no-wrap items-center px-2 h-20">
@@ -143,3 +147,18 @@ export default {
   }
 };
 </script>
+
+<style>
+/* 
+   TailwindCSS has utilites for position, but they do not properly remove
+   the groups list element from the DOM when the user has navigated away on 
+   mobile screens
+*/
+.show-groups-list {
+  position: absolute;
+}
+
+.hide-groups-list {
+  position: static;
+}
+</style>

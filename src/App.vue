@@ -33,7 +33,7 @@ export default {
       console.log("Returning to an active session");
       store.commit("setAuthentication");
       router.push({ path: "/home" });
-      // router.push({ name: 'Home', params: { groupID: this.groupID } });
+      // router.push({ name: 'Home', params: { groupID: groupID } });
     }
     return { error };
   }

@@ -3,7 +3,7 @@
     id="home"
     class="h-screen w-screen bg-cover flex flex-nowrap items-center justify-center"
   >
-    <div class="w-screen h-screen">
+    <div class="w-screen h-screen overflow-hidden">
       <div v-if="error" class="text-center text-2xl mt-20">
         {{ error }}
       </div>
