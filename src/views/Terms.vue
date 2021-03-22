@@ -24,8 +24,10 @@
           <p class="text-gray-700">
             b) If you opt to not save messages, we will never save any of your
             messages on our servers. Besides the information you provided when
-            signing up (Firstname, lastname, email, and password) nothing else
-            will be saved on our servers.
+            signing up (Firstname, lastname, email, and password) as well as
+            group information (group names, descriptions, members) nothing else
+            will be saved on our servers. This is the bare minimum we require to
+            route your messages to the correct recipient.
           </p>
         </section>
         <section class="my-2">
