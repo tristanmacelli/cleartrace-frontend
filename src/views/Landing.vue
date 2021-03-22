@@ -6,7 +6,7 @@
   >
     <Title />
     <Login @display-signup="DisplaySignUp" />
-    <Signup v-if="displaySignUp" @hide-signup="HideSignUp" />
+    <Signup v-if="displaySignUp" @hide-modal="HideSignUp" />
   </div>
 </template>
 

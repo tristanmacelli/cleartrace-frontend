@@ -14,7 +14,6 @@ export const Users = () => {
   const password = ref("");
   const serverURL = computed(() => store.state.serverURL);
   const user = computed(() => store.state.user);
-  // const groupID = computed(() => store.state.group.id);
 
   async function SignIn() {
     let url = serverURL.value + "v1/sessions";

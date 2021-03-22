@@ -11,7 +11,7 @@
       </div>
       <button
         @click="this.HideSignUp"
-        class="p-2 h-8 cursor-pointer hover:bg-gray-200 rounded-3xl"
+        class="p-2 h-8 cursor-pointer hover:bg-gray-200 focus:bg-gray-300 focus:outline-none rounded-3xl"
       >
         <svg class="w-4" viewBox="0 0 96 96" enable-background="new 0 0 96 96">
           <polygon
@@ -28,33 +28,29 @@
     >
       <div class="h-4 gap-x-2">
         <input
-          type="text"
           class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-          v-model="firstName"
-          id="firstname"
           placeholder="First name"
+          type="text"
+          v-model="firstName"
         />
         <input
-          type="text"
           class="w-1/2 p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-          v-model="lastName"
-          id="lastname"
           placeholder="Last name"
+          type="text"
+          v-model="lastName"
         />
       </div>
       <input
-        type="text"
         class="w-full p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-        v-model="email"
-        id="email"
         placeholder="Email"
+        type="text"
+        v-model="email"
       />
       <input
-        type="password"
         class="w-full p-2 bg-gray-100 border border-solid border-gray-300 focus:outline-none rounded-md"
-        v-model="password"
-        id="pass"
         placeholder="New password"
+        type="password"
+        v-model="password"
       />
       <div>
         <p class="text-xs">
@@ -92,7 +88,7 @@ export default {
       confirm("We're sorry but this feature is still under development :(");
     };
     const HideSignUp = () => {
-      context.emit("hideSignup");
+      context.emit("hideModal");
     };
     return {
       email,
@@ -104,6 +100,6 @@ export default {
       SignUp
     };
   },
-  emits: ["hideSignup"]
+  emits: ["hideModal"]
 };
 </script>

@@ -1,6 +1,5 @@
 <template>
   <div
-    v-once
     id="login"
     class="w-72 sm:w-96 h-66 sm:h-72 shadow-lg bg-white rounded-md p-4"
   >
@@ -11,15 +10,15 @@
     >
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
-        v-model="email"
-        type="text"
         placeholder="Email"
+        type="text"
+        v-model="email"
       />
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
-        v-model="password"
-        type="password"
         placeholder="Password"
+        type="password"
+        v-model="password"
       />
       <input
         class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
