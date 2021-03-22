@@ -56,9 +56,8 @@
         <p class="text-xs">
           By clicking Sign Up, you agree to our
           <a
-            href="/legal/terms"
-            @click.prevent="this.Alert"
-            class="text-blue-500 hover:underline"
+            @click.prevent="this.RouteToTerms"
+            class="text-blue-500 hover:underline cursor-pointer"
             >Terms of Service</a
           >.
         </p>
@@ -79,13 +78,17 @@
 
 <script>
 import { Users } from "@/api/users";
+import { useRouter } from "vue-router";
 
 export default {
   name: "signup",
   setup(_, context) {
     const { email, password, firstName, lastName, SignUp } = Users();
-    const Alert = () => {
-      confirm("We're sorry but this feature is still under development :(");
+    const router = useRouter();
+
+    const RouteToTerms = () => {
+      let routeData = router.resolve({ path: "/legal/terms" });
+      window.open(routeData.href, "_blank");
     };
     const HideSignUp = () => {
       context.emit("hideModal");
@@ -95,8 +98,8 @@ export default {
       password,
       firstName,
       lastName,
-      Alert,
       HideSignUp,
+      RouteToTerms,
       SignUp
     };
   },

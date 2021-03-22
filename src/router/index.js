@@ -1,7 +1,8 @@
 import { nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import Landing from "../views/Landing.vue";
 import Account from "../views/Account.vue";
+import Landing from "../views/Landing.vue";
+import Terms from "../views/Terms.vue";
 
 const routes = [
   {
@@ -26,6 +27,12 @@ const routes = [
     // path: "/account/:userID",
     name: "Account",
     component: Account
+  },
+  {
+    path: "/legal/terms",
+    // path: "/account/:userID",
+    name: "Terms",
+    component: Terms
   }
   // To serve for real not found paths (rather than manual reload paths)
   // { path: '*', component: NotFoundComponent }
