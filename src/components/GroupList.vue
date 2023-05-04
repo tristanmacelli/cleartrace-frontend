@@ -69,7 +69,7 @@ export default {
   components: {
     Group,
     Dropdown,
-    List
+    List,
   },
   async setup() {
     const store = useStore();
@@ -96,11 +96,11 @@ export default {
       groups,
       listItems,
       GetGroups,
-      SignOut
+      SignOut,
     };
   },
   emits: ["displayModal"],
-  beforeMount: async function() {
+  beforeMount: async function () {
     // this.socket.onmessage = event => {
     //   // The data we created is in the event.data field
     //   // The current datatype of event is message
@@ -127,10 +127,10 @@ export default {
     DisplayModalCreate() {
       let newBuffer = {
         group: null,
-        type: "create"
+        type: "create",
       };
       this.$store.commit("setgroupModalData", {
-        groupModalData: newBuffer
+        groupModalData: newBuffer,
       });
       this.DisplayModal();
     },
@@ -143,8 +143,8 @@ export default {
       } else {
         this.AlertUnregistered();
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

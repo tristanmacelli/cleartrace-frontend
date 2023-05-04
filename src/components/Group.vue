@@ -22,32 +22,32 @@ import { useStore } from "vuex";
 import { computed, ref } from "vue";
 
 export default {
-  name: "group",
+  name: "groupComponent",
   props: {
     creator: {
       type: Object,
-      required: true
+      required: true,
     },
     description: {
       type: String,
-      required: true
+      required: true,
     },
     index: {
       type: Number,
-      required: true
+      required: true,
     },
     id: {
       type: String,
-      required: true
+      required: true,
     },
     members: {
       type: Array,
-      required: true
+      required: true,
     },
     name: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props, context) {
     const store = useStore();
@@ -59,10 +59,10 @@ export default {
       if (!isStoredGroup.value) {
         let groupObj = {
           id: props.id,
-          name: props.name
+          name: props.name,
         };
         store.commit("setGroup", {
-          group: groupObj
+          group: groupObj,
         });
       }
     };
@@ -74,18 +74,18 @@ export default {
           id: props.id,
           index: props.index,
           members: props.members,
-          name: props.name
+          name: props.name,
         },
-        type: "update"
+        type: "update",
       };
       store.commit("setgroupModalData", {
-        groupModalData: modalState
+        groupModalData: modalState,
       });
       context.emit("displayModal");
     };
 
     return { isStoredGroup, latestMessage, DisplayModalUpdate, SetGroup };
   },
-  emits: ["displayModal"]
+  emits: ["displayModal"],
 };
 </script>

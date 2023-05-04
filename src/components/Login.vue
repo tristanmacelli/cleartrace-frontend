@@ -38,7 +38,7 @@
       class="grid"
     >
       <input
-        class="w-48 mt-6 px-4 py-2 place-self-center bg-green-600 font-bold text-white cursor-pointer rounded-md"
+        class="w-48 mt-3 px-4 py-2 place-self-center bg-emerald-600 font-bold text-white cursor-pointer rounded-md"
         type="submit"
         value="Create New Account"
       />
@@ -50,7 +50,7 @@
 import { Users } from "@/api/users";
 
 export default {
-  name: "login",
+  name: "loginComponent",
   setup(_, context) {
     const { email, password, SignIn } = Users();
     // Creating a new session based on the form values
@@ -65,9 +65,9 @@ export default {
       password,
       Alert,
       DisplaySignUp,
-      SignIn
+      SignIn,
     };
   },
-  emits: ["displaySignup"]
+  emits: ["displaySignup"],
 };
 </script>

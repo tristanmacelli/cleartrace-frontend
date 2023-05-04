@@ -31,17 +31,17 @@
 
 <script>
 export default {
-  name: "modal",
+  name: "modalComponent",
   props: {
     Title: {
       type: String,
-      required: false
+      required: false,
     },
     Description: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ["hideModal"]
+  emits: ["hideModal"],
 };
 </script>

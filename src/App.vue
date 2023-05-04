@@ -18,7 +18,7 @@ export default {
     const router = useRouter();
     const authentication = computed(() => store.state.authentication);
     const error = ref(null);
-    onErrorCaptured(caughtError => {
+    onErrorCaptured((caughtError) => {
       error.value = caughtError;
       return true;
     });
@@ -36,7 +36,7 @@ export default {
       // router.push({ name: 'Home', params: { groupID: groupID } });
     }
     return { error };
-  }
+  },
 };
 </script>
 

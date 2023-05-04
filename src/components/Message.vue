@@ -17,24 +17,24 @@ import { computed } from "vue";
 import { useStore } from "vuex";
 
 export default {
-  name: "message",
+  name: "messageComponent",
   props: {
     id: {
       type: String,
-      required: true
+      required: true,
     },
     body: {
       type: String,
-      required: true
+      required: true,
     },
     creator: {
       type: Object,
-      required: true
+      required: true,
     },
     createdAt: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const store = useStore();
@@ -43,7 +43,7 @@ export default {
     );
     return { isAuthor };
   },
-  emits: ["remove"]
+  emits: ["remove"],
 };
 </script>
 

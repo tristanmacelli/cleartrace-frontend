@@ -1,10 +1,9 @@
 <template>
   <div
     id="landing"
-    class="w-screen h-screen bg-img bg-cover flex flex-col sm:flex-row sm:flex-nowrap 
-           gap-y-2 md:space-y-0 lg:grid-cols-2 sm:gap-x-4 lg:gap-x-40 items-center justify-center"
+    class="w-screen h-screen bg-img bg-cover flex flex-col sm:flex-row sm:flex-nowrap gap-y-2 md:space-y-0 lg:grid-cols-2 sm:gap-x-4 lg:gap-x-40 items-center justify-center"
   >
-    <Title />
+    <Splash />
     <Login @display-signup="DisplaySignUp" />
     <Signup v-if="displaySignUp" @hide-modal="HideSignUp" />
   </div>
@@ -12,17 +11,17 @@
 
 <script>
 // @ is an alias to /src
-import Title from "@/components/Title.vue";
+import Splash from "@/components/Splash.vue";
 import Login from "@/components/Login.vue";
 import Signup from "@/components/Signup.vue";
 import { ref } from "vue";
 
 export default {
-  name: "Landing",
+  name: "LandingView",
   components: {
-    Title,
+    Splash,
     Login,
-    Signup
+    Signup,
   },
   setup() {
     const displaySignUp = ref(false);
@@ -37,9 +36,9 @@ export default {
     return {
       displaySignUp,
       DisplaySignUp,
-      HideSignUp
+      HideSignUp,
     };
-  }
+  },
 };
 </script>
 

@@ -12,24 +12,24 @@ const store = createStore({
       debug: false,
       group: {
         id: "5fec04e96d55740010123439",
-        name: "General"
+        name: "General",
       },
       groupModalData: {
         group: null,
-        type: null
+        type: null,
       },
       groupList: [],
       // A fallback in case backend request fails on its initial attempt
       general: {
         createdAt: null,
         creator: {
-          id: -1
+          id: -1,
         },
         description: "an open channel for all",
         id: "5fec04e96d55740010123439",
         members: [null],
         name: "General",
-        private: false
+        private: false,
       },
       isGroupListOpen: true,
       isMobile: false,
@@ -38,8 +38,8 @@ const store = createStore({
       user: null,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   actions: {
@@ -48,7 +48,7 @@ const store = createStore({
     },
     async setSocket(context) {
       context.commit("setSocket");
-    }
+    },
   },
   mutations: {
     setGeneral(state, payload) {
@@ -98,13 +98,13 @@ const store = createStore({
       await axios
         .get(url, {
           headers: {
-            Authorization: sessionToken
-          }
+            Authorization: sessionToken,
+          },
         })
-        .then(response => {
+        .then((response) => {
           state.user = response.data;
         })
-        .catch(error => {
+        .catch((error) => {
           // eslint-disable-next-line
           if (state.debug) {
             console.log(error);
@@ -133,7 +133,7 @@ const store = createStore({
           console.log("Successfully connected to the echo WebSocket server!");
         }
       };
-      state.socket.onclose = close => {
+      state.socket.onclose = (close) => {
         // eslint-disable-next-line
         if (state.debug) {
           console.log("close: ", close);
@@ -148,7 +148,7 @@ const store = createStore({
           }
         }
       };
-      state.socket.onerror = error => {
+      state.socket.onerror = (error) => {
         // eslint-disable-next-line
         if (state.debug) {
           console.log("error: ", error);
@@ -225,7 +225,7 @@ const store = createStore({
         console.log("clearIsMobile triggered");
       }
       state.isMobile = false;
-    }
+    },
   },
   getters: {
     getGroupID(state) {
@@ -336,10 +336,10 @@ const store = createStore({
         console.log("getIsMobile triggered");
       }
       return state.isMobile;
-    }
+    },
   },
   strict: debug,
-  plugins
+  plugins,
 });
 
 export default store;

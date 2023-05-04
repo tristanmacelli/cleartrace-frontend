@@ -19,7 +19,7 @@
 <script>
 import { ref } from "vue";
 export default {
-  name: "dropdown",
+  name: "dropDown",
   setup() {
     const showDropdown = ref(false);
     const ToggleDropdown = () => {
@@ -31,8 +31,8 @@ export default {
     return {
       showDropdown,
       HideDropdown,
-      ToggleDropdown
+      ToggleDropdown,
     };
-  }
+  },
 };
 </script>

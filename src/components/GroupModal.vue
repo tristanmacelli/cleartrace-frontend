@@ -74,7 +74,7 @@ export default {
   components: {
     List,
     GroupMember,
-    Modal
+    Modal,
   },
   async setup() {
     const {
@@ -90,7 +90,7 @@ export default {
       DeleteGroup,
       UpdateGroupDetails,
       AddGroupMember,
-      RemoveGroupMember
+      RemoveGroupMember,
     } = Groups();
     const {
       searchResults,
@@ -98,7 +98,7 @@ export default {
       users,
       userIDs,
       SearchUsers,
-      GetUsersFromIDs
+      GetUsersFromIDs,
     } = Search();
 
     const showResults = ref(false);
@@ -134,7 +134,7 @@ export default {
       query,
       users,
       SearchUsers,
-      GetUsersFromIDs
+      GetUsersFromIDs,
     };
   },
   emits: ["hideModal"],
@@ -145,14 +145,14 @@ export default {
       }
     },
     memberNames: {
-      handler: function(curVal, oldVal) {
+      handler: function (curVal, oldVal) {
         if (curVal.length > oldVal.length) {
           this.query = "";
           this.HideResults();
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     DisplayResults() {
@@ -171,7 +171,7 @@ export default {
         await this.DeleteGroup();
       }
       this.HideModal();
-    }
-  }
+    },
+  },
 };
 </script>

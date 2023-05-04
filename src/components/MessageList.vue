@@ -67,7 +67,7 @@ import { Messages } from "@/api/messaging.service";
 export default {
   name: "messageList",
   components: {
-    Message
+    Message,
   },
   async setup() {
     const {
@@ -77,7 +77,7 @@ export default {
       FormatDate,
       GetMessages,
       PreprocessMessage,
-      SendMessage
+      SendMessage,
     } = Messages();
     const store = useStore();
     const socket = computed(() => store.state.socket);
@@ -92,16 +92,16 @@ export default {
         body: "Welcome to the " + group.name + " group",
         creator: {
           FirstName: "Automated",
-          LastName: ""
+          LastName: "",
         },
-        createdAt: date
+        createdAt: date,
       };
       messageList.push(welcomeMessage);
     }
     // Make query to server for last 100 messages
     await GetMessages();
 
-    socket.value.onmessage = event => {
+    socket.value.onmessage = (event) => {
       console.log("Message Received!");
       // The current datatype of event is message
       let receivedData = JSON.parse(event.data);
@@ -124,18 +124,18 @@ export default {
       socket,
       messageList,
       GetMessages,
-      SendMessage
+      SendMessage,
     };
   },
   watch: {
     // Clears the current messages & updates
     // Make sure this still works with the composition API/our API extracted
-    group: async function() {
+    group: async function () {
       await this.GetMessages();
     },
-    messageList: function() {
+    messageList: function () {
       this.updateScroll();
-    }
+    },
   },
   methods: {
     OpenGroupList() {
@@ -152,8 +152,8 @@ export default {
     updateScroll() {
       let element = document.getElementById("view-messages");
       element.scrollTop = element.scrollHeight;
-    }
-  }
+    },
+  },
 };
 </script>
 

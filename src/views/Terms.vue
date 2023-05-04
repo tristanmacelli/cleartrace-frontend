@@ -5,9 +5,7 @@
         <h2 class="text-black text-left text-3xl font-bold">
           Terms of Service
         </h2>
-        <p class="w-96 text-gray-500 italic">
-          Effective on March 22, 2021
-        </p>
+        <p class="w-96 text-gray-500 italic">Effective on March 22, 2021</p>
       </header>
       <body class="">
         <section>
@@ -49,7 +47,9 @@
             class="underline text-gray-500 hover:text-gray-600"
             href="http://vuejs.org/"
           >
-            Vue</a> &amp;
+            Vue</a
+          >
+          &amp;
           <a
             class="underline text-gray-500 hover:text-gray-600"
             href="https://tailwindcss.com/"
@@ -66,11 +66,11 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "Terms",
+  name: "TermsView",
   setup() {
     let serviceName = "Cleartrace";
     return { serviceName };
-  }
+  },
 });
 </script>
 

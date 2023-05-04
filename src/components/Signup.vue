@@ -81,7 +81,7 @@ import { Users } from "@/api/users";
 import { useRouter } from "vue-router";
 
 export default {
-  name: "signup",
+  name: "signupComponent",
   setup(_, context) {
     const { email, password, firstName, lastName, SignUp } = Users();
     const router = useRouter();
@@ -100,9 +100,9 @@ export default {
       lastName,
       HideSignUp,
       RouteToTerms,
-      SignUp
+      SignUp,
     };
   },
-  emits: ["hideModal"]
+  emits: ["hideModal"],
 };
 </script>

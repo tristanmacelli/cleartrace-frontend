@@ -8,9 +8,9 @@
 import User from "@/components/User.vue";
 
 export default {
-  name: "Account",
+  name: "AccountView",
   components: {
-    User
-  }
+    User,
+  },
 };
 </script>

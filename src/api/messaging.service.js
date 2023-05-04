@@ -41,10 +41,10 @@ export const Messages = () => {
     axios
       .get(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .then(response => {
+      .then((response) => {
         let messages = response.data;
         if (!messages) {
           return;
@@ -53,12 +53,12 @@ export const Messages = () => {
         messages
           .slice()
           .reverse()
-          .forEach(message => {
+          .forEach((message) => {
             message = PreprocessMessage(message);
             messageList.value.push(message);
           });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -72,7 +72,7 @@ export const Messages = () => {
       channelID: group.value.id,
       body: body.value,
       createdAt: formattedDate,
-      creator: user.value
+      creator: user.value,
     };
     // Setting the msg id locally to -1 (will self-correct on page refresh)
     let temporary = messageObject;
@@ -82,13 +82,13 @@ export const Messages = () => {
     axios
       .post(url, messageObject, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
       .then(() => {
         body.value = "";
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -100,7 +100,7 @@ export const Messages = () => {
     FormatDate,
     GetMessages,
     PreprocessMessage,
-    SendMessage
+    SendMessage,
   };
 };
 
@@ -122,7 +122,7 @@ export const Groups = () => {
 
   function getMemberIDs() {
     let ids = [];
-    members.value.forEach(member => ids.push(member.id));
+    members.value.forEach((member) => ids.push(member.id));
     return ids;
   }
 
@@ -150,11 +150,11 @@ export const Groups = () => {
     () => {
       memberIDs.value = [];
       memberNames.value = [];
-      members.value.forEach(member => memberIDs.value.push(member.id));
-      members.value.forEach(member => memberNames.value.push(member.name));
+      members.value.forEach((member) => memberIDs.value.push(member.id));
+      members.value.forEach((member) => memberNames.value.push(member.name));
     },
     {
-      deep: true
+      deep: true,
     }
   );
 
@@ -165,13 +165,13 @@ export const Groups = () => {
     let groups = await axios
       .get(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .then(response => {
+      .then((response) => {
         return response.data;
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
     return groups;
@@ -181,10 +181,10 @@ export const Groups = () => {
     let groups = await GetSpecificGroup("General");
     let generalGroup = groups[0];
     store.commit("setGroup", {
-      group: generalGroup
+      group: generalGroup,
     });
     store.commit("setGeneral", {
-      group: generalGroup
+      group: generalGroup,
     });
   }
 
@@ -205,25 +205,25 @@ export const Groups = () => {
       private: true,
       members: ids,
       createdAt: date,
-      editedAt: null
+      editedAt: null,
     };
     let headers = { Authorization: sessionToken };
     let requestConfig = {
       method: "post",
       url: url,
       headers: headers,
-      data: groupObject
+      data: groupObject,
     };
     await axios(requestConfig)
-      .then(response => {
+      .then((response) => {
         let newGroup = response.data;
         let index = groups.value.length;
         newGroup.index = index;
         store.commit("addToGroupList", {
-          group: newGroup
+          group: newGroup,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -234,10 +234,10 @@ export const Groups = () => {
     axios
       .get(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .then(response => {
+      .then((response) => {
         if (response == null) {
           return;
         }
@@ -251,10 +251,10 @@ export const Groups = () => {
             receivedGroups.push(group);
           });
         store.commit("setGroupList", {
-          groupList: receivedGroups
+          groupList: receivedGroups,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -263,24 +263,24 @@ export const Groups = () => {
     let sessionToken = localStorage.getItem("auth");
     let body = {
       name: name.value,
-      description: description.value
+      description: description.value,
     };
 
     axios
       .patch(url, body, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .then(response => {
+      .then((response) => {
         let updatedGroup = response.data;
         updatedGroup.index = index.value;
         store.commit("updateGroupInGroupList", {
           index: index.value,
-          group: updatedGroup
+          group: updatedGroup,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -293,19 +293,19 @@ export const Groups = () => {
     axios
       .delete(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
       .then(() => {
         // Go back to the general group when deleting the channel
         store.commit("setGroup", {
-          group: general.value
+          group: general.value,
         });
         store.commit("removeFromGroupList", {
-          index: index.value
+          index: index.value,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -313,7 +313,7 @@ export const Groups = () => {
     if (groupModalData.value.type === "create") {
       let member = {
         id: newMember.id,
-        name: newMember.text
+        name: newMember.text,
       };
       members.value.push(member);
       return;
@@ -325,14 +325,14 @@ export const Groups = () => {
       method: "post",
       url: url,
       headers: headers,
-      data: body
+      data: body,
     };
 
     axios(requestConfig)
       .then(() => {
         let member = {
           id: newMember.id,
-          name: newMember.text
+          name: newMember.text,
         };
         members.value.push(member);
         let ids = getMemberIDs();
@@ -342,14 +342,14 @@ export const Groups = () => {
           index: groupModalData.value.group.index,
           id: groupModalData.value.group.id,
           members: ids,
-          name: name.value
+          name: name.value,
         };
         store.commit("updateGroupInGroupList", {
           index: index.value,
-          group: updatedGroup
+          group: updatedGroup,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -362,15 +362,15 @@ export const Groups = () => {
     let url = serverURL.value + "v1/channels/" + groupID.value + "/members";
     let sessionToken = localStorage.getItem("auth");
     let data = {
-      id: id
+      id: id,
     };
     let headers = {
-      Authorization: sessionToken
+      Authorization: sessionToken,
     };
     axios
       .delete(url, {
         headers,
-        data
+        data,
       })
       .then(() => {
         members.value.splice(memberIndex, 1);
@@ -381,14 +381,14 @@ export const Groups = () => {
           index: groupModalData.value.group.index,
           id: groupModalData.value.group.id,
           members: ids,
-          name: name.value
+          name: name.value,
         };
         store.commit("updateGroupInGroupList", {
           index: index.value,
-          group: updatedGroup
+          group: updatedGroup,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -411,6 +411,6 @@ export const Groups = () => {
     GetGroups,
     DeleteGroup,
     AddGroupMember,
-    RemoveGroupMember
+    RemoveGroupMember,
   };
 };

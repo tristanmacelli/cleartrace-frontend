@@ -33,7 +33,7 @@ import { useRouter } from "vue-router";
 import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
 
 export default {
-  name: "Home",
+  name: "HomeView",
   components: {
     GroupList: defineAsyncComponent(() =>
       import("../components/GroupList.vue")
@@ -43,7 +43,7 @@ export default {
     ),
     MessageList: defineAsyncComponent(() =>
       import("../components/MessageList.vue")
-    )
+    ),
   },
   async setup() {
     const store = useStore();
@@ -53,7 +53,7 @@ export default {
     const error = ref(null);
     const modalType = ref("");
 
-    onErrorCaptured(caughtError => {
+    onErrorCaptured((caughtError) => {
       error.value = caughtError;
       return true;
     });
@@ -77,6 +77,6 @@ export default {
     };
 
     return { error, displayModal, modalType, DisplayModal, HideModal };
-  }
+  },
 };
 </script>

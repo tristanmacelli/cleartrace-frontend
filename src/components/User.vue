@@ -42,15 +42,15 @@
 <script>
 import { Users } from "@/api/users";
 export default {
-  name: "user",
+  name: "userComponent",
   setup() {
     const { firstName, lastName, user } = Users();
     return {
       firstName,
       lastName,
-      user
+      user,
     };
-  }
+  },
 };
 </script>
 

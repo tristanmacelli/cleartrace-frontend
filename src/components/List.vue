@@ -20,16 +20,16 @@
 <script>
 import { ref } from "vue";
 export default {
-  name: "list",
+  name: "listComponent",
   props: {
     items: {
       type: Array,
-      required: true
+      required: true,
     },
     positionRight: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(_, context) {
     const currentItem = ref(-1);
@@ -45,15 +45,15 @@ export default {
         currentItem.value--;
       }
     };
-    const HandleListItem = item => {
+    const HandleListItem = (item) => {
       context.emit("activeListItem", item);
     };
     return {
       currentItem,
       HandleListItem,
       NextItem,
-      PrevItem
+      PrevItem,
     };
-  }
+  },
 };
 </script>

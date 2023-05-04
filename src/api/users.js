@@ -25,9 +25,9 @@ export const Users = () => {
     await axios
       .post(url, {
         Email: email.value,
-        Password: password.value
+        Password: password.value,
       })
-      .then(response => {
+      .then((response) => {
         let sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
@@ -36,7 +36,7 @@ export const Users = () => {
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -49,8 +49,8 @@ export const Users = () => {
     await axios
       .delete(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
       .then(() => {
         localStorage.removeItem("auth");
@@ -60,7 +60,7 @@ export const Users = () => {
           router.push({ path: "/" });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -80,13 +80,13 @@ export const Users = () => {
       PasswordConf: password.value,
       UserName: username,
       FirstName: firstName.value,
-      LastName: lastName.value
+      LastName: lastName.value,
     };
     await axios
       .post(url, {
-        user
+        user,
       })
-      .then(response => {
+      .then((response) => {
         let sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
@@ -95,7 +95,7 @@ export const Users = () => {
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -105,14 +105,14 @@ export const Users = () => {
     let resp = await axios
       .get(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .then(response => {
+      .then((response) => {
         // state.user = response.data;
         return response;
       })
-      .catch(error => {
+      .catch((error) => {
         // eslint-disable-next-line
         // if (debug) {
         //   console.log(error);
@@ -135,12 +135,12 @@ export const Users = () => {
     axios
       .patch(url, {
         headers: {
-          Authorization: sessionToken
+          Authorization: sessionToken,
         },
         FirstName: firstName,
-        LastName: lastName
+        LastName: lastName,
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
     // Since there are no errors and the name fields are updated locally, there is no need to
@@ -164,7 +164,7 @@ export const Users = () => {
     SignUp,
     GetInitials,
     GetUser,
-    UpdateUser
+    UpdateUser,
   };
 };
 
@@ -204,24 +204,24 @@ export const Search = () => {
     axios
       .get(url, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       })
-      .then(response => {
+      .then((response) => {
         let receivedUsers = response.data;
         if (response.data) {
           receivedUsers
             .slice()
             .reverse()
-            .forEach(user => {
+            .forEach((user) => {
               if (user.ID != userID.value) {
                 let reducedUsr = {
                   id: user.ID,
                   text: user.FirstName + " " + user.LastName,
-                  img: user.PhotoURL
+                  img: user.PhotoURL,
                 };
                 searchResults.value.push(reducedUsr);
               }
@@ -242,13 +242,13 @@ export const Search = () => {
     await axios
       .post(url, userIDs.value, {
         headers: {
-          Authorization: sessionToken
-        }
+          Authorization: sessionToken,
+        },
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       })
-      .then(response => {
+      .then((response) => {
         let receivedUsers = response.data;
         if (receivedUsers == null) {
           alert("no users present");
@@ -257,10 +257,10 @@ export const Search = () => {
         receivedUsers
           .slice()
           .reverse()
-          .forEach(user => {
+          .forEach((user) => {
             let member = {
               id: user.ID,
-              name: user.FirstName + " " + user.LastName
+              name: user.FirstName + " " + user.LastName,
             };
             users.value.push(member);
           });
@@ -272,6 +272,6 @@ export const Search = () => {
     users,
     userIDs,
     GetUsersFromIDs,
-    SearchUsers
+    SearchUsers,
   };
 };
