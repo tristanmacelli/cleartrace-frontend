@@ -30,7 +30,8 @@ export default {
     let sessionToken = localStorage.getItem("auth");
     let isActiveSession = sessionToken && !authentication.value;
     if (isActiveSession) {
-      console.log("Returning to an active session");
+      // eslint-disable-next-line
+      if (store.debug) console.log("Returning to an active session");
       store.commit("setAuthentication");
       router.push({ path: "/home" });
       // router.push({ name: 'Home', params: { groupID: groupID } });

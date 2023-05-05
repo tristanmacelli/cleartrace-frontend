@@ -6,7 +6,7 @@ module.exports = {
   },
 
   parserOptions: {
-    parser: "@babel/eslint-parser",
+    parser: "@typescript-eslint/parser",
     exclude: ["node_modules"],
   },
 
@@ -20,5 +20,6 @@ module.exports = {
     "eslint:recommended",
     "@vue/prettier",
     "plugin:prettier/recommended",
+    "@vue/typescript",
   ],
 };

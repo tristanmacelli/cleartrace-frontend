@@ -100,7 +100,7 @@ export default {
     };
   },
   emits: ["displayModal"],
-  beforeMount: async function () {
+  beforeMount: async () => {
     // this.socket.onmessage = event => {
     //   // The data we created is in the event.data field
     //   // The current datatype of event is message

@@ -34,12 +34,14 @@ export default {
   setup(_, context) {
     const currentItem = ref(-1);
     const NextItem = () => {
+      // eslint-disable-next-line
       console.log("Calling NextItem");
       if (currentItem.value < 19) {
         currentItem.value++;
       }
     };
     const PrevItem = () => {
+      // eslint-disable-next-line
       console.log("Calling PrevItem");
       if (currentItem.value > -1) {
         currentItem.value--;

@@ -79,6 +79,7 @@ export default {
       PreprocessMessage,
       SendMessage,
     } = Messages();
+
     const store = useStore();
     const socket = computed(() => store.state.socket);
     const disableSendMessage = computed(() => body.length === 0);
@@ -102,7 +103,8 @@ export default {
     await GetMessages();
 
     socket.value.onmessage = (event) => {
-      console.log("Message Received!");
+      // eslint-disable-next-line
+      if (store.debug) console.log("Message Received!");
       // The current datatype of event is message
       let receivedData = JSON.parse(event.data);
       let message = receivedData.message;

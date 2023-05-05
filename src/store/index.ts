@@ -1,47 +1,72 @@
 import axios from "axios";
 import { createStore, createLogger } from "vuex";
 
+const generalGroup: Group = {
+  createdAt: undefined,
+  editedAt: undefined,
+  creator: {
+    id: -1,
+  },
+  description: "an open channel for all",
+  id: "5fec04e96d55740010123439",
+  members: [],
+  name: "General",
+  private: false,
+};
+
+export interface State {
+  // A switch for controlling navigation
+  authenticated: boolean;
+  // Controls logging output for state actions, mutations, & getters
+  debug: boolean;
+  group: Group;
+  groupModalData: {
+    group?: LocalGroup;
+    type: string;
+  };
+  groupList: Group[];
+  // A fallback in case backend request fails on its initial attempt
+  general: Group;
+  isGroupListOpen: boolean;
+  isMobile: boolean;
+  serverURL: string;
+  socket?: WebSocket;
+  user?: LocalUser;
+  window: {
+    width: number;
+    height: number;
+  };
+}
+
+const state: State = {
+  // A switch for controlling navigation
+  authenticated: false,
+  // Controls logging output for state actions, mutations, & getters
+  debug: false,
+  group: generalGroup,
+  groupModalData: {
+    group: undefined,
+    type: "",
+  },
+  groupList: [],
+  // A fallback in case backend request fails on its initial attempt
+  general: generalGroup,
+  isGroupListOpen: true,
+  isMobile: false,
+  serverURL: "https://slack.api.tristanmacelli.com/",
+  socket: undefined,
+  user: undefined,
+  window: {
+    width: 0,
+    height: 0,
+  },
+};
+
 const debug = process.env.NODE_ENV !== "production";
 const plugins = debug ? [createLogger({})] : [];
+
 const store = createStore({
-  state() {
-    return {
-      // A switch for controlling navigation
-      authenticated: false,
-      // Controls logging output for state actions, mutations, & getters
-      debug: false,
-      group: {
-        id: "5fec04e96d55740010123439",
-        name: "General",
-      },
-      groupModalData: {
-        group: null,
-        type: null,
-      },
-      groupList: [],
-      // A fallback in case backend request fails on its initial attempt
-      general: {
-        createdAt: null,
-        creator: {
-          id: -1,
-        },
-        description: "an open channel for all",
-        id: "5fec04e96d55740010123439",
-        members: [null],
-        name: "General",
-        private: false,
-      },
-      isGroupListOpen: true,
-      isMobile: false,
-      serverURL: "https://slack.api.tristanmacelli.com/",
-      socket: null,
-      user: null,
-      window: {
-        width: 0,
-        height: 0,
-      },
-    };
-  },
+  state,
   actions: {
     async setUser(context) {
       context.commit("setUser");
@@ -51,23 +76,16 @@ const store = createStore({
     },
   },
   mutations: {
-    setGeneral(state, payload) {
-      // eslint-disable-next-line
-      if (state.debug) {
-        console.log("setGroup triggered with: ", payload);
-      }
-      state.general = payload.group;
-    },
     setGroup(state, payload) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setGroup triggered with: ", payload);
       }
       state.group = payload.group;
     },
     setgroupModalData(state, payload) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setGroup triggered with: ", payload);
       }
       state.groupModalData = payload.groupModalData;
@@ -89,12 +107,12 @@ const store = createStore({
       state.groupList = [];
     },
     async setUser(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setUser triggered");
       }
-      let sessionToken = localStorage.getItem("auth");
-      let url = state.serverURL + "v1/users/";
+      const sessionToken = localStorage.getItem("auth");
+      const url = state.serverURL + "v1/users/";
       await axios
         .get(url, {
           headers: {
@@ -105,43 +123,45 @@ const store = createStore({
           state.user = response.data;
         })
         .catch((error) => {
-          // eslint-disable-next-line
           if (state.debug) {
+            // eslint-disable-next-line
             console.log(error);
           }
         });
     },
     clearUser(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("clearUser triggered");
       }
-      state.user = null;
+      state.user = undefined;
     },
     setSocket(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setSocket triggered");
       }
-      let sessionToken = localStorage.getItem("auth");
+      const sessionToken = localStorage.getItem("auth");
       state.socket = new WebSocket(
         "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
       );
       state.socket.onopen = () => {
-        // eslint-disable-next-line
         if (state.debug) {
+          // eslint-disable-next-line
           console.log("Successfully connected to the echo WebSocket server!");
         }
       };
       state.socket.onclose = (close) => {
-        // eslint-disable-next-line
         if (state.debug) {
+          // eslint-disable-next-line
           console.log("close: ", close);
           if (close.wasClean) {
+            // eslint-disable-next-line
             console.log(
               "Successfully disconnected to the echo WebSocket server!"
             );
           } else {
+            // eslint-disable-next-line
             console.log(
               "Not able to cleanly disconnected from the WebSocket server."
             );
@@ -149,79 +169,81 @@ const store = createStore({
         }
       };
       state.socket.onerror = (error) => {
-        // eslint-disable-next-line
         if (state.debug) {
+          // eslint-disable-next-line
           console.log("error: ", error);
+          // eslint-disable-next-line
           console.log("Error originating from the echo websocket server...");
         }
       };
     },
     clearSocket(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("clearSocket triggered");
       }
+      if (!state.socket) return;
       // state.socket is defined && state.socket.readyState === WebSocket.OPEN
       // Close WebSocket connection with Normal Closure code (1000)
-      let closeCode = 1000;
+      const closeCode = 1000;
       state.socket.close(closeCode);
       // Eventually this should be removed
-      state.socket = null;
+      state.socket = undefined;
     },
     setAuthentication(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setAuthentication triggered");
       }
       state.authenticated = true;
     },
     clearAuthentication(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("clearAuthentication triggered");
       }
       state.authenticated = false;
     },
     setWindowDimensions(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setWindowDimensions triggered");
       }
       state.window.width = window.innerWidth;
       state.window.height = window.innerHeight;
     },
     clearWindowDimensions(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("clearWindowDimensions triggered");
       }
       state.window.width = 0;
       state.window.height = 0;
     },
     setIsGroupListOpen(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setIsGroupListOpen triggered");
       }
       state.isGroupListOpen = true;
     },
     clearIsGroupListOpen(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("clearIsGroupListOpen triggered");
       }
       state.isGroupListOpen = false;
     },
     setIsMobile(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("setIsMobile triggered");
       }
       state.isMobile = true;
     },
     clearIsMobile(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("clearIsMobile triggered");
       }
       state.isMobile = false;
@@ -229,8 +251,8 @@ const store = createStore({
   },
   getters: {
     getGroupID(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getGroupID triggered");
       }
       if (state.group) {
@@ -239,8 +261,8 @@ const store = createStore({
       return "";
     },
     getGroupName(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getGroupName triggered");
       }
       if (state.group) {
@@ -249,29 +271,29 @@ const store = createStore({
       return "";
     },
     getGeneral(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getGeneral triggered");
       }
       return state.general;
     },
     getServerURL(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getServerURL triggered");
       }
       return state.serverURL;
     },
     getUser(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getUser triggered");
       }
       return state.user;
     },
     getUserID(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getUserID triggered");
       }
       if (state.user) {
@@ -280,8 +302,8 @@ const store = createStore({
       return "";
     },
     getUserFirstname(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getUserFirstname triggered");
       }
       if (state.user) {
@@ -290,8 +312,8 @@ const store = createStore({
       return "";
     },
     getUserLastname(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getUserLastname triggered");
       }
       if (state.user) {
@@ -300,8 +322,8 @@ const store = createStore({
       return "";
     },
     getUserInitials(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getUserInitials triggered");
       }
       if (state.user) {
@@ -310,29 +332,29 @@ const store = createStore({
       return "";
     },
     getSocket(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getSocket triggered");
       }
       return state.socket;
     },
     getAuthentication(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getAuthentication triggered");
       }
       return state.authenticated;
     },
     getIsGroupListOpen(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getIsGroupListOpen triggered");
       }
       return state.isGroupListOpen;
     },
     getIsMobile(state) {
-      // eslint-disable-next-line
       if (state.debug) {
+        // eslint-disable-next-line
         console.log("getIsMobile triggered");
       }
       return state.isMobile;

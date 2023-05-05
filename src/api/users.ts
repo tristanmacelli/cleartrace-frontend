@@ -1,3 +1,4 @@
+import { State } from "@/store";
 import axios from "axios";
 
 import { computed, watch, ref } from "vue";
@@ -5,7 +6,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
 export const Users = () => {
-  const store = useStore();
+  const store = useStore<State>();
   const router = useRouter();
   const email = ref("");
   const firstName = ref("");
@@ -15,8 +16,8 @@ export const Users = () => {
   const serverURL = computed(() => store.state.serverURL);
   const user = computed(() => store.state.user);
 
-  async function SignIn() {
-    let url = serverURL.value + "v1/sessions";
+  const SignIn = async () => {
+    const url = serverURL.value + "v1/sessions";
     if (!email.value || !password.value) {
       alert("Error: Invalid Credentials");
       return;
@@ -28,7 +29,7 @@ export const Users = () => {
         Password: password.value,
       })
       .then((response) => {
-        let sessionToken = response.headers["authorization"];
+        const sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
           store.commit("setAuthentication");
@@ -39,11 +40,11 @@ export const Users = () => {
       .catch((error) => {
         alert(error);
       });
-  }
+  };
 
-  async function SignOut() {
-    let url = serverURL.value + "v1/sessions/mine";
-    let sessionToken = localStorage.getItem("auth");
+  const SignOut = async () => {
+    const url = serverURL.value + "v1/sessions/mine";
+    const sessionToken = localStorage.getItem("auth");
 
     // send a DELETE request with the above data
     await axios
@@ -56,25 +57,25 @@ export const Users = () => {
         localStorage.removeItem("auth");
         store.commit("clearAuthentication");
         store.commit("clearSocket");
-        if (router.currentRoute != "/") {
+        if (router.currentRoute.value.path != "/") {
           router.push({ path: "/" });
         }
       })
       .catch((error) => {
         alert(error);
       });
-  }
+  };
 
-  async function SignUp() {
-    let url = serverURL.value + "v1/users";
-    let username = firstName.value + "." + lastName.value;
+  const SignUp = async () => {
+    const url = serverURL.value + "v1/users";
+    const username = firstName.value + "." + lastName.value;
 
     if (!email.value || !password.value) {
       alert("Error: Invalid New User Input");
       // TODO: alter a field condition to style the input border red, indicating incorrect input
       return;
     }
-    let user = {
+    const user = {
       Email: email.value,
       Password: password.value,
       PasswordConf: password.value,
@@ -87,7 +88,7 @@ export const Users = () => {
         user,
       })
       .then((response) => {
-        let sessionToken = response.headers["authorization"];
+        const sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
           store.commit("setAuthentication");
@@ -98,11 +99,11 @@ export const Users = () => {
       .catch((error) => {
         alert(error);
       });
-  }
-  async function GetUser(serverURL) {
-    let sessionToken = localStorage.getItem("auth");
-    let url = serverURL + "v1/users/";
-    let resp = await axios
+  };
+  const GetUser = async (serverURL: string) => {
+    const sessionToken = localStorage.getItem("auth");
+    const url = serverURL + "v1/users/";
+    const resp = await axios
       .get(url, {
         headers: {
           Authorization: sessionToken,
@@ -120,16 +121,16 @@ export const Users = () => {
         return error;
       });
     return resp;
-  }
+  };
 
-  async function UpdateUser() {
-    var url = serverURL.value + "v1/users/me";
+  const UpdateUser = async () => {
+    const url = serverURL.value + "v1/users/me";
     if (!firstName.value || !lastName.value) {
       alert("Error: Invalid name change, names must not be blank");
       return;
     }
 
-    let sessionToken = localStorage.getItem("auth");
+    const sessionToken = localStorage.getItem("auth");
 
     // send a get request with the above data
     axios
@@ -145,12 +146,14 @@ export const Users = () => {
       });
     // Since there are no errors and the name fields are updated locally, there is no need to
     // make a request for user information until the user returns to this page later
-  }
+  };
 
-  function GetInitials() {
-    initials.value =
-      user.value.FirstName.charAt(0) + user.value.LastName.charAt(0);
-  }
+  const SetInitials = () => {
+    if (user.value) {
+      initials.value =
+        user.value.FirstName.charAt(0) + user.value.LastName.charAt(0);
+    }
+  };
 
   return {
     email,
@@ -162,21 +165,21 @@ export const Users = () => {
     SignIn,
     SignOut,
     SignUp,
-    GetInitials,
+    SetInitials,
     GetUser,
     UpdateUser,
   };
 };
 
 export const Search = () => {
-  const store = useStore();
+  const store = useStore<State>();
   const awaitingSearch = ref(false);
   const query = ref("");
-  const searchResults = ref([]);
+  const searchResults = ref<UserSearchResult[]>([]);
   const serverURL = computed(() => store.state.serverURL);
-  const userID = computed(() => store.state.user.id);
-  const userIDs = ref([]);
-  const users = ref([]);
+  const userID = computed(() => store.state.user?.id);
+  const userIDs = ref<number[]>([]);
+  const users = ref<Member[]>([]);
 
   watch(query, () => {
     if (!awaitingSearch.value) {
@@ -188,7 +191,7 @@ export const Search = () => {
     awaitingSearch.value = true;
   });
 
-  async function SearchUsers() {
+  const SearchUsers = async () => {
     // Do not query the backend if there is nothing to querys
     if (query.value.length == 0) {
       // Clear results when there is no query
@@ -198,8 +201,8 @@ export const Search = () => {
     // Clear results on a new search
     searchResults.value = [];
     // Show a loading animation component/svg
-    let url = serverURL.value + "v1/users/search/?q=" + query.value;
-    let sessionToken = localStorage.getItem("auth");
+    const url = serverURL.value + "v1/users/search/?q=" + query.value;
+    const sessionToken = localStorage.getItem("auth");
 
     axios
       .get(url, {
@@ -211,14 +214,14 @@ export const Search = () => {
         alert(error);
       })
       .then((response) => {
-        let receivedUsers = response.data;
-        if (response.data) {
+        if (response && response.data) {
+          const receivedUsers = response.data;
           receivedUsers
             .slice()
             .reverse()
-            .forEach((user) => {
+            .forEach((user: ServerUser) => {
               if (user.ID != userID.value) {
-                let reducedUsr = {
+                const reducedUsr = {
                   id: user.ID,
                   text: user.FirstName + " " + user.LastName,
                   img: user.PhotoURL,
@@ -233,11 +236,11 @@ export const Search = () => {
         }
         // Hide results list if there are no results
       });
-  }
+  };
 
-  async function GetUsersFromIDs() {
-    let url = serverURL.value + "v1/users/search/";
-    let sessionToken = localStorage.getItem("auth");
+  const GetUsersFromIDs = async () => {
+    const url = serverURL.value + "v1/users/search/";
+    const sessionToken = localStorage.getItem("auth");
 
     await axios
       .post(url, userIDs.value, {
@@ -249,23 +252,23 @@ export const Search = () => {
         alert(error);
       })
       .then((response) => {
-        let receivedUsers = response.data;
-        if (receivedUsers == null) {
+        if (!response || !response.data) {
           alert("no users present");
           return;
         }
+        const receivedUsers = response.data;
         receivedUsers
           .slice()
           .reverse()
-          .forEach((user) => {
-            let member = {
-              id: user.ID,
+          .forEach((user: ServerUser) => {
+            const member = {
+              id: user.ID + "",
               name: user.FirstName + " " + user.LastName,
             };
             users.value.push(member);
           });
       });
-  }
+  };
   return {
     query,
     searchResults,
