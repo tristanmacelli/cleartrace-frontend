@@ -4,6 +4,8 @@ import axios from "axios";
 import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { Member, ServerUser, UserSearchResult } from "../";
+import { serverUserToMember, serverUserToUserSearchResult } from "@/utils";
 
 export const Users = () => {
   const store = useStore<State>();
@@ -100,7 +102,10 @@ export const Users = () => {
         alert(error);
       });
   };
-  const GetUser = async (serverURL: string) => {
+
+  const GetUser = async (
+    serverURL: string
+  ): Promise<{ user?: ServerUser; error?: Error }> => {
     const sessionToken = localStorage.getItem("auth");
     const url = serverURL + "v1/users/";
     const resp = await axios
@@ -110,15 +115,16 @@ export const Users = () => {
         },
       })
       .then((response) => {
-        // state.user = response.data;
-        return response;
+        return {
+          user: response.data as ServerUser,
+        };
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         // eslint-disable-next-line
-        // if (debug) {
-        //   console.log(error);
-        // }
-        return error;
+        if (store.state.debug) console.log(`Error retrieving user: ${error}`);
+        return {
+          error: error,
+        };
       });
     return resp;
   };
@@ -151,7 +157,7 @@ export const Users = () => {
   const SetInitials = () => {
     if (user.value) {
       initials.value =
-        user.value.FirstName.charAt(0) + user.value.LastName.charAt(0);
+        user.value.firstName.charAt(0) + user.value.lastName.charAt(0);
     }
   };
 
@@ -179,7 +185,7 @@ export const Search = () => {
   const serverURL = computed(() => store.state.serverURL);
   const userID = computed(() => store.state.user?.id);
   const userIDs = ref<number[]>([]);
-  const users = ref<Member[]>([]);
+  const members = ref<Member[]>([]);
 
   watch(query, () => {
     if (!awaitingSearch.value) {
@@ -221,12 +227,9 @@ export const Search = () => {
             .reverse()
             .forEach((user: ServerUser) => {
               if (user.ID != userID.value) {
-                const reducedUsr = {
-                  id: user.ID,
-                  text: user.FirstName + " " + user.LastName,
-                  img: user.PhotoURL,
-                };
-                searchResults.value.push(reducedUsr);
+                const reducedUser: UserSearchResult =
+                  serverUserToUserSearchResult(user);
+                searchResults.value.push(reducedUser);
               }
             });
           if (searchResults.value.length > 0) {
@@ -261,18 +264,15 @@ export const Search = () => {
           .slice()
           .reverse()
           .forEach((user: ServerUser) => {
-            const member = {
-              id: user.ID + "",
-              name: user.FirstName + " " + user.LastName,
-            };
-            users.value.push(member);
+            const member: Member = serverUserToMember(user);
+            members.value.push(member);
           });
       });
   };
   return {
     query,
     searchResults,
-    users,
+    users: members,
     userIDs,
     GetUsersFromIDs,
     SearchUsers,

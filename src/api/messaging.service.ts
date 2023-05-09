@@ -3,48 +3,22 @@ import axios from "axios";
 
 import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
+import {
+  LocalGroup,
+  LocalMessage,
+  Member,
+  ServerGroup,
+  ServerMessage,
+} from "..";
+import { FormatDate, serverToClientMessage, serverToClientUser } from "@/utils";
 
 export const Messages = () => {
   const store = useStore<State>();
   const bodyInput = ref("");
-  const group = computed(() => store.state.group);
+  const group = computed(() => store.state.activeGroup);
   const messageList = ref<LocalMessage[]>([]);
   const serverURL = computed(() => store.state.serverURL);
   const user = computed(() => store.state.user);
-
-  const AmOrPm = (date: Date): string => {
-    if (date.getHours() >= 12) {
-      return "PM";
-    }
-    return "AM";
-  };
-
-  const formatHours = (date: Date): string => {
-    const hh = date.getHours();
-
-    if (hh == 12) return "12";
-    if (hh >= 22) return hh - 12 + "";
-    if (hh > 12) return "0" + (hh - 12);
-
-    return "0" + hh;
-  };
-
-  const FormatDate = (date: Date) => {
-    const dd = AmOrPm(date);
-    const minutes = date.getMinutes();
-    const h = formatHours(date);
-    const m = minutes < 10 ? "0" + minutes : minutes + "";
-
-    return h + ":" + m + " " + dd;
-  };
-
-  const PreprocessMessage = (message: ServerMessage) => {
-    const newCreatedAt = new Date(message.createdAt);
-    return {
-      ...message,
-      createdAt: FormatDate(newCreatedAt),
-    };
-  };
 
   const GetMessages = async () => {
     const url = serverURL.value + "v1/channels/" + group.value.id;
@@ -66,34 +40,31 @@ export const Messages = () => {
           .slice()
           .reverse()
           .forEach((message: ServerMessage) => {
-            messageList.value.push(PreprocessMessage(message));
+            messageList.value.push(serverToClientMessage(message));
           });
       })
       .catch((error) => {
         alert(error);
       });
   };
+
   const SendMessage = async () => {
     const url = serverURL.value + "v1/channels/" + group.value.id;
     const sessionToken = localStorage.getItem("auth");
 
     const date = new Date();
     const formattedDate = FormatDate(date);
-    const messageObject = {
+    const localMessage: LocalMessage = {
       channelID: group.value.id,
       body: bodyInput.value,
       createdAt: formattedDate,
       creator: user.value!,
     };
     // Setting the msg id locally to -1 (will self-correct on page refresh)
-    const localMessage = {
-      id: "-1",
-      ...messageObject,
-    };
     messageList.value.push(localMessage);
 
     axios
-      .post(url, messageObject, {
+      .post(url, localMessage, {
         headers: {
           Authorization: sessionToken,
         },
@@ -110,9 +81,7 @@ export const Messages = () => {
     body: bodyInput,
     group,
     messageList,
-    FormatDate,
     GetMessages,
-    PreprocessMessage,
     SendMessage,
   };
 };
@@ -124,7 +93,7 @@ export const Groups = () => {
   const general = computed(() => store.state.general);
   const groupModalData = computed(() => store.state.groupModalData);
   const groupID = computed(() => store.state.groupModalData.group?.id);
-  const groups = computed(() => store.state.groupList);
+  const groupList = computed(() => store.state.groupList);
   const index = computed(() => store.state.groupModalData.group?.index);
   const isModalTypeUpdate = groupModalData.value.type === "update";
   const members = ref<Member[]>([]);
@@ -187,13 +156,14 @@ export const Groups = () => {
         return response.data;
       })
       .catch((error) => {
-        alert(error);
+        if (store.state.debug) alert(`Error getting specific group: ${error}`);
       });
     return groups;
   };
 
   const GetGeneralGroup = async () => {
     const groups = await GetSpecificGroup("General");
+
     const generalGroup = groups[0];
     store.commit("setGroup", {
       group: generalGroup,
@@ -211,7 +181,7 @@ export const Groups = () => {
     const names = memberNames.value.toString();
     const ids = memberIDs.value;
     const date = new Date();
-    const groupObject: LocalGroup = {
+    const groupObject = {
       name: names,
       description: "*Enter a description*",
       private: true,
@@ -228,9 +198,10 @@ export const Groups = () => {
     };
     await axios(requestConfig)
       .then((response) => {
-        const newGroup = response.data;
-        const i = groups.value.length;
-        newGroup.index = i;
+        const newGroup: LocalGroup = {
+          index: groupList.value.length,
+          ...response.data,
+        };
         store.commit("addToGroupList", {
           group: newGroup,
         });
@@ -239,6 +210,7 @@ export const Groups = () => {
         alert(error);
       });
   };
+
   const GetGroups = async () => {
     const url = serverURL.value + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
@@ -258,9 +230,14 @@ export const Groups = () => {
         response.data
           .slice()
           .reverse()
-          .forEach((group: LocalGroup, i: number) => {
-            group.index = i;
-            receivedGroups.push(group);
+          .forEach((group: ServerGroup, i: number) => {
+            // Query full users present new groups that are not in userData: user[]
+            const localGroup: LocalGroup = {
+              ...group,
+              index: i,
+              creator: serverToClientUser(group.creator),
+            };
+            receivedGroups.push(localGroup);
           });
         store.commit("setGroupList", {
           groupList: receivedGroups,
@@ -418,17 +395,17 @@ export const Groups = () => {
   };
 
   return {
-    description: descriptionInput,
+    descriptionInput,
     general,
     groupModalData,
     groupID,
-    groups,
+    groupList,
     index,
     isModalTypeUpdate,
     members,
     memberIDs,
     memberNames,
-    name: nameInput,
+    nameInput,
     GetSpecificGroup,
     GetGeneralGroup,
     CreateGroup,

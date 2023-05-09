@@ -10,8 +10,8 @@
           <tr>
             <td><p>Username:</p></td>
             <td>
-              <p id="account-username">
-                {{ user.name }}
+              <p v-if="user" id="account-username">
+                {{ user.firstName + " " + user.lastName }}
               </p>
             </td>
           </tr>
@@ -39,19 +39,18 @@
   </div>
 </template>
 
-<script>
-import { Users } from "@/api/users";
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
   name: "userComponent",
-  setup() {
-    const { firstName, lastName, user } = Users();
-    return {
-      firstName,
-      lastName,
-      user,
-    };
-  },
-};
+});
+</script>
+
+<script lang="ts" setup>
+import { Users } from "@/api/users";
+
+const { firstName, lastName, user, UpdateUser } = Users();
 </script>
 
 <style>

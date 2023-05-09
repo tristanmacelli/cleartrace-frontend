@@ -1,75 +1,71 @@
-interface LocalGroup {
-  createdAt?: Date;
-  creator?: {
-    id: number;
-  };
-  description?: string;
+export interface ListItem {
+  id: number;
+  text: string;
+}
+
+export interface LocalGroup {
+  id: string;
+  name: string;
+  description: string;
+  private: boolean;
+  members: number[];
+  creator: LocalUser;
+  createdAt: Date;
   editedAt?: Date;
-  index?: number;
-  id?: string;
-  // Was previously User[]
-  members?: string[];
-  name: string;
-  private?: boolean;
+  index: number;
 }
 
-interface Group {
-  createdAt?: Date;
-  creator?: {
-    id: number;
-  };
-  description?: string;
-  editedAt?: Date;
+export interface ServerGroup {
   id: string;
-  // Was previously User[]
-  members?: string[];
   name: string;
-  private?: boolean;
+  description: string;
+  private: boolean;
+  members: number[]; // The type was previously User[]
+  creator: ServerUser;
+  createdAt: Date;
+  editedAt: Date;
 }
 
-interface ReducedUser {
+export interface Member {
   id: string;
   name: string;
 }
 
-interface Member {
-  id: string;
-  name: string;
-}
-
-interface LocalMessage {
+export interface LocalMessage {
   channelID: string;
   body: string;
   createdAt: string;
   creator: LocalUser;
 }
 
-interface ServerMessage {
+export interface ServerMessage {
+  id: string;
   channelID: string;
   body: string;
   createdAt: Date;
-  creator: LocalUser;
+  creator: ServerUser;
+  editedAt: Date;
 }
 
-interface UserSearchResult {
+export interface UserSearchResult {
   id: number;
   text: string;
   img: string;
 }
 
-interface LocalUser {
+export interface LocalUser {
   id: number;
   email: string;
-  FirstName: string;
-  LastName: string;
-  password: string;
+  firstName: string;
+  lastName: string;
+  photoURL: string;
 }
 
-interface ServerUser {
+export interface ServerUser {
   ID: number;
-  email: string;
+  Email: string;
+  UserName: string;
   FirstName: string;
   LastName: string;
-  password: string;
   PhotoURL: string;
 }

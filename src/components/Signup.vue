@@ -10,7 +10,7 @@
         <p>It's easy!</p>
       </div>
       <button
-        @click="this.HideSignUp"
+        @click="HideSignUp"
         class="p-2 h-8 cursor-pointer hover:bg-gray-200 focus:bg-gray-300 focus:outline-none rounded-3xl"
       >
         <svg class="w-4" viewBox="0 0 96 96" enable-background="new 0 0 96 96">
@@ -56,7 +56,7 @@
         <p class="text-xs">
           By clicking Sign Up, you agree to our
           <a
-            @click.prevent="this.RouteToTerms"
+            @click.prevent="RouteToTerms"
             class="text-blue-500 hover:underline cursor-pointer"
             >Terms of Service</a
           >.
@@ -76,33 +76,27 @@
   ></div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "signupComponent",
+});
+</script>
+
+<script lang="ts" setup>
 import { Users } from "@/api/users";
 import { useRouter } from "vue-router";
 
-export default {
-  name: "signupComponent",
-  setup(_, context) {
-    const { email, password, firstName, lastName, SignUp } = Users();
-    const router = useRouter();
+const emit = defineEmits(["hideModal"]);
+const { email, password, firstName, lastName, SignUp } = Users();
+const router = useRouter();
 
-    const RouteToTerms = () => {
-      let routeData = router.resolve({ path: "/legal/terms" });
-      window.open(routeData.href, "_blank");
-    };
-    const HideSignUp = () => {
-      context.emit("hideModal");
-    };
-    return {
-      email,
-      password,
-      firstName,
-      lastName,
-      HideSignUp,
-      RouteToTerms,
-      SignUp,
-    };
-  },
-  emits: ["hideModal"],
+const RouteToTerms = () => {
+  let routeData = router.resolve({ path: "/legal/terms" });
+  window.open(routeData.href, "_blank");
+};
+const HideSignUp = () => {
+  emit("hideModal");
 };
 </script>

@@ -4,7 +4,7 @@
     id="groupList"
     class="absolute sm:right-0 z-20 w-full sm:w-1/5 h-screen transform ease-in-out transition-all duration-300 bg-white"
     :class="
-      this.isGroupListOpen
+      isGroupListOpen
         ? 'translate-x-0 show-groups-list'
         : 'translate-x-full hide-groups-list'
     "
@@ -12,12 +12,12 @@
     <!-- TheRightMenu.vue -->
     <div class="flex no-wrap items-center px-2 h-20">
       <p class="h-8 mx-1.5 pt-1.5 px-1 bg-gray-200 rounded-3xl">
-        {{ this.initials }}
+        {{ initials }}
       </p>
       <h3 class="flex-grow text-2xl">Conversations</h3>
       <button
         class="h-8 mx-1.5 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
-        @click="this.DisplayModalCreate"
+        @click="DisplayModalCreate"
       >
         <svg class="w-8 h-8 p-2" viewBox="0 0 512 512">
           <g>
@@ -31,18 +31,18 @@
       </button>
       <Dropdown>
         <list
-          @active-list-item="this.HandleListItem"
+          @active-list-item="HandleListItem"
           positionRight
-          :items="this.listItems"
+          :items="listItems"
         ></list>
       </Dropdown>
     </div>
     <!-- TheGroupList.vue -->
     <div class="px-2">
       <group
-        @click="this.CloseGroupList"
-        @display-modal="this.DisplayModal"
-        v-for="group in groups"
+        @click="CloseGroupList"
+        @display-modal="DisplayModal"
+        v-for="group in groupList"
         :key="group.index"
         :index="group.index"
         :creator="group.creator"
@@ -55,7 +55,30 @@
   </div>
 </template>
 
-<script>
+<!-- beforeMount: async () => {
+  socket.value.onmessage = event => {
+    // The data we created is in the event.data field
+    // The current datatype of event is message
+    let receivedObj = JSON.parse(event.data);
+    let messageObj = receivedObj.message;
+    if (receivedObj.type == "message-new") {
+      if (messageObj.groupID != store.state.activeGroup.id) {
+        // Send a notification (noise, highlight group with message, update group w/ number
+        //                      indicating the # of unread messages)
+      }
+    }
+  };
+}, -->
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "groupList",
+});
+</script>
+
+<script lang="ts" setup>
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
@@ -63,88 +86,75 @@ import { useStore } from "vuex";
 import { computed, ref } from "vue";
 import { Users } from "@/api/users";
 import { Groups } from "@/api/messaging.service";
+import { ListItem } from "..";
+import { State } from "@/store";
 
-export default {
-  name: "groupList",
-  components: {
-    Group,
-    Dropdown,
-    List,
-  },
-  async setup() {
-    const store = useStore();
-    const { groups, GetGroups } = Groups();
-    const { SignOut } = Users();
+const emit = defineEmits(["displayModal"]);
 
-    const listItems = ref([]);
-    const width = ref(0);
-    const isGroupListOpen = computed(() => store.state.isGroupListOpen);
-    const isMobile = computed(() => store.state.isMobile);
-    const initials = computed(() => store.getters.getUserInitials);
+const store = useStore<State>();
+const { GetGroups } = Groups();
+const { SignOut } = Users();
 
-    let items = ["Profile", "Settings", "Sign Out"];
-    items.forEach((item, index) =>
-      listItems.value.push({ id: index, text: item })
-    );
-    width.value = window.innerWidth;
-    await GetGroups();
+const listItems = ref<ListItem[]>([]);
+const width = ref(0);
+const groupList = computed(() => store.state.groupList);
+const isGroupListOpen = computed(() => store.state.isGroupListOpen);
+const isMobile = computed(() => store.state.isMobile);
+const initials = computed(() => store.getters.getUserInitials);
+const socket = computed(() => store.state.socket);
 
-    return {
-      initials,
-      isGroupListOpen,
-      isMobile,
-      groups,
-      listItems,
-      GetGroups,
-      SignOut,
-    };
-  },
-  emits: ["displayModal"],
-  beforeMount: async () => {
-    // this.socket.onmessage = event => {
-    //   // The data we created is in the event.data field
-    //   // The current datatype of event is message
-    //   let receivedObj = JSON.parse(event.data);
-    //   let messageObj = receivedObj.message;
-    //   if (receivedObj.type == "message-new") {
-    //     if (messageObj.groupID != this.GroupID) {
-    //       // Send a notification (noise, highlight group with message, update group w/ number
-    //       //                      indicating the # of unread messages)
-    //     }
-    //   }
-    // };
-  },
-  methods: {
-    AlertUnregistered() {
-      confirm("We're sorry but this feature is still under development :(");
-    },
-    CloseGroupList() {
-      // Transition #groupList to the right
-      if (this.isMobile) {
-        this.$store.commit("clearIsGroupListOpen");
-      }
-    },
-    DisplayModalCreate() {
-      let newBuffer = {
-        group: null,
-        type: "create",
-      };
-      this.$store.commit("setgroupModalData", {
-        groupModalData: newBuffer,
-      });
-      this.DisplayModal();
-    },
-    DisplayModal() {
-      this.$emit("displayModal");
-    },
-    async HandleListItem(item) {
-      if (item.id == 2) {
-        this.SignOut();
-      } else {
-        this.AlertUnregistered();
-      }
-    },
-  },
+let items = ["Profile", "Settings", "Sign Out"];
+items.forEach((item, index) =>
+  listItems.value.push({
+    id: index,
+    text: item,
+  })
+);
+width.value = window.innerWidth;
+await GetGroups();
+
+const AlertUnregistered = () => {
+  confirm("We're sorry but this feature is still under development :(");
+};
+
+const CloseGroupList = () => {
+  // Transition #groupList to the right
+  if (isMobile.value) {
+    store.commit("clearIsGroupListOpen");
+  }
+};
+
+const DisplayModalCreate = () => {
+  let newBuffer = {
+    group: null,
+    type: "create",
+  };
+  store.commit("setgroupModalData", {
+    groupModalData: newBuffer,
+  });
+  DisplayModal();
+};
+
+const DisplayModal = () => {
+  emit("displayModal");
+};
+
+const HandleListItem = async (item: ListItem) => {
+  if (item.id == 2) {
+    SignOut();
+  } else {
+    AlertUnregistered();
+  }
+};
+
+socket.value!.onmessage = (event) => {
+  // The data we created is in the event.data field
+  // The current datatype of event is message
+  let { message, type } = JSON.parse(event.data);
+  if (type == "message-new" && message.groupID != store.state.activeGroup.id) {
+    // Send a notification (noise, highlight group with message, update group w/ number
+    // indicating the # of unread messages)
+  }
 };
 </script>
 

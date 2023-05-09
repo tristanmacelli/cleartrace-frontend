@@ -4,13 +4,14 @@
   </div>
 </template>
 
-<script>
-import User from "@/components/User.vue";
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   name: "AccountView",
-  components: {
-    User,
-  },
-};
+});
+</script>
+
+<script lang="ts" setup>
+import User from "@/components/User.vue";
 </script>

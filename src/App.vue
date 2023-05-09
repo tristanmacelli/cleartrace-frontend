@@ -6,39 +6,43 @@
   </Suspense>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "app",
+});
+</script>
+
+<script lang="ts" setup>
 import { computed, onErrorCaptured, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { State } from "./store";
 
-export default {
-  name: "app",
-  setup() {
-    const store = useStore();
-    const router = useRouter();
-    const authentication = computed(() => store.state.authentication);
-    const error = ref(null);
-    onErrorCaptured((caughtError) => {
-      error.value = caughtError;
-      return true;
-    });
+const store = useStore<State>();
+const router = useRouter();
+const authenticated = computed(() => store.state.authenticated);
+const error = ref<Error>();
 
-    store.commit("setWindowDimensions");
-    if (window.innerWidth < 640) {
-      store.commit("setIsMobile");
-    }
-    let sessionToken = localStorage.getItem("auth");
-    let isActiveSession = sessionToken && !authentication.value;
-    if (isActiveSession) {
-      // eslint-disable-next-line
-      if (store.debug) console.log("Returning to an active session");
-      store.commit("setAuthentication");
-      router.push({ path: "/home" });
-      // router.push({ name: 'Home', params: { groupID: groupID } });
-    }
-    return { error };
-  },
-};
+onErrorCaptured((caughtError) => {
+  error.value = caughtError;
+  return true;
+});
+
+store.commit("setWindowDimensions");
+if (window.innerWidth < 640) {
+  store.commit("setIsMobile");
+}
+let sessionToken = localStorage.getItem("auth");
+let isActiveSession = sessionToken && !authenticated.value;
+if (isActiveSession) {
+  // eslint-disable-next-line
+  if (store.state.debug) console.log("Returning to an active session");
+  store.commit("setAuthentication");
+  router.push({ path: "/home" });
+  // router.push({ name: 'Home', params: { groupID: groupID } });
+}
 </script>
 
 <style>

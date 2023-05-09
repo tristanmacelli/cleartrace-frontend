@@ -4,47 +4,41 @@
       class="m-1 px-3 py-2 text-sm rounded-3xl bg-gray-300 max-w-xs sm:w-max select-none"
       :class="{ author: isAuthor }"
     >
-      <strong v-if="!this.isAuthor">{{
-        creator.FirstName + " " + creator.LastName
+      <strong v-if="!isAuthor">{{
+        creator.firstName + " " + creator.lastName
       }}</strong>
       {{ body + " " + createdAt }}
     </p>
   </div>
 </template>
 
-<script>
-import { computed } from "vue";
-import { useStore } from "vuex";
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   name: "messageComponent",
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    body: {
-      type: String,
-      required: true,
-    },
-    creator: {
-      type: Object,
-      required: true,
-    },
-    createdAt: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const store = useStore();
-    const isAuthor = computed(
-      () => props.creator.FirstName == store.state.user.FirstName
-    );
-    return { isAuthor };
-  },
-  emits: ["remove"],
-};
+});
+</script>
+
+<script lang="ts" setup>
+import { State } from "@/store";
+import { computed, defineProps } from "vue";
+import { useStore } from "vuex";
+import { LocalUser } from "../index";
+
+const props = defineProps<{
+  id: string;
+  body: string;
+  creator: LocalUser;
+  createdAt: string;
+}>();
+
+defineEmits(["remove"]);
+
+const { state } = useStore<State>();
+const isAuthor = computed(
+  () => props.creator.firstName == state.user?.firstName
+);
 </script>
 
 <style>

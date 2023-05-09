@@ -9,36 +9,27 @@
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "LandingView",
+});
+</script>
+
+<script lang="ts" setup>
 import Splash from "@/components/Splash.vue";
 import Login from "@/components/Login.vue";
 import Signup from "@/components/Signup.vue";
 import { ref } from "vue";
 
-export default {
-  name: "LandingView",
-  components: {
-    Splash,
-    Login,
-    Signup,
-  },
-  setup() {
-    const displaySignUp = ref(false);
+const displaySignUp = ref(false);
 
-    const DisplaySignUp = () => {
-      displaySignUp.value = true;
-    };
-    const HideSignUp = () => {
-      displaySignUp.value = false;
-    };
-
-    return {
-      displaySignUp,
-      DisplaySignUp,
-      HideSignUp,
-    };
-  },
+const DisplaySignUp = () => {
+  displaySignUp.value = true;
+};
+const HideSignUp = () => {
+  displaySignUp.value = false;
 };
 </script>
 

@@ -17,75 +17,63 @@
   </div>
 </template>
 
-<script>
-import { useStore } from "vuex";
-import { computed, ref } from "vue";
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   name: "groupComponent",
-  props: {
-    creator: {
-      type: Object,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    index: {
-      type: Number,
-      required: true,
-    },
-    id: {
-      type: String,
-      required: true,
-    },
-    members: {
-      type: Array,
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props, context) {
-    const store = useStore();
-    const latestMessage = ref("");
-    // If this is true we want to apply the same css rules as applied to the .group:hover class
-    const isStoredGroup = computed(() => props.id == store.state.group.id);
+});
+</script>
 
-    const SetGroup = () => {
-      if (!isStoredGroup.value) {
-        let groupObj = {
-          id: props.id,
-          name: props.name,
-        };
-        store.commit("setGroup", {
-          group: groupObj,
-        });
-      }
-    };
-    const DisplayModalUpdate = () => {
-      let modalState = {
-        group: {
-          creator: props.creator,
-          description: props.description,
-          id: props.id,
-          index: props.index,
-          members: props.members,
-          name: props.name,
-        },
-        type: "update",
-      };
-      store.commit("setgroupModalData", {
-        groupModalData: modalState,
-      });
-      context.emit("displayModal");
-    };
+<script lang="ts" setup>
+import { State } from "@/store";
+import { computed, defineProps } from "vue";
+import { useStore } from "vuex";
+import { LocalUser } from "..";
 
-    return { isStoredGroup, latestMessage, DisplayModalUpdate, SetGroup };
-  },
-  emits: ["displayModal"],
+const props = defineProps<{
+  id: string;
+  name: string;
+  description: string;
+  members: Array<any>;
+  creator: LocalUser;
+  index: Number;
+}>();
+
+const emit = defineEmits(["displayModal"]);
+
+const store = useStore<State>();
+// If this is true we want to apply the same css rules as applied to the .group:hover class
+const isStoredGroup = computed(() => props.id == store.state.activeGroup.id);
+
+const SetGroup = () => {
+  if (!isStoredGroup.value) {
+    let groupObj = {
+      id: props.id,
+      name: props.name,
+    };
+    store.commit("setGroup", {
+      group: groupObj,
+    });
+  }
+};
+
+const DisplayModalUpdate = () => {
+  let modalState = {
+    group: {
+      creator: props.creator,
+      description: props.description,
+      id: props.id,
+      index: props.index,
+      members: props.members,
+      name: props.name,
+    },
+    type: "update",
+  };
+
+  store.commit("setgroupModalData", {
+    groupModalData: modalState,
+  });
+  emit("displayModal");
 };
 </script>

@@ -1,17 +1,24 @@
-import axios from "axios";
 import { createStore, createLogger } from "vuex";
+import { LocalGroup, LocalUser } from "..";
+import { Users } from "../api/users";
+import { serverToClientUser } from "@/utils";
 
-const generalGroup: Group = {
-  createdAt: undefined,
-  editedAt: undefined,
+const generalGroup: LocalGroup = {
+  id: "5fec04e96d55740010123439",
+  name: "General",
+  description: "an open channel for all",
   creator: {
     id: -1,
+    email: "",
+    firstName: "",
+    lastName: "",
+    photoURL: "",
   },
-  description: "an open channel for all",
-  id: "5fec04e96d55740010123439",
   members: [],
-  name: "General",
   private: false,
+  createdAt: new Date(),
+  editedAt: new Date(),
+  index: 0,
 };
 
 export interface State {
@@ -19,19 +26,20 @@ export interface State {
   authenticated: boolean;
   // Controls logging output for state actions, mutations, & getters
   debug: boolean;
-  group: Group;
+  activeGroup: LocalGroup;
   groupModalData: {
     group?: LocalGroup;
     type: string;
   };
-  groupList: Group[];
+  groupList: LocalGroup[];
   // A fallback in case backend request fails on its initial attempt
-  general: Group;
+  general: LocalGroup;
   isGroupListOpen: boolean;
   isMobile: boolean;
   serverURL: string;
   socket?: WebSocket;
   user?: LocalUser;
+  membersUserData: LocalUser[];
   window: {
     width: number;
     height: number;
@@ -43,7 +51,7 @@ const state: State = {
   authenticated: false,
   // Controls logging output for state actions, mutations, & getters
   debug: false,
-  group: generalGroup,
+  activeGroup: generalGroup,
   groupModalData: {
     group: undefined,
     type: "",
@@ -56,6 +64,7 @@ const state: State = {
   serverURL: "https://slack.api.tristanmacelli.com/",
   socket: undefined,
   user: undefined,
+  membersUserData: [],
   window: {
     width: 0,
     height: 0,
@@ -68,11 +77,17 @@ const plugins = debug ? [createLogger({})] : [];
 const store = createStore({
   state,
   actions: {
-    async setUser(context) {
-      context.commit("setUser");
+    async setUser({ commit }) {
+      const { GetUser } = Users();
+      const response = await GetUser(state.serverURL);
+
+      if (response.user) {
+        const localUser = serverToClientUser(response.user);
+        commit("setUser", localUser);
+      }
     },
-    async setSocket(context) {
-      context.commit("setSocket");
+    async setSocket({ commit }) {
+      commit("setSocket");
     },
   },
   mutations: {
@@ -81,7 +96,7 @@ const store = createStore({
         // eslint-disable-next-line
         console.log("setGroup triggered with: ", payload);
       }
-      state.group = payload.group;
+      state.activeGroup = payload.group;
     },
     setgroupModalData(state, payload) {
       if (state.debug) {
@@ -106,28 +121,12 @@ const store = createStore({
     clearGroupList(state) {
       state.groupList = [];
     },
-    async setUser(state) {
+    async setUser(state, payload) {
       if (state.debug) {
         // eslint-disable-next-line
         console.log("setUser triggered");
       }
-      const sessionToken = localStorage.getItem("auth");
-      const url = state.serverURL + "v1/users/";
-      await axios
-        .get(url, {
-          headers: {
-            Authorization: sessionToken,
-          },
-        })
-        .then((response) => {
-          state.user = response.data;
-        })
-        .catch((error) => {
-          if (state.debug) {
-            // eslint-disable-next-line
-            console.log(error);
-          }
-        });
+      state.user = payload;
     },
     clearUser(state) {
       if (state.debug) {
@@ -255,8 +254,8 @@ const store = createStore({
         // eslint-disable-next-line
         console.log("getGroupID triggered");
       }
-      if (state.group) {
-        return state.group.id;
+      if (state.activeGroup) {
+        return state.activeGroup.id;
       }
       return "";
     },
@@ -265,8 +264,8 @@ const store = createStore({
         // eslint-disable-next-line
         console.log("getGroupName triggered");
       }
-      if (state.group) {
-        return state.group.name;
+      if (state.activeGroup) {
+        return state.activeGroup.name;
       }
       return "";
     },
@@ -307,7 +306,7 @@ const store = createStore({
         console.log("getUserFirstname triggered");
       }
       if (state.user) {
-        return state.user.FirstName;
+        return state.user.firstName;
       }
       return "";
     },
@@ -317,7 +316,7 @@ const store = createStore({
         console.log("getUserLastname triggered");
       }
       if (state.user) {
-        return state.user.LastName;
+        return state.user.lastName;
       }
       return "";
     },
@@ -327,7 +326,7 @@ const store = createStore({
         console.log("getUserInitials triggered");
       }
       if (state.user) {
-        return state.user.FirstName.charAt(0) + state.user.LastName.charAt(0);
+        return state.user.firstName.charAt(0) + state.user.lastName.charAt(0);
       }
       return "";
     },

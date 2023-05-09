@@ -1,9 +1,9 @@
 <template>
   <!-- https://codepen.io/huphtur/pen/ordMeN -->
   <!-- https://tailwindui.com/components/application-ui/elements/dropdowns -->
-  <div @mouseleave="this.HideDropdown" class="w-8">
+  <div @mouseleave="HideDropdown" class="w-8">
     <button
-      @click="this.ToggleDropdown"
+      @click="ToggleDropdown"
       class="font-bold text-lg p-2 rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
     >
       <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
@@ -12,27 +12,26 @@
         />
       </svg>
     </button>
-    <slot v-if="this.showDropdown"></slot>
+    <slot v-if="showDropdown"></slot>
   </div>
 </template>
 
-<script>
-import { ref } from "vue";
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
   name: "dropDown",
-  setup() {
-    const showDropdown = ref(false);
-    const ToggleDropdown = () => {
-      showDropdown.value = !showDropdown.value;
-    };
-    const HideDropdown = () => {
-      showDropdown.value = false;
-    };
-    return {
-      showDropdown,
-      HideDropdown,
-      ToggleDropdown,
-    };
-  },
+});
+</script>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+
+const showDropdown = ref(false);
+const ToggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+const HideDropdown = () => {
+  showDropdown.value = false;
 };
 </script>

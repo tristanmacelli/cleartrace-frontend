@@ -4,7 +4,7 @@
   >
     <div class="flex no-wrap p-5 border-b border-gray-300">
       <div class="flex-grow">
-        <p class="text-2xl font-bold">{{ Title ? Title : modalTitle }}</p>
+        <p class="text-2xl font-bold">{{ Title }}</p>
         <p>{{ Description }}</p>
       </div>
       <button
@@ -29,19 +29,21 @@
   ></div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
   name: "modalComponent",
-  props: {
-    Title: {
-      type: String,
-      required: false,
-    },
-    Description: {
-      type: String,
-      required: true,
-    },
-  },
-  emits: ["hideModal"],
-};
+});
+</script>
+
+<script lang="ts" setup>
+import { defineProps } from "vue";
+
+defineProps<{
+  Title: string; // Note: this prop was previously optional.
+  Description: string;
+}>();
+
+defineEmits(["hideModal"]);
 </script>

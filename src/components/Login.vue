@@ -28,12 +28,12 @@
       <a
         href="/login/reset"
         class="justify-self-center w-32 my-2 text-sm text-center text-blue-500 hover:underline"
-        @click.prevent="this.Alert"
+        @click.prevent="Alert"
         >Forgot Password?</a
       >
     </form>
     <form
-      v-on:submit.prevent="this.DisplaySignUp"
+      v-on:submit.prevent="DisplaySignUp"
       accept-charset="UTF-8"
       class="grid"
     >
@@ -46,28 +46,25 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "loginComponent",
+});
+</script>
+
+<script lang="ts" setup>
 import { Users } from "@/api/users";
 
-export default {
-  name: "loginComponent",
-  setup(_, context) {
-    const { email, password, SignIn } = Users();
-    // Creating a new session based on the form values
-    const Alert = () => {
-      confirm("We're sorry but this feature is still under development :(");
-    };
-    const DisplaySignUp = () => {
-      context.emit("displaySignup");
-    };
-    return {
-      email,
-      password,
-      Alert,
-      DisplaySignUp,
-      SignIn,
-    };
-  },
-  emits: ["displaySignup"],
+const emit = defineEmits(["displaySignup"]);
+const { email, password, SignIn } = Users();
+
+// Creating a new session based on the form values
+const Alert = () => {
+  confirm("We're sorry but this feature is still under development :(");
+};
+const DisplaySignUp = () => {
+  emit("displaySignup");
 };
 </script>

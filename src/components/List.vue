@@ -1,13 +1,13 @@
 <template>
-  <div @keyup.down="this.NextItem" @keyup.up="this.PrevItem" class="">
+  <div @keyup.down="NextItem" @keyup.up="PrevItem" class="">
     <ul
       class="absolute z-50 w-60 shadow-xl text-gray-700 pt-1 cursor-pointer"
-      :class="this.positionRight ? 'right-4' : ''"
+      :class="positionRight ? 'right-4' : ''"
     >
       <li
-        v-for="(item, index) in this.items"
+        v-for="(item, index) in items"
         :key="item.id"
-        :class="index === this.currentItem ? 'bg-blue-600' : 'bg-white'"
+        :class="index === currentItem ? 'bg-blue-600' : 'bg-white'"
         class="w-full py-2 px-4 text-left bg-white hover:bg-gray-300 cursor-pointer"
         @click="HandleListItem(item)"
       >
@@ -17,45 +17,43 @@
   </div>
 </template>
 
-<script>
-import { ref } from "vue";
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+import { State } from "@/store";
+
+export default defineComponent({
   name: "listComponent",
-  props: {
-    items: {
-      type: Array,
-      required: true,
-    },
-    positionRight: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup(_, context) {
-    const currentItem = ref(-1);
-    const NextItem = () => {
-      // eslint-disable-next-line
-      console.log("Calling NextItem");
-      if (currentItem.value < 19) {
-        currentItem.value++;
-      }
-    };
-    const PrevItem = () => {
-      // eslint-disable-next-line
-      console.log("Calling PrevItem");
-      if (currentItem.value > -1) {
-        currentItem.value--;
-      }
-    };
-    const HandleListItem = (item) => {
-      context.emit("activeListItem", item);
-    };
-    return {
-      currentItem,
-      HandleListItem,
-      NextItem,
-      PrevItem,
-    };
-  },
+});
+</script>
+
+<script lang="ts" setup>
+import { defineProps, ref } from "vue";
+import { useStore } from "vuex";
+
+defineProps<{
+  items: Array<any>;
+  positionRight: Boolean;
+}>();
+const emit = defineEmits(["activeListItem"]);
+
+const { state } = useStore<State>();
+const currentItem = ref(1);
+
+const NextItem = () => {
+  // eslint-disable-next-line
+  if (state.debug) console.log("Calling NextItem");
+  if (currentItem.value < 19) {
+    currentItem.value++;
+  }
+};
+const PrevItem = () => {
+  // eslint-disable-next-line
+  if (state.debug) console.log("Calling PrevItem");
+  if (currentItem.value > -1) {
+    currentItem.value--;
+  }
+};
+const HandleListItem = (item: any) => {
+  emit("activeListItem", item);
 };
 </script>

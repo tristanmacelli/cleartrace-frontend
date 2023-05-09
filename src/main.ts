@@ -12,7 +12,7 @@ const app = createApp(App);
 
 app.config.errorHandler = (err, vm) => {
   // eslint-disable-next-line
-  console.log(err, vm);
+  if (store.state.debug) console.log(err, vm);
   // handle error
   // `info` is a Vue-specific error info, e.g. which lifecycle hook
   // the error was found in
@@ -20,7 +20,7 @@ app.config.errorHandler = (err, vm) => {
 
 app.config.warnHandler = (msg, vm, trace) => {
   // eslint-disable-next-line
-  console.log(msg, vm, trace);
+  if (store.state.debug) console.log(msg, vm, trace);
   // `trace` is the component hierarchy trace
 };
 

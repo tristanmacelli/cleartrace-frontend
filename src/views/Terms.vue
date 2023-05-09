@@ -62,16 +62,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "TermsView",
-  setup() {
-    let serviceName = "Cleartrace";
-    return { serviceName };
-  },
 });
+</script>
+
+<script lang="ts" setup>
+const serviceName = "Cleartrace";
 </script>
 
 <style scoped>
