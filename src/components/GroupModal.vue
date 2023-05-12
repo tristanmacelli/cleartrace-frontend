@@ -1,10 +1,6 @@
 <template>
   <Modal :Title="title" Description=" " @hide-modal="HideModal">
-    <form
-      v-on:submit.prevent="SubmitForm"
-      accept-charset="UTF-8"
-      class="grid gap-y-2 w-full"
-    >
+    <form accept-charset="UTF-8" class="grid gap-y-2 w-full">
       <!-- This slot allows for a Update Group modal -->
       <input
         v-if="isModalTypeUpdate"
@@ -36,6 +32,7 @@
         </group-member>
       </div>
       <input
+        @click="SubmitForm('create')"
         v-if="!isModalTypeUpdate"
         class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
         type="submit"
@@ -43,10 +40,18 @@
       />
       <!-- This slot allows for a Update Group modal (Delete group button here) -->
       <input
+        @click="SubmitForm('leave')"
+        v-if="isModalTypeUpdate && leavableGroup"
+        class="w-full px-16 py-2 bg-white border-2 border-red-500 font-bold text-red-500 cursor-pointer rounded-md"
+        type="submit"
+        value="Leave Group"
+      />
+      <input
+        @click="SubmitForm('delete')"
         v-if="isModalTypeUpdate"
         class="w-full px-16 py-2 bg-red-500 font-bold text-white cursor-pointer rounded-md"
         type="submit"
-        value="Delete"
+        value="Delete Group"
       />
     </form>
     <list
@@ -73,13 +78,14 @@ export default defineComponent({
 import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { useStore } from "vuex";
 import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
+import { State } from "@/store";
 
 const {
   descriptionInput,
-  general,
   groupModalData,
   isModalTypeUpdate,
   members,
@@ -87,10 +93,13 @@ const {
   nameInput,
   CreateGroup,
   DeleteGroup,
+  LeaveGroup,
   AddGroupMember,
   RemoveGroupMember,
 } = Groups();
 const { searchResults, query, users, userIDs, GetUsersFromIDs } = Search();
+
+const store = useStore<State>();
 
 const emit = defineEmits(["hideModal"]);
 
@@ -104,9 +113,14 @@ if (isModalTypeUpdate && groupModalData.value.group) {
   title = "Update Group";
   userIDs.value = group.members;
   await GetUsersFromIDs();
-  members.value = users.value;
-  group = general.value;
+  const currentMembers = users.value.filter(
+    (u) => u.id != store.state.user?.id
+  );
+
+  members.value = currentMembers;
 }
+
+const leavableGroup = computed(() => members.value.length > 2);
 
 const DisplayResults = () => {
   showResults.value = true;
@@ -120,11 +134,20 @@ const HideModal = () => {
   emit("hideModal");
 };
 
-const SubmitForm = async () => {
-  if (groupModalData.value.type == "create") {
-    await CreateGroup();
-  } else {
-    await DeleteGroup();
+const SubmitForm = async (type: string) => {
+  switch (type) {
+    case "create": {
+      await CreateGroup();
+      break;
+    }
+    case "leave": {
+      await LeaveGroup();
+      break;
+    }
+    case "delete": {
+      await DeleteGroup();
+      break;
+    }
   }
   HideModal();
 };

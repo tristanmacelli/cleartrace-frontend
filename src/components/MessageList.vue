@@ -1,12 +1,24 @@
 <template>
   <div
     id="messageList"
-    class="flex flex-col absolute z-10 w-full sm:w-4/5 h-full border-r border-gray-300"
+    class="flex flex-col absolute sm:static z-10 w-full sm:w-auto grow h-full border-r border-gray-300"
   >
     <div class="flex no-wrap h-20 px-5 py-6">
       <p class="flex-grow font-semibold text-lg self-center">
-        {{ group.name }}
+        {{ activeGroup.name }}
       </p>
+      <div
+        v-if="!isGeneral"
+        @click.stop="DisplayModalUpdate"
+        class="self-center cursor-pointer"
+      >
+        <img
+          class="self-center"
+          src="../assets/cog-64.png"
+          width="32"
+          height="32"
+        />
+      </div>
       <svg
         class="sm:hidden"
         @click="OpenGroupList"
@@ -31,6 +43,7 @@
         :body="msg.body"
         :creator="msg.creator"
         :createdAt="msg.createdAt"
+        :createdAtTime="msg.createdAtTime"
         @remove="messageList.splice(index, 1)"
       ></message>
     </div>
@@ -43,7 +56,7 @@
         <input
           class="flex-grow h-8 pl-3 pt-1 bg-gray-200 focus:outline-none rounded-2xl"
           id="messageBody"
-          v-model="body"
+          v-model="bodyInput"
           type="text"
           placeholder="Type a message..."
         />
@@ -67,24 +80,36 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, watch } from "vue";
+import { computed, onBeforeMount, watch } from "vue";
 import { useStore } from "vuex";
 import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
 import { State } from "@/store";
-import { LocalMessage, ServerMessage } from "..";
-import { FormatDate, serverToClientMessage } from "@/utils";
+import { LocalMessage, ServerMessage } from "../types";
+import { FormatDate, PlaySound, serverToClientMessage } from "@/utils";
 
-const { group, body, messageList, GetMessages, SendMessage } = Messages();
+const { activeGroup, bodyInput, messageList, GetMessages, SendMessage } =
+  Messages();
+
+const emit = defineEmits(["displayModal"]);
 
 const store = useStore<State>();
 const socket = computed(() => store.state.socket);
-const disableSendMessage = computed(() => body.value.length === 0);
+const disableSendMessage = computed(() => bodyInput.value.length === 0);
+const isGeneral = computed(
+  () => activeGroup.value.id === "5fec04e96d55740010123439"
+);
 
 // Clears the current messages & updates
 // Make sure this still works with the composition API/our API extracted
-watch(group, async () => {
-  await GetMessages();
+watch(activeGroup, async () => {
+  if (activeGroup.value.messageList.length === 0) {
+    if (store.state.debug) console.log("Getting Messages");
+    await GetMessages();
+    if (store.state.debug) console.log(JSON.stringify(messageList.value));
+  } else {
+    messageList.value = activeGroup.value.messageList;
+  }
 });
 
 watch(messageList, () => {
@@ -104,12 +129,13 @@ const updateScroll = () => {
 };
 
 // Create initial message
-if (group.value.name == "General") {
-  const dateString = FormatDate(new Date());
+if (activeGroup.value.name == "General") {
+  const now = new Date();
+  const dateString = FormatDate(now);
 
   let welcomeMessage: LocalMessage = {
     channelID: "-1",
-    body: "Welcome to the " + group.value.name + " group",
+    body: "Welcome to the " + activeGroup.value.name + " group",
     creator: {
       id: -1,
       email: "",
@@ -117,13 +143,17 @@ if (group.value.name == "General") {
       lastName: "",
       photoURL: "",
     },
-    createdAt: dateString,
+    createdAt: now,
+    createdAtTime: dateString,
   };
 
   messageList.value.push(welcomeMessage);
 }
-// Make query to server for last 100 messages
-await GetMessages();
+
+// This hook triggers on page refresh, piping in the current active groups messages.
+onBeforeMount(async () => {
+  messageList.value = activeGroup.value.messageList;
+});
 
 socket.value!.onmessage = (event: MessageEvent<any>) => {
   // eslint-disable-next-line
@@ -138,9 +168,33 @@ socket.value!.onmessage = (event: MessageEvent<any>) => {
       const localMessage = serverToClientMessage(serverMessage);
 
       messageList.value.push(localMessage);
-      // PlaySound();
+      PlaySound();
     }
   }
+};
+
+const DisplayModalUpdate = () => {
+  console.log(`MessageList.vue line:169`);
+  let modalData = {
+    group: {
+      creator: activeGroup.value.creator,
+      description: activeGroup.value.description,
+      id: activeGroup.value.id,
+      index: activeGroup.value.index,
+      members: activeGroup.value.members,
+      name: activeGroup.value.name,
+    },
+    type: "update",
+  };
+
+  store.commit("setgroupModalData", {
+    groupModalData: modalData,
+  });
+  DisplayModal();
+};
+
+const DisplayModal = () => {
+  emit("displayModal");
 };
 </script>
 

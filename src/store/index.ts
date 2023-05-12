@@ -1,5 +1,5 @@
 import { createStore, createLogger } from "vuex";
-import { LocalGroup, LocalUser } from "..";
+import { LocalGroup, LocalUser } from "../types";
 import { Users } from "../api/users";
 import { serverToClientUser } from "@/utils";
 
@@ -16,10 +16,13 @@ const generalGroup: LocalGroup = {
   },
   members: [],
   private: false,
+  messageList: [],
   createdAt: new Date(),
   editedAt: new Date(),
   index: 0,
 };
+
+const MESSAGE_LIST_CACHE_LIMIT = 20;
 
 export interface State {
   // A switch for controlling navigation
@@ -32,6 +35,7 @@ export interface State {
     type: string;
   };
   groupList: LocalGroup[];
+  groupMessageListLimit: number;
   // A fallback in case backend request fails on its initial attempt
   general: LocalGroup;
   isGroupListOpen: boolean;
@@ -57,6 +61,7 @@ const state: State = {
     type: "",
   },
   groupList: [],
+  groupMessageListLimit: MESSAGE_LIST_CACHE_LIMIT,
   // A fallback in case backend request fails on its initial attempt
   general: generalGroup,
   isGroupListOpen: true,
@@ -121,7 +126,7 @@ const store = createStore({
     clearGroupList(state) {
       state.groupList = [];
     },
-    async setUser(state, payload) {
+    setUser(state, payload) {
       if (state.debug) {
         // eslint-disable-next-line
         console.log("setUser triggered");
@@ -249,113 +254,111 @@ const store = createStore({
     },
   },
   getters: {
-    getGroupID(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getGroupID triggered");
+    getGroupByID: (state) => (id: string) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getGroupByID triggered");
+
+      const index = state.groupList.findIndex((group) => group.id === id);
+      if (index > -1) {
+        return state.groupList[index];
+      } else {
+        if (state.debug) console.log("Group not present");
       }
+    },
+    getActiveGroupID: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getActiveGroupID triggered");
+
       if (state.activeGroup) {
         return state.activeGroup.id;
       }
       return "";
     },
-    getGroupName(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getGroupName triggered");
-      }
+    getActiveGroupName: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getActiveGroupName triggered");
+
       if (state.activeGroup) {
         return state.activeGroup.name;
       }
       return "";
     },
-    getGeneral(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getGeneral triggered");
-      }
+    getGeneral: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getGeneral triggered");
+
       return state.general;
     },
-    getServerURL(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getServerURL triggered");
-      }
+    getServerURL: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getServerURL triggered");
+
       return state.serverURL;
     },
-    getUser(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getUser triggered");
-      }
+    getUser: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getUser triggered");
+
       return state.user;
     },
-    getUserID(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getUserID triggered");
-      }
+    getUserID: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getUserID triggered");
+
       if (state.user) {
         return state.user.id;
       }
       return "";
     },
-    getUserFirstname(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getUserFirstname triggered");
-      }
+    getUserFirstname: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getUserFirstname triggered");
+
       if (state.user) {
         return state.user.firstName;
       }
       return "";
     },
-    getUserLastname(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getUserLastname triggered");
-      }
+    getUserLastname: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getUserLastname triggered");
+
       if (state.user) {
         return state.user.lastName;
       }
       return "";
     },
-    getUserInitials(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getUserInitials triggered");
-      }
+    getUserInitials: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getUserInitials triggered");
+
       if (state.user) {
         return state.user.firstName.charAt(0) + state.user.lastName.charAt(0);
       }
       return "";
     },
-    getSocket(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getSocket triggered");
-      }
+    getSocket: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getSocket triggered");
+
       return state.socket;
     },
-    getAuthentication(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getAuthentication triggered");
-      }
+    getAuthentication: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getAuthentication triggered");
+
       return state.authenticated;
     },
-    getIsGroupListOpen(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getIsGroupListOpen triggered");
-      }
+    getIsGroupListOpen: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getIsGroupListOpen triggered");
+
       return state.isGroupListOpen;
     },
-    getIsMobile(state) {
-      if (state.debug) {
-        // eslint-disable-next-line
-        console.log("getIsMobile triggered");
-      }
+    getIsMobile: (state) => {
+      // eslint-disable-next-line
+      if (state.debug) console.log("getIsMobile triggered");
+
       return state.isMobile;
     },
   },

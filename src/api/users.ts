@@ -4,7 +4,7 @@ import axios from "axios";
 import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { Member, ServerUser, UserSearchResult } from "../";
+import { Member, ServerUser, UserSearchResult } from "../types";
 import { serverUserToMember, serverUserToUserSearchResult } from "@/utils";
 
 export const Users = () => {

@@ -4,13 +4,11 @@
   <div @mouseleave="HideDropdown" class="w-8">
     <button
       @click="ToggleDropdown"
-      class="font-bold text-lg p-2 rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
+      class="font-bold rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
     >
-      <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
-        <path
-          d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
-        />
-      </svg>
+      <p class="h-8 pt-1.5 px-1 bg-gray-200 rounded-3xl">
+        {{ initials }}
+      </p>
     </button>
     <slot v-if="showDropdown"></slot>
   </div>
@@ -18,6 +16,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "dropDown",
@@ -25,13 +24,22 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { State } from "@/store";
+import { computed, ref } from "vue";
+const store = useStore<State>();
 
+const initials = computed(() => store.getters.getUserInitials);
 const showDropdown = ref(false);
+
 const ToggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
 };
+
 const HideDropdown = () => {
   showDropdown.value = false;
 };
+
+window.addEventListener("keydown", (e: KeyboardEvent) => {
+  if (e.key === "Escape") HideDropdown();
+});
 </script>

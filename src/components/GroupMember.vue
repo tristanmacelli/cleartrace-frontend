@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex no-wrap items-center rounded-md border border-solid border-gray-300 px-3 py-1"
+    class="flex no-wrap items-center rounded-md border border-solid border-gray-300 pl-3 pr-1.5 py-1"
   >
     <p class="flex-grow text-sm">
       {{ name }}
@@ -8,7 +8,7 @@
     <div>
       <p
         @click="$emit('remove', index)"
-        class="cursor-pointer text-sm px-1.5 pt-0.5 hover:bg-gray-200 rounded-3xl"
+        class="cursor-pointer text-sm ml-1 px-1.5 pt-0.5 hover:bg-gray-200 rounded-3xl"
       >
         X
       </p>

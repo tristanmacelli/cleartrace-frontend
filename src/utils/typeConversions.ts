@@ -8,7 +8,7 @@ import {
   ServerMessage,
   ServerUser,
   UserSearchResult,
-} from "..";
+} from "../types";
 import { FormatDate } from "./datetime";
 
 // LocalGroup members is a list of numbers that corresponds to ids of users. All of these users are present in a
@@ -20,6 +20,7 @@ export const serverToClientGroup = (
   return {
     ...group,
     index: state.groupList.length,
+    messageList: [],
     creator: serverToClientUser(group.creator),
   };
 };
@@ -28,7 +29,8 @@ export const serverToClientMessage = (message: ServerMessage): LocalMessage => {
   return {
     channelID: message.channelID,
     body: message.body,
-    createdAt: FormatDate(message.createdAt),
+    createdAt: message.createdAt,
+    createdAtTime: FormatDate(message.createdAt),
     creator: {
       id: message.creator.ID,
       email: message.creator.Email,
@@ -67,7 +69,8 @@ export const serverUserToUserSearchResult = (
 
 export const serverUserToMember = (user: ServerUser): Member => {
   return {
-    id: user.ID + "",
+    id: user.ID,
     name: user.FirstName + " " + user.LastName,
+    photoURL: user.PhotoURL,
   };
 };

@@ -3,28 +3,22 @@ import axios from "axios";
 
 import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
-import {
-  LocalGroup,
-  LocalMessage,
-  Member,
-  ServerGroup,
-  ServerMessage,
-} from "..";
+import { LocalGroup, LocalMessage, Member, ServerMessage } from "../types";
 import { FormatDate, serverToClientMessage, serverToClientUser } from "@/utils";
 
 export const Messages = () => {
   const store = useStore<State>();
   const bodyInput = ref("");
-  const group = computed(() => store.state.activeGroup);
+  const activeGroup = computed(() => store.state.activeGroup);
   const messageList = ref<LocalMessage[]>([]);
   const serverURL = computed(() => store.state.serverURL);
   const user = computed(() => store.state.user);
 
-  const GetMessages = async () => {
-    const url = serverURL.value + "v1/channels/" + group.value.id;
+  const GetMessages = async (id: string = activeGroup.value.id) => {
+    const url = serverURL.value + "v1/channels/" + id;
     const sessionToken = localStorage.getItem("auth");
 
-    axios
+    await axios
       .get(url, {
         headers: {
           Authorization: sessionToken,
@@ -49,15 +43,16 @@ export const Messages = () => {
   };
 
   const SendMessage = async () => {
-    const url = serverURL.value + "v1/channels/" + group.value.id;
+    const url = serverURL.value + "v1/channels/" + activeGroup.value.id;
     const sessionToken = localStorage.getItem("auth");
-
     const date = new Date();
     const formattedDate = FormatDate(date);
+
     const localMessage: LocalMessage = {
-      channelID: group.value.id,
+      channelID: activeGroup.value.id,
       body: bodyInput.value,
-      createdAt: formattedDate,
+      createdAt: date,
+      createdAtTime: formattedDate,
       creator: user.value!,
     };
     // Setting the msg id locally to -1 (will self-correct on page refresh)
@@ -78,8 +73,8 @@ export const Messages = () => {
   };
 
   return {
-    body: bodyInput,
-    group,
+    bodyInput,
+    activeGroup,
     messageList,
     GetMessages,
     SendMessage,
@@ -90,20 +85,19 @@ export const Groups = () => {
   const store = useStore<State>();
   const awaitingGroupDetails = ref(false);
   const descriptionInput = ref("");
-  const general = computed(() => store.state.general);
   const groupModalData = computed(() => store.state.groupModalData);
   const groupID = computed(() => store.state.groupModalData.group?.id);
   const groupList = computed(() => store.state.groupList);
   const index = computed(() => store.state.groupModalData.group?.index);
   const isModalTypeUpdate = groupModalData.value.type === "update";
   const members = ref<Member[]>([]);
-  const memberIDs = ref<string[]>([]);
+  const memberIDs = ref<number[]>([]);
   const memberNames = ref<string[]>([]);
   const nameInput = ref("");
   const serverURL = computed(() => store.state.serverURL);
 
   const getMemberIDs = () => {
-    const ids: string[] = [];
+    const ids: number[] = [];
     members.value.forEach((member) => ids.push(member.id));
     return ids;
   };
@@ -161,15 +155,6 @@ export const Groups = () => {
     return groups;
   };
 
-  const GetGeneralGroup = async () => {
-    const groups = await GetSpecificGroup("General");
-
-    const generalGroup = groups[0];
-    store.commit("setGroup", {
-      group: generalGroup,
-    });
-  };
-
   const CreateGroup = async () => {
     if (members.value.length == 0) {
       alert("Error: Invalid New Group Input");
@@ -212,33 +197,43 @@ export const Groups = () => {
   };
 
   const GetGroups = async () => {
+    const { messageList, GetMessages } = Messages();
     const url = serverURL.value + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
 
-    axios
+    await axios
       .get(url, {
         headers: {
           Authorization: sessionToken,
         },
       })
-      .then((response) => {
+      .then(async (response) => {
         if (response == null) {
           return;
         }
         store.commit("clearGroupList");
         const receivedGroups: LocalGroup[] = [];
-        response.data
-          .slice()
-          .reverse()
-          .forEach((group: ServerGroup, i: number) => {
-            // Query full users present new groups that are not in userData: user[]
-            const localGroup: LocalGroup = {
-              ...group,
-              index: i,
-              creator: serverToClientUser(group.creator),
-            };
-            receivedGroups.push(localGroup);
-          });
+        const rawGroupData = response.data.slice().reverse();
+
+        let i = 0;
+        for (const group of rawGroupData) {
+          const retrieveAndStoreMessageList =
+            i < store.state.groupMessageListLimit;
+          if (retrieveAndStoreMessageList) {
+            await GetMessages(group.id);
+          }
+
+          // Query full users present new groups that are not in userData: user[]
+          const localGroup: LocalGroup = {
+            ...group,
+            index: i,
+            messageList: retrieveAndStoreMessageList ? messageList.value : [],
+            creator: serverToClientUser(group.creator),
+          };
+          receivedGroups.push(localGroup);
+          i++;
+        }
+
         store.commit("setGroupList", {
           groupList: receivedGroups,
         });
@@ -276,6 +271,36 @@ export const Groups = () => {
       });
   };
 
+  const LeaveGroup = async () => {
+    if (!confirm("Are you sure you want to leave this group?")) {
+      return;
+    }
+    const currentUserId = store.state.user?.id;
+    const url = serverURL.value + "v1/channels/" + groupID.value + "/members";
+    const sessionToken = localStorage.getItem("auth");
+    const data = {
+      id: currentUserId,
+    };
+    const headers = {
+      Authorization: sessionToken,
+    };
+    axios
+      .delete(url, {
+        headers,
+        data,
+      })
+      .then(() => {
+        if (!groupModalData.value.group) return;
+
+        store.commit("removeFromGroupList", {
+          index: index.value,
+        });
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  };
+
   const DeleteGroup = async () => {
     if (!confirm("Are you sure you want to delete this group?")) {
       return;
@@ -290,8 +315,10 @@ export const Groups = () => {
       })
       .then(() => {
         // Go back to the general group when deleting the channel
+        const general = store.getters.getGroupByID(store.state.general.id);
+
         store.commit("setGroup", {
-          group: general.value,
+          group: general,
         });
         store.commit("removeFromGroupList", {
           index: index.value,
@@ -304,12 +331,7 @@ export const Groups = () => {
 
   const AddGroupMember = async (newMember: Member) => {
     if (groupModalData.value.type === "create") {
-      const member = {
-        id: newMember.id,
-        // Was previously newMember.text
-        name: newMember.name,
-      };
-      members.value.push(member);
+      members.value.push(newMember);
       return;
     }
     const url = serverURL.value + "v1/channels/" + groupID.value + "/members";
@@ -324,13 +346,9 @@ export const Groups = () => {
 
     axios(requestConfig)
       .then(() => {
-        const member = {
-          id: newMember.id,
-          name: newMember.name,
-        };
         if (!groupModalData.value.group) return;
 
-        members.value.push(member);
+        members.value.push(newMember);
         const ids = getMemberIDs();
         const updatedGroup = {
           creator: groupModalData.value.group.creator,
@@ -396,7 +414,6 @@ export const Groups = () => {
 
   return {
     descriptionInput,
-    general,
     groupModalData,
     groupID,
     groupList,
@@ -407,10 +424,10 @@ export const Groups = () => {
     memberNames,
     nameInput,
     GetSpecificGroup,
-    GetGeneralGroup,
     CreateGroup,
-    UpdateGroupDetails,
     GetGroups,
+    UpdateGroupDetails,
+    LeaveGroup,
     DeleteGroup,
     AddGroupMember,
     RemoveGroupMember,

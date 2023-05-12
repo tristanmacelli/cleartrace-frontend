@@ -4,21 +4,30 @@
     :class="{ 'sm:bg-gray-100': isStoredGroup }"
     v-on:click="SetGroup"
   >
-    <div class="flex-grow self-center">
-      <p class="font-bold">{{ name }}</p>
-      <p class="font-extralight truncate">Latest Message: ...</p>
-    </div>
-    <div
-      @click="DisplayModalUpdate"
-      class="flex px-3 my-1 font-bold shadow-sm bg-white hover:bg-gray-200 border-gray-300 border rounded-3xl"
-    >
-      <p class="self-center">...</p>
+    <div class="w-full self-center flex flex-row">
+      <span
+        v-if="unreadMessages && unreadMessages.length > 0"
+        class="w-2.5 h-2.5 bg-sky-600 rounded-lg self-center mr-3"
+      ></span>
+      <!-- https://css-tricks.com/flexbox-truncated-text/ -->
+      <div class="grow min-w-0">
+        <div class="flex flex-row">
+          <p class="font-bold grow truncate">{{ name }}</p>
+          <p class="text-sm font-extralight">
+            {{ latestMessageDateTime }}
+          </p>
+        </div>
+        <p class="font-extralight truncate">
+          {{ latestMessage?.body || "..." }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { latestMessageIndicator } from "@/utils";
 
 export default defineComponent({
   name: "groupComponent",
@@ -29,51 +38,48 @@ export default defineComponent({
 import { State } from "@/store";
 import { computed, defineProps } from "vue";
 import { useStore } from "vuex";
-import { LocalUser } from "..";
+import { LocalGroup, LocalMessage, LocalUser } from "../types";
 
 const props = defineProps<{
   id: string;
   name: string;
   description: string;
-  members: Array<any>;
+  private: boolean;
+  members: Array<number>;
   creator: LocalUser;
-  index: Number;
+  messageList: LocalMessage[];
+  unreadMessages?: LocalMessage[];
+  index: number;
+  createdAt: Date;
 }>();
-
-const emit = defineEmits(["displayModal"]);
 
 const store = useStore<State>();
 // If this is true we want to apply the same css rules as applied to the .group:hover class
 const isStoredGroup = computed(() => props.id == store.state.activeGroup.id);
+const latestMessage = computed(() =>
+  props.messageList.at(props.messageList.length - 1)
+);
+const latestMessageDateTime = computed(() => {
+  return latestMessageIndicator(new Date(latestMessage.value?.createdAt!));
+});
 
 const SetGroup = () => {
   if (!isStoredGroup.value) {
-    let groupObj = {
+    let thisGroup: LocalGroup = {
       id: props.id,
       name: props.name,
+      description: props.description,
+      private: props.private,
+      members: props.members,
+      creator: props.creator,
+      messageList: props.messageList,
+      unreadMessages: [],
+      createdAt: props.createdAt,
+      index: props.index,
     };
     store.commit("setGroup", {
-      group: groupObj,
+      group: thisGroup,
     });
   }
-};
-
-const DisplayModalUpdate = () => {
-  let modalState = {
-    group: {
-      creator: props.creator,
-      description: props.description,
-      id: props.id,
-      index: props.index,
-      members: props.members,
-      name: props.name,
-    },
-    type: "update",
-  };
-
-  store.commit("setgroupModalData", {
-    groupModalData: modalState,
-  });
-  emit("displayModal");
 };
 </script>

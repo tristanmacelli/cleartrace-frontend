@@ -45,5 +45,9 @@ defineProps<{
   Description: string;
 }>();
 
-defineEmits(["hideModal"]);
+const emit = defineEmits(["hideModal"]);
+
+window.addEventListener("keydown", (e: KeyboardEvent) => {
+  if (e.key === "Escape") emit("hideModal");
+});
 </script>
