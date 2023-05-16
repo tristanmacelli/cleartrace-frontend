@@ -239,7 +239,7 @@ export const Groups = () => {
         });
       })
       .catch((error) => {
-        alert(error);
+        if (store.state.debug) alert(error);
       });
   };
 

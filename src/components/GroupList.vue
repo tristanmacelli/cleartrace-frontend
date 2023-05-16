@@ -14,15 +14,13 @@
           class="h-8 mx-1.5 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
           @click="DisplayModalCreate"
         >
-          <svg class="w-8 h-8 p-2" viewBox="0 0 512 512">
-            <g>
-              <g>
-                <path
-                  d="M492,236H276V20c0-11.046-8.954-20-20-20c-11.046,0-20,8.954-20,20v216H20c-11.046,0-20,8.954-20,20s8.954,20,20,20h216 v216c0,11.046,8.954,20,20,20s20-8.954,20-20V276h216c11.046,0,20-8.954,20-20C512,244.954,503.046,236,492,236z"
-                />
-              </g>
-            </g>
-          </svg>
+          <img
+            src="../assets/plus.svg"
+            class="p-2 overflow-hidden"
+            width="32"
+            height="32"
+            alt="A plus icon"
+          />
         </button>
         <Dropdown>
           <list

@@ -13,12 +13,7 @@
         @click="HideSignUp"
         class="p-2 h-8 cursor-pointer hover:bg-gray-200 focus:bg-gray-300 focus:outline-none rounded-3xl"
       >
-        <svg class="w-4" viewBox="0 0 96 96" enable-background="new 0 0 96 96">
-          <polygon
-            fill="black"
-            points="96,14 82,0 48,34 14,0 0,14 34,48 0,82 14,96 48,62 82,96 96,82 62,48 "
-          />
-        </svg>
+        <img src="../assets/black-x.svg" width="16" alt="a black x icon" />
       </button>
     </div>
     <form

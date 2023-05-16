@@ -42,6 +42,7 @@ export default defineComponent({
 // @ is an alias to /src
 import HomeViewLoading from "@/components/HomeViewLoading.vue";
 import { Groups } from "@/api/messaging.service";
+import { Users } from "@/api/users";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
@@ -60,10 +61,14 @@ const MessageList = defineAsyncComponent(
 const store = useStore<State>();
 const router = useRouter();
 const { GetGroups } = Groups();
+const { SignOut } = Users();
 const displayModal = ref(false);
 const error = ref<Error>();
 
 onErrorCaptured((capturedError, instance, info) => {
+  // If it's not possible to retrieve the current user/socket, the user should be signed out
+  // and returned to the landing page where they can log in.
+  if (!store.state.user || !store.state.socket) SignOut();
   error.value = capturedError;
   if (store.state.debug) console.log(capturedError, instance, info);
   return true;
