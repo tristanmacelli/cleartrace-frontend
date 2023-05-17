@@ -4,7 +4,7 @@
     <div
       id="groupList"
       v-if="isGroupListOpen"
-      class="absolute sm:static sm:right-0 z-20 w-full sm:w-64 md:w-96 h-screen transform ease-in-out transition-all duration-300 bg-white"
+      class="absolute sm:static sm:right-0 z-20 w-full sm:w-64 md:w-96 h-screen border-l border-gray-300 transform ease-in-out transition-all duration-300 bg-white"
       :class="isGroupListOpen ? 'show-groups-list' : 'hide-groups-list'"
     >
       <!-- TheRightMenu.vue -->
@@ -31,7 +31,7 @@
         </Dropdown>
       </div>
       <!-- TheGroupList.vue -->
-      <div class="px-2">
+      <div class="px-2 divide-y">
         <group
           @click="CloseGroupList"
           @display-modal="DisplayModal"

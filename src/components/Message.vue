@@ -1,7 +1,7 @@
 <template>
   <div class="flex sm:w-min" :class="{ 'justify-self-end': isAuthor }">
     <p
-      class="m-1 px-3 py-2 text-xs sm:text-sm rounded-3xl bg-gray-300 max-w-xs sm:w-max select-none"
+      class="m-1 px-3 py-2 text-sm rounded-3xl bg-gray-300 max-w-xs sm:w-max select-none"
       :class="{ author: isAuthor }"
     >
       <strong v-if="!isAuthor">{{

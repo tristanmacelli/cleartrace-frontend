@@ -1,7 +1,7 @@
 <template>
   <div
     id="messageList"
-    class="flex flex-col absolute sm:static z-10 w-full sm:w-auto grow h-full border-r border-gray-300"
+    class="flex flex-col absolute sm:static z-10 w-full sm:w-auto grow h-full"
   >
     <div class="flex no-wrap h-20 px-5 py-6">
       <p class="flex-grow font-semibold text-lg self-center">

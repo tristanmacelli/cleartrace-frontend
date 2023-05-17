@@ -5,9 +5,9 @@
     </h1>
     <p>Simply private messaging.</p>
     <img
-      src="../assets/msgs-lg.png"
+      src="../assets/msgs-lg.svg"
       alt="A back-and-forth conversation in message bubbles"
-      class="hidden sm:block sm:w-96"
+      class="hidden sm:block sm:h-48 sm:w-96 lg:h-auto"
     />
   </div>
 </template>
