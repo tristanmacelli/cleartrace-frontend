@@ -43,6 +43,7 @@
         :createdAtTime="msg.createdAtTime"
         @remove="messageList.splice(index, 1)"
       ></message>
+      <div id="anchor"></div>
     </div>
     <div class="w-full h-12 sm:h-14 bg-white p-3">
       <form
@@ -58,7 +59,7 @@
           placeholder="Type a message..."
         />
         <input
-          class="arrow w-6 h-5 mx-4 cursor-pointer self-center"
+          class="arrow w-6 h-5 ml-4 cursor-pointer self-center"
           :disabled="disableSendMessage"
           type="submit"
           value=" "
@@ -70,6 +71,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { onMounted } from "vue";
 
 export default defineComponent({
   name: "messageList",
@@ -121,7 +123,7 @@ const OpenGroupList = () => {
 };
 
 const updateScroll = () => {
-  let element = document.getElementById("view-messages");
+  const element = document.getElementById("view-messages");
   element!.scrollTop = element!.scrollHeight;
 };
 
@@ -193,11 +195,24 @@ const DisplayModalUpdate = () => {
 const DisplayModal = () => {
   emit("displayModal");
 };
+
+onMounted(() => {
+  updateScroll();
+});
 </script>
 
 <style>
 .arrow {
   /* https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 */
   background: url("../assets/send.svg") no-repeat;
+}
+
+#view-messages {
+  overflow-anchor: none;
+}
+
+#anchor {
+  overflow-anchor: auto;
+  height: 1px;
 }
 </style>
