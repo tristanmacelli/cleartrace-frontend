@@ -15,14 +15,15 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, onErrorCaptured, ref } from "vue";
+import { onErrorCaptured, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
-import { State } from "./store";
+import usePiniaStore from "@/store/pinia";
+// import { useStore } from "vuex";
+// import { State } from "./store";
 
-const store = useStore<State>();
+// const store = useStore<State>();
+const pinia = usePiniaStore();
 const router = useRouter();
-const authenticated = computed(() => store.state.authenticated);
 const error = ref<Error>();
 
 onErrorCaptured((caughtError) => {
@@ -30,16 +31,20 @@ onErrorCaptured((caughtError) => {
   return true;
 });
 
-store.commit("setWindowDimensions");
+// store.commit("setWindowDimensions");
+pinia.setWindowDimensions(window.innerWidth, window.innerHeight);
 if (window.innerWidth < 640) {
-  store.commit("setIsMobile");
+  pinia.isMobile = true;
+  // store.commit("setIsMobile");
 }
 let sessionToken = localStorage.getItem("auth");
-let isActiveSession = sessionToken && !authenticated.value;
+// let isActiveSession = sessionToken && !authenticated.value;
+let isActiveSession = sessionToken && !pinia.authenticated;
 if (isActiveSession) {
   // eslint-disable-next-line
-  if (store.state.debug) console.log("Returning to an active session");
-  store.commit("setAuthentication");
+  if (pinia.debug) console.log("Returning to an active session");
+  pinia.authenticated = true;
+  // store.commit("setAuthentication");
   router.push({ path: "/home" });
   // router.push({ name: 'Home', params: { groupID: groupID } });
 }

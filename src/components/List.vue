@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { State } from "@/store";
+// import { State } from "@/store";
 
 export default defineComponent({
   name: "listComponent",
@@ -28,7 +28,8 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { defineProps, ref } from "vue";
-import { useStore } from "vuex";
+// import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
 
 defineProps<{
   items: Array<any>;
@@ -36,19 +37,20 @@ defineProps<{
 }>();
 const emit = defineEmits(["activeListItem"]);
 
-const { state } = useStore<State>();
+// const { state } = useStore<State>();
+const pinia = usePiniaStore();
 const currentItem = ref(1);
 
 const NextItem = () => {
   // eslint-disable-next-line
-  if (state.debug) console.log("Calling NextItem");
+  if (pinia.debug) console.log("Calling NextItem");
   if (currentItem.value < 19) {
     currentItem.value++;
   }
 };
 const PrevItem = () => {
   // eslint-disable-next-line
-  if (state.debug) console.log("Calling PrevItem");
+  if (pinia.debug) console.log("Calling PrevItem");
   if (currentItem.value > -1) {
     currentItem.value--;
   }

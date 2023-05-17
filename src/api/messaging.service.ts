@@ -1,18 +1,17 @@
-import { State } from "@/store";
 import axios from "axios";
 
 import { computed, ref, watch } from "vue";
-import { useStore } from "vuex";
 import { LocalGroup, LocalMessage, Member, ServerMessage } from "../types";
 import { FormatDate, serverToClientMessage, serverToClientUser } from "@/utils";
+import usePiniaStore from "@/store/pinia";
 
 export const Messages = () => {
-  const store = useStore<State>();
+  const pinia = usePiniaStore();
   const bodyInput = ref("");
-  const activeGroup = computed(() => store.state.activeGroup);
+  const activeGroup = computed(() => pinia.activeGroup);
   const messageList = ref<LocalMessage[]>([]);
-  const serverURL = computed(() => store.state.serverURL);
-  const user = computed(() => store.state.user);
+  const serverURL = computed(() => pinia.serverURL);
+  const user = computed(() => pinia.user);
 
   const GetMessages = async (id: string = activeGroup.value.id) => {
     const url = serverURL.value + "v1/channels/" + id;
@@ -82,19 +81,19 @@ export const Messages = () => {
 };
 
 export const Groups = () => {
-  const store = useStore<State>();
+  const pinia = usePiniaStore();
   const awaitingGroupDetails = ref(false);
   const descriptionInput = ref("");
-  const groupModalData = computed(() => store.state.groupModalData);
-  const groupID = computed(() => store.state.groupModalData.group?.id);
-  const groupList = computed(() => store.state.groupList);
-  const index = computed(() => store.state.groupModalData.group?.index);
+  const groupModalData = computed(() => pinia.groupModalData);
+  const groupID = computed(() => pinia.groupModalData.group?.id);
+  const groupList = computed(() => pinia.groupList);
+  const index = computed(() => pinia.groupModalData.group?.index);
   const isModalTypeUpdate = groupModalData.value.type === "update";
   const members = ref<Member[]>([]);
   const memberIDs = ref<number[]>([]);
   const memberNames = ref<string[]>([]);
   const nameInput = ref("");
-  const serverURL = computed(() => store.state.serverURL);
+  const serverURL = computed(() => pinia.serverURL);
 
   const getMemberIDs = () => {
     const ids: number[] = [];
@@ -150,7 +149,7 @@ export const Groups = () => {
         return response.data;
       })
       .catch((error) => {
-        if (store.state.debug) alert(`Error getting specific group: ${error}`);
+        if (pinia.debug) alert(`Error getting specific group: ${error}`);
       });
     return groups;
   };
@@ -187,9 +186,10 @@ export const Groups = () => {
           index: groupList.value.length,
           ...response.data,
         };
-        store.commit("addToGroupList", {
-          group: newGroup,
-        });
+        pinia.addToGroupList(newGroup);
+        // store.commit("addToGroupList", {
+        //   group: newGroup,
+        // });
       })
       .catch((error) => {
         alert(error);
@@ -211,14 +211,14 @@ export const Groups = () => {
         if (response == null) {
           return;
         }
-        store.commit("clearGroupList");
+        pinia.groupList = [];
+        // store.commit("clearGroupList");
         const receivedGroups: LocalGroup[] = [];
         const rawGroupData = response.data.slice().reverse();
 
         let i = 0;
         for (const group of rawGroupData) {
-          const retrieveAndStoreMessageList =
-            i < store.state.groupMessageListLimit;
+          const retrieveAndStoreMessageList = i < pinia.groupMessageListLimit;
           if (retrieveAndStoreMessageList) {
             await GetMessages(group.id);
           }
@@ -234,12 +234,13 @@ export const Groups = () => {
           i++;
         }
 
-        store.commit("setGroupList", {
-          groupList: receivedGroups,
-        });
+        pinia.groupList = receivedGroups;
+        // store.commit("setGroupList", {
+        //   groupList: receivedGroups,
+        // });
       })
       .catch((error) => {
-        if (store.state.debug) alert(error);
+        if (pinia.debug) alert(error);
       });
   };
 
@@ -261,10 +262,11 @@ export const Groups = () => {
         const updatedGroup = response.data;
         updatedGroup.index = index.value;
 
-        store.commit("updateGroupInGroupList", {
-          index: index.value,
-          group: updatedGroup,
-        });
+        pinia.updateGroupInGroupList(index.value!, updatedGroup);
+        // store.commit("updateGroupInGroupList", {
+        //   index: index.value,
+        //   group: updatedGroup,
+        // });
       })
       .catch((error) => {
         alert(error);
@@ -275,7 +277,7 @@ export const Groups = () => {
     if (!confirm("Are you sure you want to leave this group?")) {
       return;
     }
-    const currentUserId = store.state.user?.id;
+    const currentUserId = pinia.user?.id;
     const url = serverURL.value + "v1/channels/" + groupID.value + "/members";
     const sessionToken = localStorage.getItem("auth");
     const data = {
@@ -292,9 +294,10 @@ export const Groups = () => {
       .then(() => {
         if (!groupModalData.value.group) return;
 
-        store.commit("removeFromGroupList", {
-          index: index.value,
-        });
+        pinia.removeFromGroupList(index.value!);
+        // store.commit("removeFromGroupList", {
+        //   index: index.value,
+        // });
       })
       .catch((error) => {
         alert(error);
@@ -315,14 +318,17 @@ export const Groups = () => {
       })
       .then(() => {
         // Go back to the general group when deleting the channel
-        const general = store.getters.getGroupByID(store.state.general.id);
+        // const general = store.getters.getGroupByID(store.state.general.id);
+        const general = pinia.getGroupByID(pinia.general.id);
 
-        store.commit("setGroup", {
-          group: general,
-        });
-        store.commit("removeFromGroupList", {
-          index: index.value,
-        });
+        pinia.activeGroup = general!;
+        pinia.removeFromGroupList(index.value!);
+        // store.commit("setGroup", {
+        //   group: general,
+        // });
+        // store.commit("removeFromGroupList", {
+        //   index: index.value,
+        // });
       })
       .catch((error) => {
         alert(error);
@@ -350,19 +356,17 @@ export const Groups = () => {
 
         members.value.push(newMember);
         const ids = getMemberIDs();
-        const updatedGroup = {
-          creator: groupModalData.value.group.creator,
-          description: descriptionInput.value,
-          index: groupModalData.value.group.index,
-          id: groupModalData.value.group.id,
+        const updatedGroup: LocalGroup = {
+          ...groupModalData.value.group,
           members: ids,
           name: nameInput.value,
         };
 
-        store.commit("updateGroupInGroupList", {
-          index: index.value,
-          group: updatedGroup,
-        });
+        pinia.updateGroupInGroupList(index.value!, updatedGroup);
+        // store.commit("updateGroupInGroupList", {
+        //   index: index.value,
+        //   group: updatedGroup,
+        // });
       })
       .catch((error) => {
         alert(error);
@@ -393,19 +397,17 @@ export const Groups = () => {
 
         members.value.splice(memberIndex, 1);
         const ids = getMemberIDs();
-        const updatedGroup = {
-          creator: groupModalData.value.group.creator,
-          description: descriptionInput.value,
-          index: groupModalData.value.group.index,
-          id: groupModalData.value.group.id,
+        const updatedGroup: LocalGroup = {
+          ...groupModalData.value.group,
           members: ids,
           name: nameInput.value,
         };
 
-        store.commit("updateGroupInGroupList", {
-          index: index.value,
-          group: updatedGroup,
-        });
+        pinia.updateGroupInGroupList(index.value!, updatedGroup);
+        // store.commit("updateGroupInGroupList", {
+        //   index: index.value,
+        //   group: updatedGroup,
+        // });
       })
       .catch((error) => {
         alert(error);

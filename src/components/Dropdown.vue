@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useStore } from "vuex";
 
 export default defineComponent({
   name: "dropDown",
@@ -24,11 +23,14 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { State } from "@/store";
+// import { State } from "@/store";
 import { computed, ref } from "vue";
-const store = useStore<State>();
+// import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
+// const store = useStore<State>();
+const pinia = usePiniaStore();
 
-const initials = computed(() => store.getters.getUserInitials);
+const initials = computed(() => pinia.userInitials);
 const showDropdown = ref(false);
 
 const ToggleDropdown = () => {

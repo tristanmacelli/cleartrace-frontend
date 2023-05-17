@@ -80,10 +80,11 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { computed, onBeforeMount, watch } from "vue";
-import { useStore } from "vuex";
+// import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
 import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
-import { State } from "@/store";
+// import { State } from "@/store";
 import { LocalMessage, ServerMessage } from "../types";
 import { FormatDate, PlaySound, serverToClientMessage } from "@/utils";
 
@@ -92,8 +93,9 @@ const { activeGroup, bodyInput, messageList, GetMessages, SendMessage } =
 
 const emit = defineEmits(["displayModal"]);
 
-const store = useStore<State>();
-const socket = computed(() => store.state.socket);
+// const store = useStore<State>();
+const pinia = usePiniaStore();
+const socket = computed(() => pinia.socket);
 const disableSendMessage = computed(() => bodyInput.value.length === 0);
 const isGeneral = computed(
   () => activeGroup.value.id === "5fec04e96d55740010123439"
@@ -103,9 +105,9 @@ const isGeneral = computed(
 // Make sure this still works with the composition API/our API extracted
 watch(activeGroup, async () => {
   if (activeGroup.value.messageList.length === 0) {
-    if (store.state.debug) console.log("Getting Messages");
+    if (pinia.debug) console.log("Getting Messages");
     await GetMessages();
-    if (store.state.debug) console.log(JSON.stringify(messageList.value));
+    if (pinia.debug) console.log(JSON.stringify(messageList.value));
   } else {
     messageList.value = activeGroup.value.messageList;
   }
@@ -117,8 +119,9 @@ watch(messageList, () => {
 
 const OpenGroupList = () => {
   // Transition #groupList to the right
-  if (store.getters.getIsMobile) {
-    store.commit("setIsGroupListOpen");
+  if (pinia.isMobile) {
+    pinia.isGroupListOpen = true;
+    // store.commit("setIsGroupListOpen");
   }
 };
 
@@ -156,14 +159,14 @@ onBeforeMount(async () => {
 
 socket.value!.onmessage = (event: MessageEvent<any>) => {
   // eslint-disable-next-line
-  if (store.state.debug) console.log("Message Received!");
+  if (pinia.debug) console.log("Message Received!");
   // The current datatype of event is message
   const receivedData = JSON.parse(event.data);
   const serverMessage: ServerMessage = receivedData.message;
 
   if (receivedData.type == "message-new") {
     // This is "default behavior", when messages are received on the active group
-    if (serverMessage.channelID == store.state.activeGroup.id) {
+    if (serverMessage.channelID == pinia.activeGroup.id) {
       const localMessage = serverToClientMessage(serverMessage);
 
       messageList.value.push(localMessage);
@@ -175,20 +178,14 @@ socket.value!.onmessage = (event: MessageEvent<any>) => {
 const DisplayModalUpdate = () => {
   console.log(`MessageList.vue line:169`);
   let modalData = {
-    group: {
-      creator: activeGroup.value.creator,
-      description: activeGroup.value.description,
-      id: activeGroup.value.id,
-      index: activeGroup.value.index,
-      members: activeGroup.value.members,
-      name: activeGroup.value.name,
-    },
+    group: activeGroup.value,
     type: "update",
   };
 
-  store.commit("setgroupModalData", {
-    groupModalData: modalData,
-  });
+  pinia.groupModalData = modalData;
+  // store.commit("setgroupModalData", {
+  //   groupModalData: modalData,
+  // });
   DisplayModal();
 };
 

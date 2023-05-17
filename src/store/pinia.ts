@@ -19,7 +19,6 @@ import { serverToClientUser } from "@/utils";
 
 // export default store;
 
-
 const generalGroup: LocalGroup = {
   id: "5fec04e96d55740010123439",
   name: "General",
@@ -76,7 +75,7 @@ export interface State {
 
 const MESSAGE_LIST_CACHE_LIMIT = 20;
 
-export const useAlertsStore = defineStore("alerts", (): State => {
+const usePiniaStore = defineStore("pinia", (): State => {
   const authenticated = ref<boolean>(false);
   const debug = ref<boolean>(false);
   const activeGroup = ref<LocalGroup>(generalGroup);
@@ -231,3 +230,5 @@ export const useAlertsStore = defineStore("alerts", (): State => {
     setWindowDimensions,
   };
 });
+
+export default usePiniaStore;

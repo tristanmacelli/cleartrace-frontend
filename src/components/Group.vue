@@ -35,9 +35,10 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { State } from "@/store";
+// import { State } from "@/store";
 import { computed, defineProps } from "vue";
-import { useStore } from "vuex";
+// import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
 import { LocalGroup, LocalMessage, LocalUser } from "../types";
 
 const props = defineProps<{
@@ -53,9 +54,10 @@ const props = defineProps<{
   createdAt: Date;
 }>();
 
-const store = useStore<State>();
+// const store = useStore<State>();
+const pinia = usePiniaStore();
 // If this is true we want to apply the same css rules as applied to the .group:hover class
-const isStoredGroup = computed(() => props.id == store.state.activeGroup.id);
+const isStoredGroup = computed(() => props.id == pinia.activeGroup.id);
 const latestMessage = computed(() =>
   props.messageList.at(props.messageList.length - 1)
 );
@@ -77,9 +79,10 @@ const SetGroup = () => {
       createdAt: props.createdAt,
       index: props.index,
     };
-    store.commit("setGroup", {
-      group: thisGroup,
-    });
+    pinia.activeGroup = thisGroup;
+    // store.commit("setGroup", {
+    //   group: thisGroup,
+    // });
   }
 };
 </script>

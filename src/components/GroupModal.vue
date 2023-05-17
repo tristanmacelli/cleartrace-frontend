@@ -79,10 +79,11 @@ import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
 import { computed, ref, watch } from "vue";
-import { useStore } from "vuex";
+// import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
 import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
-import { State } from "@/store";
+// import { State } from "@/store";
 
 const {
   descriptionInput,
@@ -99,7 +100,8 @@ const {
 } = Groups();
 const { searchResults, query, users, userIDs, GetUsersFromIDs } = Search();
 
-const store = useStore<State>();
+// const store = useStore<State>();
+const pinia = usePiniaStore();
 
 const emit = defineEmits(["hideModal"]);
 
@@ -113,9 +115,7 @@ if (isModalTypeUpdate && groupModalData.value.group) {
   title = "Update Group";
   userIDs.value = group.members;
   await GetUsersFromIDs();
-  const currentMembers = users.value.filter(
-    (u) => u.id != store.state.user?.id
-  );
+  const currentMembers = users.value.filter((u) => u.id != pinia.user?.id);
 
   members.value = currentMembers;
 }

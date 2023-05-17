@@ -1,22 +1,22 @@
-import { State } from "@/store";
+// import { State } from "@/store";
 import axios from "axios";
 
 import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
 import { Member, ServerUser, UserSearchResult } from "../types";
 import { serverUserToMember, serverUserToUserSearchResult } from "@/utils";
 
 export const Users = () => {
-  const store = useStore<State>();
+  const pinia = usePiniaStore();
   const router = useRouter();
   const email = ref("");
   const firstName = ref("");
-  const initials = ref("");
+  const initials = computed(() => pinia.userInitials);
   const lastName = ref("");
   const password = ref("");
-  const serverURL = computed(() => store.state.serverURL);
-  const user = computed(() => store.state.user);
+  const serverURL = computed(() => pinia.serverURL);
+  const user = computed(() => pinia.user);
 
   const SignIn = async () => {
     const url = serverURL.value + "v1/sessions";
@@ -34,7 +34,8 @@ export const Users = () => {
         const sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
-          store.commit("setAuthentication");
+          pinia.authenticated = true;
+          // store.commit("setAuthentication");
           router.push({ path: "/home" });
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
@@ -57,8 +58,10 @@ export const Users = () => {
       })
       .then(() => {
         localStorage.removeItem("auth");
-        store.commit("clearAuthentication");
-        store.commit("clearSocket");
+        pinia.authenticated = false;
+        pinia.clearSocket();
+        // store.commit("clearAuthentication");
+        // store.commit("clearSocket");
         if (router.currentRoute.value.path != "/") {
           router.push({ path: "/" });
         }
@@ -93,7 +96,8 @@ export const Users = () => {
         const sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
-          store.commit("setAuthentication");
+          pinia.authenticated = true;
+          // store.commit("setAuthentication");
           router.push({ path: "/home" });
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
@@ -121,7 +125,7 @@ export const Users = () => {
       })
       .catch((error: Error) => {
         // eslint-disable-next-line
-        if (store.state.debug) console.log(`Error retrieving user: ${error}`);
+        if (pinia.debug) console.log(`Error retrieving user: ${error}`);
         return {
           error: error,
         };
@@ -154,13 +158,6 @@ export const Users = () => {
     // make a request for user information until the user returns to this page later
   };
 
-  const SetInitials = () => {
-    if (user.value) {
-      initials.value =
-        user.value.firstName.charAt(0) + user.value.lastName.charAt(0);
-    }
-  };
-
   return {
     email,
     firstName,
@@ -171,19 +168,18 @@ export const Users = () => {
     SignIn,
     SignOut,
     SignUp,
-    SetInitials,
     GetUser,
     UpdateUser,
   };
 };
 
 export const Search = () => {
-  const store = useStore<State>();
+  const pinia = usePiniaStore();
   const awaitingSearch = ref(false);
   const query = ref("");
   const searchResults = ref<UserSearchResult[]>([]);
-  const serverURL = computed(() => store.state.serverURL);
-  const userID = computed(() => store.state.user?.id);
+  const serverURL = computed(() => pinia.serverURL);
+  const userID = computed(() => pinia.user?.id);
   const userIDs = ref<number[]>([]);
   const members = ref<Member[]>([]);
 

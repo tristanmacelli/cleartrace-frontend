@@ -66,23 +66,25 @@ export default defineComponent({
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
-import { useStore } from "vuex";
+// import { useStore } from "vuex";
+import usePiniaStore from "@/store/pinia";
 import { computed, ref } from "vue";
 import { Users } from "@/api/users";
 import { ListItem } from "../types";
-import { State } from "@/store";
+// import { State } from "@/store";
 
 const emit = defineEmits(["displayModal"]);
 
-const store = useStore<State>();
+// const store = useStore<State>();
+const pinia = usePiniaStore();
 const { SignOut } = Users();
 
 const listItems = ref<ListItem[]>([]);
 const width = ref(0);
-const groupList = computed(() => store.state.groupList);
-const isGroupListOpen = computed(() => store.state.isGroupListOpen);
-const isMobile = computed(() => store.state.isMobile);
-const socket = computed(() => store.state.socket);
+const groupList = computed(() => pinia.groupList);
+const isGroupListOpen = computed(() => pinia.isGroupListOpen);
+const isMobile = computed(() => pinia.isMobile);
+const socket = computed(() => pinia.socket);
 
 let items = ["Profile", "Settings", "Sign Out"];
 items.forEach((item, index) =>
@@ -100,18 +102,20 @@ const AlertUnregistered = () => {
 const CloseGroupList = () => {
   // Transition #groupList to the right
   if (isMobile.value) {
-    store.commit("clearIsGroupListOpen");
+    pinia.isGroupListOpen = false;
+    // store.commit("clearIsGroupListOpen");
   }
 };
 
 const DisplayModalCreate = () => {
   let modalData = {
-    group: null,
+    group: undefined,
     type: "create",
   };
-  store.commit("setgroupModalData", {
-    groupModalData: modalData,
-  });
+  pinia.groupModalData = modalData;
+  // store.commit("setgroupModalData", {
+  //   groupModalData: modalData,
+  // });
   DisplayModal();
 };
 
@@ -131,7 +135,7 @@ socket.value!.onmessage = (event) => {
   // The data we created is in the event.data field
   // The current datatype of event is message
   let { message, type } = JSON.parse(event.data);
-  if (type == "message-new" && message.groupID != store.state.activeGroup.id) {
+  if (type == "message-new" && message.groupID != pinia.activeGroup.id) {
     // Send a notification (noise, highlight group with message, update group w/ number
     // indicating the # of unread messages)
     PlaySound();
