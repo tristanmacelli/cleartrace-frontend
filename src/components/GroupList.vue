@@ -67,6 +67,7 @@ import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
 import usePiniaStore from "@/store/pinia";
+import useGroupsStore from "@/store/groups";
 import { computed, ref } from "vue";
 import { Users } from "@/api/users";
 import { ListItem } from "../types";
@@ -74,11 +75,13 @@ import { ListItem } from "../types";
 const emit = defineEmits(["displayModal"]);
 
 const pinia = usePiniaStore();
+const groupsStore = useGroupsStore();
+
 const { SignOut } = Users();
 
 const listItems = ref<ListItem[]>([]);
 const width = ref(0);
-const groupList = computed(() => pinia.groupList);
+const groupList = computed(() => groupsStore.groupList);
 const isGroupListOpen = computed(() => pinia.isGroupListOpen);
 const isMobile = computed(() => pinia.isMobile);
 const socket = computed(() => pinia.socket);
@@ -108,7 +111,7 @@ const DisplayModalCreate = () => {
     group: undefined,
     type: "create",
   };
-  pinia.groupModalData = modalData;
+  groupsStore.groupModalData = modalData;
   DisplayModal();
 };
 
@@ -128,7 +131,7 @@ socket.value!.onmessage = (event) => {
   // The data we created is in the event.data field
   // The current datatype of event is message
   let { message, type } = JSON.parse(event.data);
-  if (type == "message-new" && message.groupID != pinia.activeGroup.id) {
+  if (type == "message-new" && message.groupID != groupsStore.activeGroup.id) {
     // Send a notification (noise, highlight group with message, update group w/ number
     // indicating the # of unread messages)
     PlaySound();

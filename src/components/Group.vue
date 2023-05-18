@@ -27,7 +27,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { latestMessageIndicator } from "@/utils";
 
 export default defineComponent({
   name: "groupComponent",
@@ -36,8 +35,9 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import usePiniaStore from "@/store/pinia";
+import useGroupsStore from "@/store/groups";
 import { LocalGroup, LocalMessage, LocalUser } from "../types";
+import { latestMessageIndicator } from "@/utils";
 
 const props = defineProps<{
   id: string;
@@ -52,9 +52,10 @@ const props = defineProps<{
   createdAt: Date;
 }>();
 
-const pinia = usePiniaStore();
+const groupsStore = useGroupsStore();
+
 // If this is true we want to apply the same css rules as applied to the .group:hover class
-const isStoredGroup = computed(() => props.id == pinia.activeGroup.id);
+const isStoredGroup = computed(() => props.id == groupsStore.activeGroup.id);
 const latestMessage = computed(() =>
   props.messageList.at(props.messageList.length - 1)
 );
@@ -76,7 +77,7 @@ const SetGroup = () => {
       createdAt: props.createdAt,
       index: props.index,
     };
-    pinia.activeGroup = thisGroup;
+    groupsStore.activeGroup = thisGroup;
   }
 };
 </script>

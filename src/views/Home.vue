@@ -20,7 +20,7 @@
           <div v-if="error" class="text-center text-2xl mt-20">
             {{ error }}
           </div>
-          <HomeViewLoading v-else />
+          <FullScreenLoading v-else />
         </template>
       </Suspense>
     </div>
@@ -40,10 +40,11 @@ export default defineComponent({
 
 <script lang="ts" setup>
 // @ is an alias to /src
-import HomeViewLoading from "@/components/HomeViewLoading.vue";
+import FullScreenLoading from "@/components/FullScreenLoading.vue";
 import { Groups } from "@/api/messaging.service";
 import { Users } from "@/api/users";
 import usePiniaStore from "@/store/pinia";
+import useGroupsStore from "@/store/groups";
 import { useRouter } from "vue-router";
 import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
 
@@ -58,6 +59,7 @@ const MessageList = defineAsyncComponent(
 );
 
 const pinia = usePiniaStore();
+const groupsStore = useGroupsStore();
 const router = useRouter();
 const { GetGroups } = Groups();
 const { SignOut } = Users();
@@ -86,8 +88,8 @@ await Promise.all([setSocket, setUser, getGroups]);
 
 // This is intended to populate the active group's messageList.
 // In order for this to work GetGroups (with messages) must be called.
-const generalWithMessages = pinia.getGroupByID(pinia.general.id);
-pinia.activeGroup = generalWithMessages!;
+const generalWithMessages = groupsStore.getGroupByID(groupsStore.general.id);
+groupsStore.activeGroup = generalWithMessages!;
 
 const DisplayModal = () => {
   displayModal.value = true;

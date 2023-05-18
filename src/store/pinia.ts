@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LocalGroup, LocalUser } from "../types";
+import { LocalUser } from "../types";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import { Users } from "@/api/users";
 import { serverToClientUser } from "@/utils";
@@ -19,57 +19,27 @@ import { serverToClientUser } from "@/utils";
 
 // export default store;
 
-const generalGroup: LocalGroup = {
-  id: "5fec04e96d55740010123439",
-  name: "General",
-  description: "an open channel for all",
-  creator: {
-    id: -1,
-    email: "",
-    firstName: "",
-    lastName: "",
-    photoURL: "",
-  },
-  members: [],
-  private: false,
-  messageList: [],
-  createdAt: new Date(),
-  editedAt: new Date(),
-  index: 0,
-};
-
 export interface State {
   // A switch for controlling navigation
   authenticated: Ref<boolean>;
   // Controls logging output for state actions, mutations, & getters
   debug: Ref<boolean>;
-  activeGroup: Ref<LocalGroup>;
-  groupModalData: Ref<{
-    group?: LocalGroup;
-    type: string;
-  }>;
-  groupList: Ref<LocalGroup[]>;
   groupMessageListLimit: Ref<number>;
   // A fallback in case backend request fails on its initial attempt
-  general: Ref<LocalGroup>;
   isGroupListOpen: Ref<boolean>;
   isMobile: Ref<boolean>;
   serverURL: Ref<string>;
   socket: Ref<WebSocket | undefined>;
   user: Ref<LocalUser | undefined>;
-  membersUserData: Ref<LocalUser[]>;
   window: Ref<{
     width: number;
     height: number;
   }>;
   userInitials: ComputedRef<string>;
-  getGroupByID: (id: string) => LocalGroup | undefined;
+  getUserID: ComputedRef<number | undefined>;
   setSocket: () => Promise<void>;
   clearSocket: () => Promise<void>;
   setUser: () => Promise<void>;
-  addToGroupList: (group: LocalGroup) => void;
-  removeFromGroupList: (index: number) => void;
-  updateGroupInGroupList: (index: number, group: LocalGroup) => void;
   setWindowDimensions: (width: number, height: number) => void;
 }
 
@@ -78,23 +48,12 @@ const MESSAGE_LIST_CACHE_LIMIT = 20;
 const usePiniaStore = defineStore("pinia", (): State => {
   const authenticated = ref<boolean>(false);
   const debug = ref<boolean>(false);
-  const activeGroup = ref<LocalGroup>(generalGroup);
-  const groupModalData = ref<{
-    group?: LocalGroup;
-    type: string;
-  }>({
-    group: undefined,
-    type: "",
-  });
-  const groupList = ref<LocalGroup[]>([]);
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
-  const general = ref<LocalGroup>(generalGroup);
   const isGroupListOpen = ref<boolean>(true);
   const isMobile = ref<boolean>(false);
   const serverURL = ref<string>("https://slack.api.tristanmacelli.com/");
   const socket = ref<WebSocket | undefined>(undefined);
   const user = ref<LocalUser | undefined>(undefined);
-  const membersUserData = ref<LocalUser[]>([]);
   const window = ref<{
     width: number;
     height: number;
@@ -108,27 +67,9 @@ const usePiniaStore = defineStore("pinia", (): State => {
     () => user.value!.firstName.charAt(0) + user.value!.lastName.charAt(0)
   );
 
-  const getGroupByID = (id: string): LocalGroup | undefined => {
-    const index = groupList.value.findIndex((group) => group.id === id);
-    if (index > -1) {
-      return groupList.value[index];
-    } else {
-      if (debug.value) console.log("Group not present");
-    }
-  };
+  const getUserID = computed<number | undefined>(() => user.value?.id);
 
   // Mutations
-  const addToGroupList = (group: LocalGroup) => {
-    groupList.value.push(group);
-  };
-  const removeFromGroupList = (index: number) => {
-    groupList.value.splice(index, 1);
-  };
-  const updateGroupInGroupList = (index: number, group: LocalGroup) => {
-    groupList.value.splice(index, 1);
-    groupList.value.splice(index, 0, group);
-  };
-
   const setWindowDimensions = (width: number, height: number) => {
     if (debug.value) {
       // eslint-disable-next-line
@@ -208,26 +149,18 @@ const usePiniaStore = defineStore("pinia", (): State => {
   return {
     authenticated,
     debug,
-    activeGroup,
-    groupModalData,
-    groupList,
     groupMessageListLimit,
-    general,
     isGroupListOpen,
     isMobile,
     serverURL,
     socket,
     user,
-    membersUserData,
     window,
     userInitials,
-    getGroupByID,
+    getUserID,
     setSocket,
     clearSocket,
     setUser,
-    addToGroupList,
-    removeFromGroupList,
-    updateGroupInGroupList,
     setWindowDimensions,
   };
 });

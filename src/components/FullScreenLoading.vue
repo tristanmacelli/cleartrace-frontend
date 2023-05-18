@@ -1,4 +1,4 @@
-<template id="home-view-loading">
+<template id="full-screen-loading">
   <div class="h-screen w-screen grid">
     <div class="w-fit grid gap-y-2 place-self-center">
       <img
@@ -16,6 +16,6 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "HomeViewLoading",
+  name: "FullScreenLoading",
 });
 </script>

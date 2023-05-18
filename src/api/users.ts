@@ -11,14 +11,12 @@ export const Users = () => {
   const router = useRouter();
   const email = ref("");
   const firstName = ref("");
-  const initials = computed(() => pinia.userInitials);
   const lastName = ref("");
   const password = ref("");
-  const serverURL = computed(() => pinia.serverURL);
   const user = computed(() => pinia.user);
 
   const SignIn = async () => {
-    const url = serverURL.value + "v1/sessions";
+    const url = pinia.serverURL + "v1/sessions";
     if (!email.value || !password.value) {
       alert("Error: Invalid Credentials");
       return;
@@ -43,7 +41,7 @@ export const Users = () => {
   };
 
   const SignOut = async () => {
-    const url = serverURL.value + "v1/sessions/mine";
+    const url = pinia.serverURL + "v1/sessions/mine";
     const sessionToken = localStorage.getItem("auth");
 
     // send a DELETE request with the above data
@@ -67,7 +65,7 @@ export const Users = () => {
   };
 
   const SignUp = async () => {
-    const url = serverURL.value + "v1/users";
+    const url = pinia.serverURL + "v1/users";
     const username = firstName.value + "." + lastName.value;
 
     if (!email.value || !password.value) {
@@ -128,7 +126,7 @@ export const Users = () => {
   };
 
   const UpdateUser = async () => {
-    const url = serverURL.value + "v1/users/me";
+    const url = pinia.serverURL + "v1/users/me";
     if (!firstName.value || !lastName.value) {
       alert("Error: Invalid name change, names must not be blank");
       return;
@@ -155,7 +153,6 @@ export const Users = () => {
   return {
     email,
     firstName,
-    initials,
     lastName,
     password,
     user,
@@ -172,8 +169,7 @@ export const Search = () => {
   const awaitingSearch = ref(false);
   const query = ref("");
   const searchResults = ref<UserSearchResult[]>([]);
-  const serverURL = computed(() => pinia.serverURL);
-  const userID = computed(() => pinia.user?.id);
+  const userID = pinia.getUserID;
   const userIDs = ref<number[]>([]);
   const members = ref<Member[]>([]);
 
@@ -197,7 +193,7 @@ export const Search = () => {
     // Clear results on a new search
     searchResults.value = [];
     // Show a loading animation component/svg
-    const url = serverURL.value + "v1/users/search/?q=" + query.value;
+    const url = pinia.serverURL + "v1/users/search/?q=" + query.value;
     const sessionToken = localStorage.getItem("auth");
 
     axios
@@ -216,7 +212,7 @@ export const Search = () => {
             .slice()
             .reverse()
             .forEach((user: ServerUser) => {
-              if (user.ID != userID.value) {
+              if (user.ID != userID) {
                 const reducedUser: UserSearchResult =
                   serverUserToUserSearchResult(user);
                 searchResults.value.push(reducedUser);
@@ -232,7 +228,7 @@ export const Search = () => {
   };
 
   const GetUsersFromIDs = async () => {
-    const url = serverURL.value + "v1/users/search/";
+    const url = pinia.serverURL + "v1/users/search/";
     const sessionToken = localStorage.getItem("auth");
 
     await axios
