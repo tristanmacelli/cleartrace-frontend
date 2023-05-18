@@ -77,7 +77,7 @@ const useGroupsStore = defineStore("groups", (): State => {
       console.log("Group not present");
     }
   };
-  
+
   // Mutations
   const setActiveGroup = (group: LocalGroup) => {
     activeGroup.value = group;
