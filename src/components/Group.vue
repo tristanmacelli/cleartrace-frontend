@@ -38,6 +38,7 @@ import { computed } from "vue";
 import useGroupsStore from "@/store/groups";
 import { LocalGroup, LocalMessage, LocalUser } from "../types";
 import { latestMessageIndicator } from "@/utils";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   id: string;
@@ -53,9 +54,11 @@ const props = defineProps<{
 }>();
 
 const groupsStore = useGroupsStore();
+const { getActiveGroupID } = storeToRefs(groupsStore);
 
 // If this is true we want to apply the same css rules as applied to the .group:hover class
-const isStoredGroup = computed(() => props.id == groupsStore.activeGroup.id);
+const isStoredGroup = computed(() => props.id == getActiveGroupID.value);
+// TODO: refactor?
 const latestMessage = computed(() =>
   props.messageList.at(props.messageList.length - 1)
 );

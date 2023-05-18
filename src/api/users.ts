@@ -1,22 +1,23 @@
 import axios from "axios";
 
-import { computed, watch, ref } from "vue";
+import { watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
 import { Member, ServerUser, UserSearchResult } from "../types";
 import { serverUserToMember, serverUserToUserSearchResult } from "@/utils";
+import { storeToRefs } from "pinia";
 
 export const Users = () => {
   const pinia = usePiniaStore();
+  const { serverURL, user } = storeToRefs(pinia);
   const router = useRouter();
   const email = ref("");
   const firstName = ref("");
   const lastName = ref("");
   const password = ref("");
-  const user = computed(() => pinia.user);
 
   const SignIn = async () => {
-    const url = pinia.serverURL + "v1/sessions";
+    const url = serverURL.value + "v1/sessions";
     if (!email.value || !password.value) {
       alert("Error: Invalid Credentials");
       return;
@@ -41,7 +42,7 @@ export const Users = () => {
   };
 
   const SignOut = async () => {
-    const url = pinia.serverURL + "v1/sessions/mine";
+    const url = serverURL.value + "v1/sessions/mine";
     const sessionToken = localStorage.getItem("auth");
 
     // send a DELETE request with the above data
@@ -65,7 +66,7 @@ export const Users = () => {
   };
 
   const SignUp = async () => {
-    const url = pinia.serverURL + "v1/users";
+    const url = serverURL.value + "v1/users";
     const username = firstName.value + "." + lastName.value;
 
     if (!email.value || !password.value) {
@@ -99,11 +100,9 @@ export const Users = () => {
       });
   };
 
-  const GetUser = async (
-    serverURL: string
-  ): Promise<{ user?: ServerUser; error?: Error }> => {
+  const GetUser = async (): Promise<{ user?: ServerUser; error?: Error }> => {
     const sessionToken = localStorage.getItem("auth");
-    const url = serverURL + "v1/users/";
+    const url = serverURL.value + "v1/users/";
     const resp = await axios
       .get(url, {
         headers: {
@@ -126,7 +125,7 @@ export const Users = () => {
   };
 
   const UpdateUser = async () => {
-    const url = pinia.serverURL + "v1/users/me";
+    const url = serverURL.value + "v1/users/me";
     if (!firstName.value || !lastName.value) {
       alert("Error: Invalid name change, names must not be blank");
       return;
@@ -166,10 +165,10 @@ export const Users = () => {
 
 export const Search = () => {
   const pinia = usePiniaStore();
+  const { serverURL, getUserID } = storeToRefs(pinia);
   const awaitingSearch = ref(false);
   const query = ref("");
   const searchResults = ref<UserSearchResult[]>([]);
-  const userID = pinia.getUserID;
   const userIDs = ref<number[]>([]);
   const members = ref<Member[]>([]);
 
@@ -185,7 +184,7 @@ export const Search = () => {
 
   const SearchUsers = async () => {
     // Do not query the backend if there is nothing to querys
-    if (query.value.length == 0) {
+    if (query.value.length === 0) {
       // Clear results when there is no query
       searchResults.value = [];
       return;
@@ -193,7 +192,7 @@ export const Search = () => {
     // Clear results on a new search
     searchResults.value = [];
     // Show a loading animation component/svg
-    const url = pinia.serverURL + "v1/users/search/?q=" + query.value;
+    const url = serverURL.value + "v1/users/search/?q=" + query.value;
     const sessionToken = localStorage.getItem("auth");
 
     axios
@@ -212,7 +211,7 @@ export const Search = () => {
             .slice()
             .reverse()
             .forEach((user: ServerUser) => {
-              if (user.ID != userID) {
+              if (user.ID != getUserID.value) {
                 const reducedUser: UserSearchResult =
                   serverUserToUserSearchResult(user);
                 searchResults.value.push(reducedUser);
@@ -228,7 +227,7 @@ export const Search = () => {
   };
 
   const GetUsersFromIDs = async () => {
-    const url = pinia.serverURL + "v1/users/search/";
+    const url = serverURL.value + "v1/users/search/";
     const sessionToken = localStorage.getItem("auth");
 
     await axios

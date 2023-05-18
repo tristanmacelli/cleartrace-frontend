@@ -82,10 +82,11 @@ import { computed, ref, watch } from "vue";
 import usePiniaStore from "@/store/pinia";
 import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
+import useGroupsStore from "@/store/groups";
+import { storeToRefs } from "pinia";
 
 const {
   descriptionInput,
-  groupModalData,
   isModalTypeUpdate,
   members,
   memberNames,
@@ -98,6 +99,9 @@ const {
 } = Groups();
 const { searchResults, query, users, userIDs, GetUsersFromIDs } = Search();
 const pinia = usePiniaStore();
+const groupsStore = useGroupsStore();
+const { groupModalData } = storeToRefs(groupsStore);
+const { getUserID } = storeToRefs(pinia);
 
 const emit = defineEmits(["hideModal"]);
 
@@ -111,7 +115,7 @@ if (isModalTypeUpdate && groupModalData.value.group) {
   title = "Update Group";
   userIDs.value = group.members;
   await GetUsersFromIDs();
-  const currentMembers = users.value.filter((u) => u.id != pinia.user?.id);
+  const currentMembers = users.value.filter((u) => u.id != getUserID.value);
 
   members.value = currentMembers;
 }

@@ -24,6 +24,7 @@ export default defineComponent({
 import { computed } from "vue";
 import usePiniaStore from "@/store/pinia";
 import { LocalUser } from "../types";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   id: string;
@@ -36,8 +37,9 @@ const props = defineProps<{
 defineEmits(["remove"]);
 
 const pinia = usePiniaStore();
+const { user } = storeToRefs(pinia);
 const isAuthor = computed(
-  () => props.creator.firstName == pinia.user?.firstName
+  () => props.creator.firstName == user.value?.firstName
 );
 </script>
 

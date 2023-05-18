@@ -16,10 +16,12 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { onErrorCaptured, ref } from "vue";
+import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
 
 const pinia = usePiniaStore();
+const { debug } = storeToRefs(pinia);
 const router = useRouter();
 const error = ref<Error>();
 
@@ -36,7 +38,7 @@ let sessionToken = localStorage.getItem("auth");
 let isActiveSession = sessionToken && !pinia.authenticated;
 if (isActiveSession) {
   // eslint-disable-next-line
-  if (pinia.debug) console.log("Returning to an active session");
+  if (debug) console.log("Returning to an active session");
   pinia.authenticated = true;
   router.push({ path: "/home" });
   // router.push({ name: 'Home', params: { groupID: groupID } });

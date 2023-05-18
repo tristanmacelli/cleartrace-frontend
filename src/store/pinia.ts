@@ -82,7 +82,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
   // Actions
   const setUser = async () => {
     const { GetUser } = Users();
-    const response = await GetUser(serverURL.value);
+    const response = await GetUser();
 
     if (response.user) {
       const localUser = serverToClientUser(response.user);

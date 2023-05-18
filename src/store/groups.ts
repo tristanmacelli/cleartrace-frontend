@@ -40,6 +40,7 @@ export interface State {
   addToGroupList: (group: LocalGroup) => void;
   removeFromGroupList: (index: number) => void;
   updateGroupInGroupList: (index: number, group: LocalGroup) => void;
+  clearModalData: () => void;
 }
 
 const useGroupsStore = defineStore("groups", (): State => {
@@ -90,6 +91,13 @@ const useGroupsStore = defineStore("groups", (): State => {
     groupList.value.splice(index, 0, group);
   };
 
+  const clearModalData = () => {
+    groupModalData.value = {
+      group: undefined,
+      type: "",
+    };
+  };
+
   return {
     activeGroup,
     groupModalData,
@@ -103,6 +111,7 @@ const useGroupsStore = defineStore("groups", (): State => {
     addToGroupList,
     removeFromGroupList,
     updateGroupInGroupList,
+    clearModalData,
   };
 });
 

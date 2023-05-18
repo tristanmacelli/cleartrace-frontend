@@ -86,6 +86,7 @@ import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
 import { LocalMessage, ServerMessage } from "../types";
 import { FormatDate, PlaySound, serverToClientMessage } from "@/utils";
+import { storeToRefs } from "pinia";
 
 const { bodyInput, messageList, GetMessages, SendMessage } = Messages();
 
@@ -93,8 +94,8 @@ const emit = defineEmits(["displayModal"]);
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
-const socket = computed(() => pinia.socket);
-const activeGroup = computed(() => groupsStore.activeGroup);
+const { socket } = storeToRefs(pinia);
+const { activeGroup, getActiveGroupID } = storeToRefs(groupsStore);
 const disableSendMessage = computed(() => bodyInput.value.length === 0);
 const isGeneral = computed(
   () => activeGroup.value.id === "5fec04e96d55740010123439"
@@ -125,7 +126,7 @@ const OpenGroupList = () => {
 
 const updateScroll = () => {
   const element = document.getElementById("view-messages");
-  element!.scrollTop = element!.scrollHeight;
+  if (element) element.scrollTop = element.scrollHeight;
 };
 
 // Create initial message
@@ -164,7 +165,7 @@ socket.value!.onmessage = (event: MessageEvent<any>) => {
 
   if (receivedData.type == "message-new") {
     // This is "default behavior", when messages are received on the active group
-    if (serverMessage.channelID == groupsStore.getActiveGroupID) {
+    if (serverMessage.channelID == getActiveGroupID.value) {
       const localMessage = serverToClientMessage(serverMessage);
 
       messageList.value.push(localMessage);
@@ -174,7 +175,6 @@ socket.value!.onmessage = (event: MessageEvent<any>) => {
 };
 
 const DisplayModalUpdate = () => {
-  console.log(`MessageList.vue line:169`);
   let modalData = {
     group: activeGroup.value,
     type: "update",

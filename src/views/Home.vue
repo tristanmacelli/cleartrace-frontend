@@ -40,13 +40,14 @@ export default defineComponent({
 
 <script lang="ts" setup>
 // @ is an alias to /src
+import { useRouter } from "vue-router";
+import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
+import { storeToRefs } from "pinia";
 import FullScreenLoading from "@/components/FullScreenLoading.vue";
 import { Groups } from "@/api/messaging.service";
 import { Users } from "@/api/users";
 import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
-import { useRouter } from "vue-router";
-import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
 
 const GroupList = defineAsyncComponent(
   () => import("../components/GroupList.vue")
@@ -60,6 +61,7 @@ const MessageList = defineAsyncComponent(
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
+const { general } = storeToRefs(groupsStore);
 const router = useRouter();
 const { GetGroups } = Groups();
 const { SignOut } = Users();
@@ -88,7 +90,7 @@ await Promise.all([setSocket, setUser, getGroups]);
 
 // This is intended to populate the active group's messageList.
 // In order for this to work GetGroups (with messages) must be called.
-const generalWithMessages = groupsStore.getGroupByID(groupsStore.general.id);
+const generalWithMessages = groupsStore.getGroupByID(general.value.id);
 groupsStore.activeGroup = generalWithMessages!;
 
 const DisplayModal = () => {
@@ -97,5 +99,6 @@ const DisplayModal = () => {
 
 const HideModal = () => {
   displayModal.value = false;
+  groupsStore.clearModalData();
 };
 </script>

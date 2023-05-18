@@ -7,7 +7,7 @@
       class="font-bold rounded-3xl focus:outline-none bg-gray-200 hover:bg-gray-300"
     >
       <p class="h-8 pt-1.5 px-1 bg-gray-200 rounded-3xl">
-        {{ initials }}
+        {{ userInitials }}
       </p>
     </button>
     <slot v-if="showDropdown"></slot>
@@ -23,11 +23,12 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import usePiniaStore from "@/store/pinia";
+import { storeToRefs } from "pinia";
 
 const pinia = usePiniaStore();
-const initials = computed(() => pinia.userInitials);
+const { userInitials } = storeToRefs(pinia);
 const showDropdown = ref(false);
 
 const ToggleDropdown = () => {
