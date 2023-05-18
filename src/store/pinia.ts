@@ -57,7 +57,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     width: 0,
     height: 0,
   });
-  const isMobile = computed<boolean>(() => screen.value.width < 640);
+  const isMobile = ref<boolean>(false);
   const serverURL = ref<string>("https://slack.api.tristanmacelli.com/");
   const socket = ref<WebSocket | undefined>(undefined);
   const user = ref<LocalUser | undefined>(undefined);

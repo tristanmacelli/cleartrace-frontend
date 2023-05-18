@@ -43,6 +43,7 @@ if (isActiveSession) {
 onMounted(() => {
   window.onresize = () => {
     pinia.setWindowDimensions(window.innerWidth, window.innerHeight);
+    pinia.isMobile = window.innerWidth < 640;
   };
 });
 </script>
