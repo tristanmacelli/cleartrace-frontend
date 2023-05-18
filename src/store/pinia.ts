@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { LocalUser } from "../types";
-import { ComputedRef, Ref, computed, ref } from "vue";
+import { ComputedRef, Ref, computed, ref, watch } from "vue";
 import { Users } from "@/api/users";
 import { serverToClientUser } from "@/utils";
 
@@ -31,7 +31,7 @@ export interface State {
   serverURL: Ref<string>;
   socket: Ref<WebSocket | undefined>;
   user: Ref<LocalUser | undefined>;
-  window: Ref<{
+  screen: Ref<{
     width: number;
     height: number;
   }>;
@@ -50,17 +50,22 @@ const usePiniaStore = defineStore("pinia", (): State => {
   const debug = ref<boolean>(false);
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
   const isGroupListOpen = ref<boolean>(true);
-  const isMobile = ref<boolean>(false);
-  const serverURL = ref<string>("https://slack.api.tristanmacelli.com/");
-  const socket = ref<WebSocket | undefined>(undefined);
-  const user = ref<LocalUser | undefined>(undefined);
-  const window = ref<{
+  const screen = ref<{
     width: number;
     height: number;
   }>({
     width: 0,
     height: 0,
   });
+  const isMobile = computed<boolean>(() => screen.value.width < 640);
+  const serverURL = ref<string>("https://slack.api.tristanmacelli.com/");
+  const socket = ref<WebSocket | undefined>(undefined);
+  const user = ref<LocalUser | undefined>(undefined);
+
+  // This ensures that the groupsList renders properly when the screen is resized
+  watch(isMobile, (newValue) =>
+    newValue ? null : (isGroupListOpen.value = true)
+  );
 
   // Getters
   const userInitials = computed<string>(
@@ -75,8 +80,8 @@ const usePiniaStore = defineStore("pinia", (): State => {
       // eslint-disable-next-line
       console.log("setWindowDimensions triggered");
     }
-    window.value.width = width;
-    window.value.height = height;
+    screen.value.width = width;
+    screen.value.height = height;
   };
 
   // Actions
@@ -155,7 +160,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     serverURL,
     socket,
     user,
-    window,
+    screen,
     userInitials,
     getUserID,
     setSocket,

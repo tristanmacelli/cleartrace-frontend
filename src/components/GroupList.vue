@@ -83,7 +83,6 @@ const { isGroupListOpen, isMobile, socket } = storeToRefs(pinia);
 const { SignOut } = Users();
 
 const listItems = ref<ListItem[]>([]);
-const width = ref(0);
 
 let items = ["Profile", "Settings", "Sign Out"];
 items.forEach((item, index) =>
@@ -92,7 +91,6 @@ items.forEach((item, index) =>
     text: item,
   })
 );
-width.value = window.innerWidth;
 
 const AlertUnregistered = () => {
   confirm("We're sorry but this feature is still under development :/");

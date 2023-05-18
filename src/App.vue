@@ -15,7 +15,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { onErrorCaptured, ref } from "vue";
+import { onErrorCaptured, onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
@@ -30,10 +30,6 @@ onErrorCaptured((caughtError) => {
   return true;
 });
 
-pinia.setWindowDimensions(window.innerWidth, window.innerHeight);
-if (window.innerWidth < 640) {
-  pinia.isMobile = true;
-}
 let sessionToken = localStorage.getItem("auth");
 let isActiveSession = sessionToken && !pinia.authenticated;
 if (isActiveSession) {
@@ -43,6 +39,12 @@ if (isActiveSession) {
   router.push({ path: "/home" });
   // router.push({ name: 'Home', params: { groupID: groupID } });
 }
+
+onMounted(() => {
+  window.onresize = () => {
+    pinia.setWindowDimensions(window.innerWidth, window.innerHeight);
+  };
+});
 </script>
 
 <style>
