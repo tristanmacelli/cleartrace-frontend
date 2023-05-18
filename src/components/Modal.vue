@@ -35,8 +35,6 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { defineProps } from "vue";
-
 defineProps<{
   Title: string; // Note: this prop was previously optional.
   Description: string;

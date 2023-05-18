@@ -25,8 +25,6 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { defineProps } from "vue";
-
 defineProps<{
   name: string;
   index: number;

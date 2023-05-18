@@ -21,9 +21,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-// import { State } from "@/store";
 import { computed } from "vue";
-// import { useStore } from "vuex";
 import usePiniaStore from "@/store/pinia";
 import { LocalUser } from "../types";
 
@@ -37,7 +35,6 @@ const props = defineProps<{
 
 defineEmits(["remove"]);
 
-// const { state } = useStore<State>();
 const pinia = usePiniaStore();
 const isAuthor = computed(
   () => props.creator.firstName == pinia.user?.firstName

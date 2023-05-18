@@ -1,4 +1,3 @@
-// import { State } from "@/store";
 import axios from "axios";
 
 import { computed, watch, ref } from "vue";
@@ -35,9 +34,7 @@ export const Users = () => {
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
           pinia.authenticated = true;
-          // store.commit("setAuthentication");
           router.push({ path: "/home" });
-          // router.push({ name: 'Home', params: { groupID: groupID } });
         }
       })
       .catch((error) => {
@@ -60,8 +57,6 @@ export const Users = () => {
         localStorage.removeItem("auth");
         pinia.authenticated = false;
         pinia.clearSocket();
-        // store.commit("clearAuthentication");
-        // store.commit("clearSocket");
         if (router.currentRoute.value.path != "/") {
           router.push({ path: "/" });
         }
@@ -97,7 +92,6 @@ export const Users = () => {
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
           pinia.authenticated = true;
-          // store.commit("setAuthentication");
           router.push({ path: "/home" });
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }

@@ -64,9 +64,9 @@ export interface State {
   }>;
   userInitials: ComputedRef<string>;
   getGroupByID: (id: string) => LocalGroup | undefined;
-  setSocket: () => void;
-  clearSocket: () => void;
-  setUser: () => void;
+  setSocket: () => Promise<void>;
+  clearSocket: () => Promise<void>;
+  setUser: () => Promise<void>;
   addToGroupList: (group: LocalGroup) => void;
   removeFromGroupList: (index: number) => void;
   updateGroupInGroupList: (index: number, group: LocalGroup) => void;
@@ -103,6 +103,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     height: 0,
   });
 
+  // Getters
   const userInitials = computed<string>(
     () => user.value!.firstName.charAt(0) + user.value!.lastName.charAt(0)
   );
@@ -190,7 +191,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     };
   };
 
-  const clearSocket = () => {
+  const clearSocket = async () => {
     if (debug.value) {
       // eslint-disable-next-line
       console.log("clearSocket triggered");

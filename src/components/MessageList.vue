@@ -80,11 +80,9 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { computed, onBeforeMount, watch } from "vue";
-// import { useStore } from "vuex";
 import usePiniaStore from "@/store/pinia";
 import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
-// import { State } from "@/store";
 import { LocalMessage, ServerMessage } from "../types";
 import { FormatDate, PlaySound, serverToClientMessage } from "@/utils";
 
@@ -93,7 +91,6 @@ const { activeGroup, bodyInput, messageList, GetMessages, SendMessage } =
 
 const emit = defineEmits(["displayModal"]);
 
-// const store = useStore<State>();
 const pinia = usePiniaStore();
 const socket = computed(() => pinia.socket);
 const disableSendMessage = computed(() => bodyInput.value.length === 0);
@@ -121,7 +118,6 @@ const OpenGroupList = () => {
   // Transition #groupList to the right
   if (pinia.isMobile) {
     pinia.isGroupListOpen = true;
-    // store.commit("setIsGroupListOpen");
   }
 };
 
@@ -183,9 +179,6 @@ const DisplayModalUpdate = () => {
   };
 
   pinia.groupModalData = modalData;
-  // store.commit("setgroupModalData", {
-  //   groupModalData: modalData,
-  // });
   DisplayModal();
 };
 

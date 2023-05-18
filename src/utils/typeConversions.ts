@@ -1,4 +1,3 @@
-import { State } from "@/store";
 import {
   LocalGroup,
   LocalMessage,
@@ -14,12 +13,12 @@ import { FormatDate } from "./datetime";
 // LocalGroup members is a list of numbers that corresponds to ids of users. All of these users are present in a
 // list called memberUserData (LocalUser[]) when full user data is needed
 export const serverToClientGroup = (
-  state: State,
+  groupListLength: number,
   group: ServerGroup
 ): LocalGroup => {
   return {
     ...group,
-    index: state.groupList.length,
+    index: groupListLength,
     messageList: [],
     creator: serverToClientUser(group.creator),
   };

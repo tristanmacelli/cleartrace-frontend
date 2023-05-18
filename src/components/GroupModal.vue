@@ -79,11 +79,9 @@ import List from "@/components/List.vue";
 import GroupMember from "@/components/GroupMember.vue";
 import Modal from "@/components/Modal.vue";
 import { computed, ref, watch } from "vue";
-// import { useStore } from "vuex";
 import usePiniaStore from "@/store/pinia";
 import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
-// import { State } from "@/store";
 
 const {
   descriptionInput,
@@ -99,8 +97,6 @@ const {
   RemoveGroupMember,
 } = Groups();
 const { searchResults, query, users, userIDs, GetUsersFromIDs } = Search();
-
-// const store = useStore<State>();
 const pinia = usePiniaStore();
 
 const emit = defineEmits(["hideModal"]);

@@ -27,17 +27,15 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { defineProps, ref } from "vue";
-// import { useStore } from "vuex";
+import { ref } from "vue";
 import usePiniaStore from "@/store/pinia";
 
 defineProps<{
   items: Array<any>;
   positionRight: Boolean;
 }>();
-const emit = defineEmits(["activeListItem"]);
 
-// const { state } = useStore<State>();
+const emit = defineEmits(["activeListItem"]);
 const pinia = usePiniaStore();
 const currentItem = ref(1);
 

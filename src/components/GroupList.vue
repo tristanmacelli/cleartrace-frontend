@@ -66,16 +66,13 @@ export default defineComponent({
 import Group from "./Group.vue";
 import Dropdown from "./Dropdown.vue";
 import List from "./List.vue";
-// import { useStore } from "vuex";
 import usePiniaStore from "@/store/pinia";
 import { computed, ref } from "vue";
 import { Users } from "@/api/users";
 import { ListItem } from "../types";
-// import { State } from "@/store";
 
 const emit = defineEmits(["displayModal"]);
 
-// const store = useStore<State>();
 const pinia = usePiniaStore();
 const { SignOut } = Users();
 
@@ -103,7 +100,6 @@ const CloseGroupList = () => {
   // Transition #groupList to the right
   if (isMobile.value) {
     pinia.isGroupListOpen = false;
-    // store.commit("clearIsGroupListOpen");
   }
 };
 
@@ -113,9 +109,6 @@ const DisplayModalCreate = () => {
     type: "create",
   };
   pinia.groupModalData = modalData;
-  // store.commit("setgroupModalData", {
-  //   groupModalData: modalData,
-  // });
   DisplayModal();
 };
 

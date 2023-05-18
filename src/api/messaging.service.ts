@@ -187,9 +187,6 @@ export const Groups = () => {
           ...response.data,
         };
         pinia.addToGroupList(newGroup);
-        // store.commit("addToGroupList", {
-        //   group: newGroup,
-        // });
       })
       .catch((error) => {
         alert(error);
@@ -212,7 +209,6 @@ export const Groups = () => {
           return;
         }
         pinia.groupList = [];
-        // store.commit("clearGroupList");
         const receivedGroups: LocalGroup[] = [];
         const rawGroupData = response.data.slice().reverse();
 
@@ -235,9 +231,6 @@ export const Groups = () => {
         }
 
         pinia.groupList = receivedGroups;
-        // store.commit("setGroupList", {
-        //   groupList: receivedGroups,
-        // });
       })
       .catch((error) => {
         if (pinia.debug) alert(error);
@@ -263,10 +256,6 @@ export const Groups = () => {
         updatedGroup.index = index.value;
 
         pinia.updateGroupInGroupList(index.value!, updatedGroup);
-        // store.commit("updateGroupInGroupList", {
-        //   index: index.value,
-        //   group: updatedGroup,
-        // });
       })
       .catch((error) => {
         alert(error);
@@ -295,9 +284,6 @@ export const Groups = () => {
         if (!groupModalData.value.group) return;
 
         pinia.removeFromGroupList(index.value!);
-        // store.commit("removeFromGroupList", {
-        //   index: index.value,
-        // });
       })
       .catch((error) => {
         alert(error);
@@ -323,12 +309,6 @@ export const Groups = () => {
 
         pinia.activeGroup = general!;
         pinia.removeFromGroupList(index.value!);
-        // store.commit("setGroup", {
-        //   group: general,
-        // });
-        // store.commit("removeFromGroupList", {
-        //   index: index.value,
-        // });
       })
       .catch((error) => {
         alert(error);
@@ -363,10 +343,6 @@ export const Groups = () => {
         };
 
         pinia.updateGroupInGroupList(index.value!, updatedGroup);
-        // store.commit("updateGroupInGroupList", {
-        //   index: index.value,
-        //   group: updatedGroup,
-        // });
       })
       .catch((error) => {
         alert(error);
@@ -404,10 +380,6 @@ export const Groups = () => {
         };
 
         pinia.updateGroupInGroupList(index.value!, updatedGroup);
-        // store.commit("updateGroupInGroupList", {
-        //   index: index.value,
-        //   group: updatedGroup,
-        // });
       })
       .catch((error) => {
         alert(error);

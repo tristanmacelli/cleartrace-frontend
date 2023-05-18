@@ -43,11 +43,9 @@ export default defineComponent({
 import HomeViewLoading from "@/components/HomeViewLoading.vue";
 import { Groups } from "@/api/messaging.service";
 import { Users } from "@/api/users";
-// import { useStore } from "vuex";
 import usePiniaStore from "@/store/pinia";
 import { useRouter } from "vue-router";
 import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
-// import { State } from "@/store";
 
 const GroupList = defineAsyncComponent(
   () => import("../components/GroupList.vue")
@@ -59,7 +57,6 @@ const MessageList = defineAsyncComponent(
   () => import("../components/MessageList.vue")
 );
 
-// const store = useStore<State>();
 const pinia = usePiniaStore();
 const router = useRouter();
 const { GetGroups } = Groups();
@@ -85,17 +82,12 @@ if (!sessionToken) {
 const getGroups = GetGroups(); // This also gets the latest 100 messages for the first 20 groups
 const setSocket = pinia.setSocket();
 const setUser = pinia.setUser();
-// const setSocket = store.dispatch("setSocket");
-// const setUser = store.dispatch("setUser");
 await Promise.all([setSocket, setUser, getGroups]);
 
 // This is intended to populate the active group's messageList.
 // In order for this to work GetGroups (with messages) must be called.
 const generalWithMessages = pinia.getGroupByID(pinia.general.id);
 pinia.activeGroup = generalWithMessages!;
-// store.commit("setGroup", {
-//   group: generalWithMessages,
-// });
 
 const DisplayModal = () => {
   displayModal.value = true;
