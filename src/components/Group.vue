@@ -80,7 +80,7 @@ const SetGroup = () => {
       createdAt: props.createdAt,
       index: props.index,
     };
-    groupsStore.activeGroup = thisGroup;
+    groupsStore.setActiveGroup(thisGroup);
   }
 };
 </script>

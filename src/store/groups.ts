@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LocalGroup, LocalUser } from "../types";
+import { GroupModal, LocalGroup, LocalUser } from "../types";
 import { ComputedRef, Ref, computed, ref } from "vue";
 
 const generalGroup: LocalGroup = {
@@ -37,18 +37,19 @@ export interface State {
   getGroupModalGroupID: ComputedRef<string | undefined>;
   getGroupListIndex: ComputedRef<number | undefined>;
   getGroupByID: (id: string) => LocalGroup | undefined;
+  setActiveGroup: (group: LocalGroup) => void;
+  setGroupModalData: (data: GroupModal) => void;
+  clearGroupModalData: () => void;
+  setGroupList: (list: LocalGroup[]) => void;
+  clearGroupList: () => void;
   addToGroupList: (group: LocalGroup) => void;
   removeFromGroupList: (index: number) => void;
   updateGroupInGroupList: (index: number, group: LocalGroup) => void;
-  clearModalData: () => void;
 }
 
 const useGroupsStore = defineStore("groups", (): State => {
   const activeGroup = ref<LocalGroup>(generalGroup);
-  const groupModalData = ref<{
-    group?: LocalGroup;
-    type: string;
-  }>({
+  const groupModalData = ref<GroupModal>({
     group: undefined,
     type: "",
   });
@@ -76,8 +77,31 @@ const useGroupsStore = defineStore("groups", (): State => {
       console.log("Group not present");
     }
   };
-
+  
   // Mutations
+  const setActiveGroup = (group: LocalGroup) => {
+    activeGroup.value = group;
+  };
+
+  const setGroupModalData = (data: GroupModal) => {
+    groupModalData.value = data;
+  };
+
+  const clearGroupModalData = () => {
+    groupModalData.value = {
+      group: undefined,
+      type: "",
+    };
+  };
+
+  const setGroupList = (list: LocalGroup[]) => {
+    groupList.value = list;
+  };
+
+  const clearGroupList = () => {
+    groupList.value = [];
+  };
+
   const addToGroupList = (group: LocalGroup) => {
     groupList.value.push(group);
   };
@@ -91,13 +115,6 @@ const useGroupsStore = defineStore("groups", (): State => {
     groupList.value.splice(index, 0, group);
   };
 
-  const clearModalData = () => {
-    groupModalData.value = {
-      group: undefined,
-      type: "",
-    };
-  };
-
   return {
     activeGroup,
     groupModalData,
@@ -108,10 +125,14 @@ const useGroupsStore = defineStore("groups", (): State => {
     getGroupModalGroupID,
     getGroupListIndex,
     getGroupByID,
+    setActiveGroup,
+    setGroupModalData,
+    clearGroupModalData,
+    setGroupList,
+    clearGroupList,
     addToGroupList,
     removeFromGroupList,
     updateGroupInGroupList,
-    clearModalData,
   };
 });
 

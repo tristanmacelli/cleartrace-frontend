@@ -35,15 +35,15 @@ let isActiveSession = sessionToken && !pinia.authenticated;
 if (isActiveSession) {
   // eslint-disable-next-line
   if (debug) console.log("Returning to an active session");
-  pinia.authenticated = true;
+  pinia.setAuthenticated(true);
   router.push({ path: "/home" });
   // router.push({ name: 'Home', params: { groupID: groupID } });
 }
 
 onMounted(() => {
   window.onresize = () => {
-    pinia.setWindowDimensions(window.innerWidth, window.innerHeight);
-    pinia.isMobile = window.innerWidth < 640;
+    pinia.setScreenDimensions(window.innerWidth, window.innerHeight);
+    pinia.setIsMobile(window.innerWidth < 640);
   };
 });
 </script>

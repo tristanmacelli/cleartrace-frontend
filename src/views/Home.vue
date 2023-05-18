@@ -91,7 +91,7 @@ await Promise.all([setSocket, setUser, getGroups]);
 // This is intended to populate the active group's messageList.
 // In order for this to work GetGroups (with messages) must be called.
 const generalWithMessages = groupsStore.getGroupByID(general.value.id);
-groupsStore.activeGroup = generalWithMessages!;
+groupsStore.setActiveGroup(generalWithMessages!);
 
 const DisplayModal = () => {
   displayModal.value = true;
@@ -99,6 +99,6 @@ const DisplayModal = () => {
 
 const HideModal = () => {
   displayModal.value = false;
-  groupsStore.clearModalData();
+  groupsStore.clearGroupModalData();
 };
 </script>

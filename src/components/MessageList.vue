@@ -120,7 +120,7 @@ watch(messageList, () => {
 const OpenGroupList = () => {
   // Transition #groupList to the right
   if (pinia.isMobile) {
-    pinia.isGroupListOpen = true;
+    pinia.setIsGroupListOpen(true);
   }
 };
 
@@ -180,7 +180,7 @@ const DisplayModalUpdate = () => {
     type: "update",
   };
 
-  groupsStore.groupModalData = modalData;
+  groupsStore.setGroupModalData(modalData);
   DisplayModal();
 };
 

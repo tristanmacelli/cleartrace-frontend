@@ -28,7 +28,6 @@ export interface State {
   // A fallback in case backend request fails on its initial attempt
   isGroupListOpen: Ref<boolean>;
   isMobile: Ref<boolean>;
-  serverURL: Ref<string>;
   socket: Ref<WebSocket | undefined>;
   user: Ref<LocalUser | undefined>;
   screen: Ref<{
@@ -37,19 +36,23 @@ export interface State {
   }>;
   userInitials: ComputedRef<string>;
   getUserID: ComputedRef<number | undefined>;
+  setAuthenticated: (value: boolean) => void;
+  setIsGroupListOpen: (value: boolean) => void;
+  setIsMobile: (value: boolean) => void;
+  setScreenDimensions: (width: number, height: number) => void;
   setSocket: () => Promise<void>;
   clearSocket: () => Promise<void>;
   setUser: () => Promise<void>;
-  setWindowDimensions: (width: number, height: number) => void;
 }
 
 const MESSAGE_LIST_CACHE_LIMIT = 20;
 
 const usePiniaStore = defineStore("pinia", (): State => {
   const authenticated = ref<boolean>(false);
-  const debug = ref<boolean>(false);
+  const debug = ref<boolean>(process.env.NODE_ENV !== "production");
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
   const isGroupListOpen = ref<boolean>(true);
+  const isMobile = ref<boolean>(false);
   const screen = ref<{
     width: number;
     height: number;
@@ -57,8 +60,6 @@ const usePiniaStore = defineStore("pinia", (): State => {
     width: 0,
     height: 0,
   });
-  const isMobile = ref<boolean>(false);
-  const serverURL = ref<string>("https://slack.api.tristanmacelli.com/");
   const socket = ref<WebSocket | undefined>(undefined);
   const user = ref<LocalUser | undefined>(undefined);
 
@@ -75,10 +76,20 @@ const usePiniaStore = defineStore("pinia", (): State => {
   const getUserID = computed<number | undefined>(() => user.value?.id);
 
   // Mutations
-  const setWindowDimensions = (width: number, height: number) => {
+  const setAuthenticated = (newValue: boolean) => {
+    authenticated.value = newValue;
+  };
+  const setIsGroupListOpen = (newValue: boolean) => {
+    isGroupListOpen.value = newValue;
+  };
+  const setIsMobile = (newValue: boolean) => {
+    isMobile.value = newValue;
+  };
+
+  const setScreenDimensions = (width: number, height: number) => {
     if (debug.value) {
       // eslint-disable-next-line
-      console.log("setWindowDimensions triggered");
+      console.log("setScreenDimensions triggered");
     }
     screen.value.width = width;
     screen.value.height = height;
@@ -157,16 +168,18 @@ const usePiniaStore = defineStore("pinia", (): State => {
     groupMessageListLimit,
     isGroupListOpen,
     isMobile,
-    serverURL,
     socket,
     user,
     screen,
     userInitials,
     getUserID,
+    setAuthenticated,
+    setIsGroupListOpen,
+    setIsMobile,
+    setScreenDimensions,
+    setUser,
     setSocket,
     clearSocket,
-    setUser,
-    setWindowDimensions,
   };
 });
 

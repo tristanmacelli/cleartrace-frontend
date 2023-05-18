@@ -1,5 +1,7 @@
 import usePiniaStore from "@/store/pinia";
 
+const ws_url = process.env.VUE_APP_CLEARTRACE_WSS;
+
 export const WebSocketService = () => {
   const pinia = usePiniaStore();
 
@@ -9,9 +11,8 @@ export const WebSocketService = () => {
           console.log("setSocket triggered");
     }
     const sessionToken = localStorage.getItem("auth");
-    pinia.socket = new WebSocket(
-      "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-    );
+    pinia.socket = new WebSocket(`${ws_url}v1/ws?auth=${sessionToken}`);
+
     pinia.socket.onopen = () => {
       if (pinia.debug) {
         // eslint-disable-next-line

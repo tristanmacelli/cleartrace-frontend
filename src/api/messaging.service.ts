@@ -7,6 +7,8 @@ import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
 import { storeToRefs } from "pinia";
 
+const api_url = process.env.VUE_APP_CLEARTRACE_API;
+
 export const Messages = () => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
@@ -16,7 +18,7 @@ export const Messages = () => {
   const messageList = ref<LocalMessage[]>([]);
 
   const GetMessages = async (id: string = getActiveGroupID.value) => {
-    const url = pinia.serverURL + "v1/channels/" + id;
+    const url = api_url + "v1/channels/" + id;
     const sessionToken = localStorage.getItem("auth");
 
     await axios
@@ -44,7 +46,7 @@ export const Messages = () => {
   };
 
   const SendMessage = async () => {
-    const url = pinia.serverURL + "v1/channels/" + getActiveGroupID.value;
+    const url = api_url + "v1/channels/" + getActiveGroupID.value;
     const sessionToken = localStorage.getItem("auth");
     const date = new Date();
     const formattedDate = FormatDate(date);
@@ -135,7 +137,7 @@ export const Groups = () => {
   );
 
   const GetSpecificGroup = async (groupName: string) => {
-    const url = pinia.serverURL + "v1/channels?startsWith=" + groupName;
+    const url = api_url + "v1/channels?startsWith=" + groupName;
     const sessionToken = localStorage.getItem("auth");
 
     const groups = await axios
@@ -158,7 +160,7 @@ export const Groups = () => {
       alert("Error: Invalid New Group Input");
       return;
     }
-    const url = pinia.serverURL + "v1/channels";
+    const url = api_url + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
 
     const names = memberNames.value.toString();
@@ -194,7 +196,7 @@ export const Groups = () => {
 
   const GetGroups = async () => {
     const { messageList, GetMessages } = Messages();
-    const url = pinia.serverURL + "v1/channels";
+    const url = api_url + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
 
     await axios
@@ -207,7 +209,7 @@ export const Groups = () => {
         if (response == null) {
           return;
         }
-        groupsStore.groupList = [];
+        groupsStore.clearGroupList();
         const receivedGroups: LocalGroup[] = [];
         const rawGroupData = response.data.slice().reverse();
 
@@ -229,7 +231,7 @@ export const Groups = () => {
           i++;
         }
 
-        groupsStore.groupList = receivedGroups;
+        groupsStore.setGroupList(receivedGroups);
       })
       .catch((error) => {
         if (pinia.debug) alert(error);
@@ -237,7 +239,7 @@ export const Groups = () => {
   };
 
   const UpdateGroupDetails = async () => {
-    const url = pinia.serverURL + "v1/channels/" + getGroupModalGroupID.value;
+    const url = api_url + "v1/channels/" + getGroupModalGroupID.value;
     const sessionToken = localStorage.getItem("auth");
     const body = {
       name: nameInput.value,
@@ -270,10 +272,7 @@ export const Groups = () => {
     }
     const currentUserId = pinia.user?.id;
     const url =
-      pinia.serverURL +
-      "v1/channels/" +
-      getGroupModalGroupID.value +
-      "/members";
+      api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
     const sessionToken = localStorage.getItem("auth");
     const data = {
       id: currentUserId,
@@ -300,7 +299,7 @@ export const Groups = () => {
     if (!confirm("Are you sure you want to delete this group?")) {
       return;
     }
-    const url = pinia.serverURL + "v1/channels/" + getGroupModalGroupID.value;
+    const url = api_url + "v1/channels/" + getGroupModalGroupID.value;
     const sessionToken = localStorage.getItem("auth");
     axios
       .delete(url, {
@@ -313,7 +312,7 @@ export const Groups = () => {
         // const general = store.getters.getGroupByID(store.state.general.id);
         const general = groupsStore.getGroupByID(groupsStore.general.id);
 
-        groupsStore.activeGroup = general!;
+        groupsStore.setActiveGroup(general!);
         groupsStore.removeFromGroupList(getGroupListIndex.value!);
       })
       .catch((error) => {
@@ -327,10 +326,7 @@ export const Groups = () => {
       return;
     }
     const url =
-      pinia.serverURL +
-      "v1/channels/" +
-      getGroupModalGroupID.value +
-      "/members";
+      api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
     const headers = { Authorization: localStorage.getItem("auth") };
     const body = { id: newMember.id };
     const requestConfig = {
@@ -369,10 +365,7 @@ export const Groups = () => {
     }
     const id = members.value[memberIndex].id;
     const url =
-      pinia.serverURL +
-      "v1/channels/" +
-      getGroupModalGroupID.value +
-      "/members";
+      api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
     const sessionToken = localStorage.getItem("auth");
     const data = {
       id: id,

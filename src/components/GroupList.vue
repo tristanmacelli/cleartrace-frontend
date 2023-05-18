@@ -99,7 +99,7 @@ const AlertUnregistered = () => {
 const CloseGroupList = () => {
   // Transition #groupList to the right
   if (isMobile.value) {
-    pinia.isGroupListOpen = false;
+    pinia.setIsGroupListOpen(false);
   }
 };
 
@@ -108,7 +108,7 @@ const DisplayModalCreate = () => {
     group: undefined,
     type: "create",
   };
-  groupsStore.groupModalData = modalData;
+  groupsStore.setGroupModalData(modalData);
   DisplayModal();
 };
 

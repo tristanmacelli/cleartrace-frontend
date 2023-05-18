@@ -34,6 +34,11 @@ export interface Member {
   photoURL: string;
 }
 
+export interface GroupModal {
+  group?: LocalGroup;
+  type: string;
+}
+
 export interface LocalMessage {
   channelID: string;
   body: string;

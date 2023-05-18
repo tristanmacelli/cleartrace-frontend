@@ -7,9 +7,11 @@ import { Member, ServerUser, UserSearchResult } from "../types";
 import { serverUserToMember, serverUserToUserSearchResult } from "@/utils";
 import { storeToRefs } from "pinia";
 
+const api_url = process.env.VUE_APP_CLEARTRACE_API;
+
 export const Users = () => {
   const pinia = usePiniaStore();
-  const { serverURL, user } = storeToRefs(pinia);
+  const { user } = storeToRefs(pinia);
   const router = useRouter();
   const email = ref("");
   const firstName = ref("");
@@ -17,7 +19,7 @@ export const Users = () => {
   const password = ref("");
 
   const SignIn = async () => {
-    const url = serverURL.value + "v1/sessions";
+    const url = api_url + "v1/sessions";
     if (!email.value || !password.value) {
       alert("Error: Invalid Credentials");
       return;
@@ -32,7 +34,7 @@ export const Users = () => {
         const sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
-          pinia.authenticated = true;
+          pinia.setAuthenticated(true);
           router.push({ path: "/home" });
         }
       })
@@ -42,7 +44,7 @@ export const Users = () => {
   };
 
   const SignOut = async () => {
-    const url = serverURL.value + "v1/sessions/mine";
+    const url = api_url + "v1/sessions/mine";
     const sessionToken = localStorage.getItem("auth");
 
     // send a DELETE request with the above data
@@ -54,7 +56,7 @@ export const Users = () => {
       })
       .then(() => {
         localStorage.removeItem("auth");
-        pinia.authenticated = false;
+        pinia.setAuthenticated(false);
         pinia.clearSocket();
         if (router.currentRoute.value.path != "/") {
           router.push({ path: "/" });
@@ -66,7 +68,7 @@ export const Users = () => {
   };
 
   const SignUp = async () => {
-    const url = serverURL.value + "v1/users";
+    const url = api_url + "v1/users";
     const username = firstName.value + "." + lastName.value;
 
     if (!email.value || !password.value) {
@@ -90,7 +92,7 @@ export const Users = () => {
         const sessionToken = response.headers["authorization"];
         if (sessionToken) {
           localStorage.setItem("auth", sessionToken);
-          pinia.authenticated = true;
+          pinia.setAuthenticated(true);
           router.push({ path: "/home" });
           // router.push({ name: 'Home', params: { groupID: groupID } });
         }
@@ -102,7 +104,7 @@ export const Users = () => {
 
   const GetUser = async (): Promise<{ user?: ServerUser; error?: Error }> => {
     const sessionToken = localStorage.getItem("auth");
-    const url = serverURL.value + "v1/users/";
+    const url = api_url + "v1/users/";
     const resp = await axios
       .get(url, {
         headers: {
@@ -125,7 +127,7 @@ export const Users = () => {
   };
 
   const UpdateUser = async () => {
-    const url = serverURL.value + "v1/users/me";
+    const url = api_url + "v1/users/me";
     if (!firstName.value || !lastName.value) {
       alert("Error: Invalid name change, names must not be blank");
       return;
@@ -165,7 +167,7 @@ export const Users = () => {
 
 export const Search = () => {
   const pinia = usePiniaStore();
-  const { serverURL, getUserID } = storeToRefs(pinia);
+  const { getUserID } = storeToRefs(pinia);
   const awaitingSearch = ref(false);
   const query = ref("");
   const searchResults = ref<UserSearchResult[]>([]);
@@ -192,7 +194,7 @@ export const Search = () => {
     // Clear results on a new search
     searchResults.value = [];
     // Show a loading animation component/svg
-    const url = serverURL.value + "v1/users/search/?q=" + query.value;
+    const url = api_url + "v1/users/search/?q=" + query.value;
     const sessionToken = localStorage.getItem("auth");
 
     axios
@@ -227,7 +229,7 @@ export const Search = () => {
   };
 
   const GetUsersFromIDs = async () => {
-    const url = serverURL.value + "v1/users/search/";
+    const url = api_url + "v1/users/search/";
     const sessionToken = localStorage.getItem("auth");
 
     await axios
