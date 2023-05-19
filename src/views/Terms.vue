@@ -1,6 +1,8 @@
 <template>
   <div class="w-screen h-screen flex flex-col bg-img py-12">
-    <div class="max-w-screen-xl mx-auto px-16 flex-grow bg-gray-100">
+    <div
+      class="max-w-screen-xl mx-auto px-16 flex-grow bg-gray-100 shadow rounded"
+    >
       <header class="flex flex-col py-12">
         <h2 class="text-black text-left text-3xl font-bold">
           Terms of Service
@@ -12,20 +14,20 @@
           <h3 class="text-xl font-bold text-gray-800">1. Privacy Policy</h3>
           <p class="text-gray-700 my-2">
             a) We do not sell any of your information now, nor will we ever opt
-            to sell sell your information in the future. We want to foster an
-            environment provides maximum privacy and we are committed to
+            to sell sell your information in the future. We aim to foster an
+            environment that provides maximum privacy and we are committed to
             upholding this promise no matter the circumstances. There are,
-            however some trade-offs made to achieve this level privacy so that
-            there is a reasonable amount of expected behavior and convenience
-            built-in.
+            however some trade-offs made to achieve this level privacy. These
+            too many words trade-offs include a reasonable amount of expected
+            behavior and convenience built-in.
           </p>
           <p class="text-gray-700">
             b) If you opt to not save messages, we will never save any of your
-            messages on our servers. Besides the information you provided when
-            signing up (Firstname, lastname, email, and password) as well as
-            group information (group names, descriptions, members) nothing else
-            will be saved on our servers. This is the bare minimum we require to
-            route your messages to the correct recipient.
+            messages on our servers. With the exception of the information you
+            provided when signing up (Firstname, lastname, email, and password)
+            as well as group information (group names, descriptions, members)
+            nothing else will be saved on our servers. This is the bare minimum
+            we require to route your messages to the correct recipient.
           </p>
         </section>
         <section class="my-2">
@@ -39,7 +41,9 @@
         </section>
       </body>
     </div>
-    <div class="max-w-screen-xl mx-auto px-4 bg-gray-100">
+    <div
+      class="max-w-screen-xl mx-auto px-4 bg-gray-100 absolute bottom-0 place-self-center"
+    >
       <footer class="flex flex-col">
         <p class="pb-4 self-center">
           &#169; 2021 {{ serviceName }}. Built with

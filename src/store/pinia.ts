@@ -4,21 +4,6 @@ import { ComputedRef, Ref, computed, ref, watch } from "vue";
 import { Users } from "@/api/users";
 import { serverToClientUser } from "@/utils";
 
-// import { createStore, createLogger } from "vuex";
-
-// const debug = process.env.NODE_ENV !== "production";
-// const plugins = debug ? [createLogger({})] : [];
-
-// const store = createStore({
-//   state: {
-//     placeholder: "",
-//   },
-//   strict: debug,
-//   plugins,
-// });
-
-// export default store;
-
 export interface State {
   // A switch for controlling navigation
   authenticated: Ref<boolean>;

@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
+// import { defineStore, storeToRefs } from "pinia";
 import { GroupModal, LocalGroup, LocalUser } from "../types";
 import { ComputedRef, Ref, computed, ref } from "vue";
+// import usePiniaStore from "./pinia";
+// import { Users } from "@/api/users";
 
 const generalGroup: LocalGroup = {
   id: "5fec04e96d55740010123439",
@@ -25,6 +28,7 @@ export interface State {
   // A switch for controlling navigation
   // Controls logging output for state actions, mutations, & getters
   activeGroup: Ref<LocalGroup>; // TODO: Add to AppStore
+  previousActiveGroup: Ref<LocalGroup>; // TODO: Add to AppStore
   groupModalData: Ref<{
     group?: LocalGroup;
     type: string;
@@ -36,8 +40,9 @@ export interface State {
   getActiveGroupID: ComputedRef<string>;
   getGroupModalGroupID: ComputedRef<string | undefined>;
   getGroupListIndex: ComputedRef<number | undefined>;
+  getMembersUserIDs: ComputedRef<number[]>;
   getGroupByID: (id: string) => LocalGroup | undefined;
-  setActiveGroup: (group: LocalGroup) => void;
+  setActiveGroup: (group: LocalGroup, initialCall?: boolean) => void;
   setGroupModalData: (data: GroupModal) => void;
   clearGroupModalData: () => void;
   setGroupList: (list: LocalGroup[]) => void;
@@ -49,6 +54,7 @@ export interface State {
 
 const useGroupsStore = defineStore("groups", (): State => {
   const activeGroup = ref<LocalGroup>(generalGroup);
+  const previousActiveGroup = ref<LocalGroup>(generalGroup);
   const groupModalData = ref<GroupModal>({
     group: undefined,
     type: "",
@@ -56,6 +62,9 @@ const useGroupsStore = defineStore("groups", (): State => {
   const groupList = ref<LocalGroup[]>([]);
   const general = ref<LocalGroup>(generalGroup);
   const membersUserData = ref<LocalUser[]>([]);
+  // const pinia = usePiniaStore();
+  // const { user } = storeToRefs(pinia);
+  // const { GetUserById } = Users();
 
   // Getters
   const getActiveGroupID = computed<string>(() => activeGroup.value.id);
@@ -68,6 +77,10 @@ const useGroupsStore = defineStore("groups", (): State => {
     () => groupModalData.value.group?.index
   );
 
+  const getMembersUserIDs = computed<number[]>(() =>
+    membersUserData.value.map((m) => m.id)
+  );
+
   const getGroupByID = (id: string): LocalGroup | undefined => {
     const index = groupList.value.findIndex((group) => group.id === id);
     if (index > -1) {
@@ -78,8 +91,39 @@ const useGroupsStore = defineStore("groups", (): State => {
     }
   };
 
+  // TODO
+  // const getMemberUserDataById = async (
+  //   id: number
+  // ): Promise<LocalUser | undefined> => {
+  //   const index = membersUserData.value.findIndex((user) => user.id === id);
+  //   if (index > -1) {
+  //     return membersUserData.value[index];
+  //   } else {
+  //     const { user, error } = await GetUserById(id);
+  //     if (error || !user) return;
+  //     return user;
+  //   }
+  // };
+
+  // const getMembersNames = async (members: number[]) => {
+  //   const ids = members.filter((id) => id !== user.value!.id);
+  //   const names = ids.map(async (id) => {
+  //     const user = await getMemberUserDataById(id);
+  //     if (user) {
+  //       return `${user.firstName} ${user.lastName}`;
+  //     }
+  //     return "";
+  //   });
+  //   return names;
+  // };
+
   // Mutations
-  const setActiveGroup = (group: LocalGroup) => {
+
+  // When calling setActiveGroup for the first time, the "previous" group should still remain General
+  // to ensure the previous group is populated with messages in case the user leaves/deletes all
+  // their groups and never revists the general group
+  const setActiveGroup = (group: LocalGroup, initialCall?: boolean) => {
+    previousActiveGroup.value = initialCall ? group : activeGroup.value;
     activeGroup.value = group;
   };
 
@@ -117,6 +161,7 @@ const useGroupsStore = defineStore("groups", (): State => {
 
   return {
     activeGroup,
+    previousActiveGroup,
     groupModalData,
     groupList,
     general,
@@ -124,6 +169,7 @@ const useGroupsStore = defineStore("groups", (): State => {
     getActiveGroupID,
     getGroupModalGroupID,
     getGroupListIndex,
+    getMembersUserIDs,
     getGroupByID,
     setActiveGroup,
     setGroupModalData,
