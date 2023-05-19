@@ -125,6 +125,7 @@ const useGroupsStore = defineStore("groups", (): State => {
   const setActiveGroup = (group: LocalGroup, initialCall?: boolean) => {
     previousActiveGroup.value = initialCall ? group : activeGroup.value;
     activeGroup.value = group;
+    localStorage.setItem("activeGroup", JSON.stringify(activeGroup.value));
   };
 
   const setGroupModalData = (data: GroupModal) => {

@@ -35,7 +35,7 @@
       <message
         v-for="(msg, index) in messageList"
         :message="msg"
-        :key="msg.channelID"
+        :key="msg.id"
         :id="msg.channelID"
         :body="msg.body"
         :creator="msg.creator"
@@ -135,6 +135,7 @@ if (activeGroup.value.name == "General") {
   const dateString = FormatDate(now);
 
   let welcomeMessage: LocalMessage = {
+    id: "",
     channelID: "-1",
     body: "Welcome to the " + activeGroup.value.name + " group",
     creator: {

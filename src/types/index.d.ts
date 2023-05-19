@@ -40,6 +40,7 @@ export interface GroupModal {
 }
 
 export interface LocalMessage {
+  id?: string;
   channelID: string;
   body: string;
   createdAt: Date;

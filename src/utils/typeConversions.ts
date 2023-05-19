@@ -26,9 +26,10 @@ export const serverToClientGroup = (
 
 export const serverToClientMessage = (message: ServerMessage): LocalMessage => {
   return {
+    id: message.id,
     channelID: message.channelID,
-    body: message.body,
-    createdAt: message.createdAt,
+    body: message.body || "",
+    createdAt: new Date(message.createdAt),
     createdAtTime: FormatDate(message.createdAt),
     creator: {
       id: message.creator.ID,
