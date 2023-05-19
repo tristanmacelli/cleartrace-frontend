@@ -86,8 +86,13 @@ export const Messages = () => {
 export const Groups = () => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
-  const { groupModalData, getGroupModalGroupID, getGroupListIndex, groupList } =
-    storeToRefs(groupsStore);
+  const {
+    groupModalData,
+    getGroupModalGroupID,
+    getGroupListIndex,
+    groupList,
+    previousActiveGroup,
+  } = storeToRefs(groupsStore);
   const awaitingGroupDetails = ref(false);
   const descriptionInput = ref("");
   const isModalTypeUpdate = groupModalData.value.type === "update";
@@ -270,7 +275,7 @@ export const Groups = () => {
     if (!confirm("Are you sure you want to leave this group?")) {
       return;
     }
-    const currentUserId = pinia.user?.id;
+    const currentUserId = pinia.getUserID;
     const url =
       api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
     const sessionToken = localStorage.getItem("auth");
@@ -288,6 +293,13 @@ export const Groups = () => {
       .then(() => {
         if (!groupModalData.value.group) return;
 
+        // Go back to the general group when deleting the channel
+        // const general = store.getters.getGroupByID(store.state.general.id);
+        const previousGroup = groupsStore.getGroupByID(
+          previousActiveGroup.value.id
+        );
+
+        groupsStore.setActiveGroup(previousGroup!);
         groupsStore.removeFromGroupList(getGroupListIndex.value!);
       })
       .catch((error) => {
@@ -310,9 +322,11 @@ export const Groups = () => {
       .then(() => {
         // Go back to the general group when deleting the channel
         // const general = store.getters.getGroupByID(store.state.general.id);
-        const general = groupsStore.getGroupByID(groupsStore.general.id);
+        const previousGroup = groupsStore.getGroupByID(
+          previousActiveGroup.value.id
+        );
 
-        groupsStore.setActiveGroup(general!);
+        groupsStore.setActiveGroup(previousGroup!);
         groupsStore.removeFromGroupList(getGroupListIndex.value!);
       })
       .catch((error) => {
