@@ -1,6 +1,6 @@
 import usePiniaStore from "@/store/pinia";
 
-const ws_url = process.env.VUE_APP_CLEARTRACE_WSS;
+const ws_url = import.meta.env.VITE_CLEARTRACE_WSS;
 
 export const WebSocketService = () => {
   const pinia = usePiniaStore();

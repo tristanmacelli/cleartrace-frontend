@@ -7,7 +7,7 @@ import { Member, ServerUser, UserSearchResult } from "../types";
 import { serverUserToMember, serverUserToUserSearchResult } from "@/utils";
 import { storeToRefs } from "pinia";
 
-const api_url = process.env.VUE_APP_CLEARTRACE_API;
+const api_url = import.meta.env.VITE_CLEARTRACE_API;
 
 export const Users = () => {
   const pinia = usePiniaStore();

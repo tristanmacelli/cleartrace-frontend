@@ -1,21 +1,18 @@
 module.exports = {
   root: true,
 
-  env: {
-    node: true,
-  },
-
   parser: "vue-eslint-parser",
 
   parserOptions: {
+    ecmaVersion: "latest",
     parser: "@typescript-eslint/parser",
     exclude: ["node_modules"],
   },
 
-  rules: {
-    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
-    "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
-  },
+  // rules: {
+  //   "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
+  //   "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
+  // },
 
   plugins: ["prettier", "@typescript-eslint"],
 

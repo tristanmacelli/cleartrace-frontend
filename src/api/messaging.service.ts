@@ -7,7 +7,7 @@ import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
 import { storeToRefs } from "pinia";
 
-const api_url = process.env.VUE_APP_CLEARTRACE_API;
+const api_url = import.meta.env.VITE_CLEARTRACE_API;
 
 export const Messages = () => {
   const pinia = usePiniaStore();
@@ -228,6 +228,7 @@ export const Groups = () => {
           // Query full users present new groups that are not in userData: user[]
           const localGroup: LocalGroup = {
             ...group,
+            createdAt: new Date(group.createdAt),
             index: i,
             messageList: retrieveAndStoreMessageList ? messageList.value : [],
             creator: serverToClientUser(group.creator),
