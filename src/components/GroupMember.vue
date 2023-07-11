@@ -6,8 +6,9 @@
       {{ name }}
     </p>
     <div>
+      <!-- Member removal is disabled when the current user is not the creator of the group -->
       <p
-        @click="$emit('remove', index)"
+        @click="disabled ? null : $emit('remove', index)"
         class="cursor-pointer text-sm ml-1 px-1.5 pt-0.5 hover:bg-gray-200 rounded-3xl"
       >
         X
@@ -28,5 +29,6 @@ export default defineComponent({
 defineProps<{
   name: string;
   index: number;
+  disabled: boolean;
 }>();
 </script>

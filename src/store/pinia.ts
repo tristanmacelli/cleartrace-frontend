@@ -21,6 +21,7 @@ export interface State {
   }>;
   userInitials: ComputedRef<string>;
   getUserID: ComputedRef<number | undefined>;
+  getUserFullName: ComputedRef<string | undefined>;
   setAuthenticated: (value: boolean) => void;
   setIsGroupListOpen: (value: boolean) => void;
   setIsMobile: (value: boolean) => void;
@@ -59,6 +60,10 @@ const usePiniaStore = defineStore("pinia", (): State => {
   );
 
   const getUserID = computed<number | undefined>(() => user.value?.id);
+
+  const getUserFullName = computed<string | undefined>(
+    () => `${user.value?.firstName} ${user.value?.lastName}`
+  );
 
   // Mutations
   const setAuthenticated = (newValue: boolean) => {
@@ -158,6 +163,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     screen,
     userInitials,
     getUserID,
+    getUserFullName,
     setAuthenticated,
     setIsGroupListOpen,
     setIsMobile,

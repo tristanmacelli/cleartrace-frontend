@@ -1,3 +1,5 @@
+import { LocalMessage } from "@/types";
+
 const DAYS_OF_THE_WEEK: string[] = [
   "Sunday",
   "Monday",
@@ -118,4 +120,23 @@ export const latestMessageIndicator = (date: Date): string => {
   }
 
   return mmDDYYYY(date);
+};
+
+// Sorts objects by date field, ordering the object with the most recent date first
+const sortByDate = <T extends Record<K, Date>, K extends keyof T>(
+  a: T,
+  b: T,
+  dateField: K
+) => {
+  // .getTime() will return a greater number for a later date.
+  return new Date(b[dateField]).getTime() - new Date(a[dateField]).getTime();
+};
+
+const sortLocalMessagesByDate = (a: LocalMessage, b: LocalMessage) =>
+  sortByDate<LocalMessage, "createdAt">(a, b, "createdAt");
+
+export const sortMessageListByDate = (messageList: LocalMessage[]) => {
+  const listCopy = messageList.slice();
+  listCopy.sort((a, b) => sortLocalMessagesByDate(a, b));
+  return listCopy;
 };

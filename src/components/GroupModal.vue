@@ -1,5 +1,11 @@
 <template>
-  <Modal :Title="title" Description=" " @hide-modal="HideModal">
+  <Modal
+    :Title="title"
+    :Description="
+      !isGroupCreator ? 'Heads Up: Only group creators can make updates' : ''
+    "
+    @hide-modal="HideModal"
+  >
     <form accept-charset="UTF-8" class="grid gap-y-2 w-full">
       <!-- This slot allows for a Update Group modal -->
       <input
@@ -7,19 +13,30 @@
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="nameInput"
         type="text"
+        :disabled="!isGroupCreator"
       />
       <input
         v-if="isModalTypeUpdate"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="descriptionInput"
         type="text"
+        :disabled="!isGroupCreator"
       />
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="query"
         type="text"
-        placeholder="Search for a Friend!"
+        placeholder="Search for a Friend to add!"
+        :disabled="!isGroupCreator"
       />
+      <div class="grid w-12 h-12 justify-self-center">
+        <img
+          v-if="pending"
+          src="../assets/loading-spinner.svg"
+          width="48"
+          height="48"
+        />
+      </div>
       <h4 class="font-bold h-8 text-center">Members:</h4>
       <div class="flex flex-wrap gap-y-1 max-h-32 overflow-y-auto">
         <group-member
@@ -27,6 +44,7 @@
           :key="index"
           :index="index"
           :name="name"
+          :disabled="!isGroupCreator"
           @remove="RemoveGroupMember"
         >
         </group-member>
@@ -49,9 +67,11 @@
       <input
         @click="SubmitForm('delete')"
         v-if="isModalTypeUpdate"
-        class="w-full px-16 py-2 bg-red-500 font-bold text-white cursor-pointer rounded-md"
+        class="w-full px-16 py-2 font-bold text-white cursor-pointer rounded-md"
+        :class="isGroupCreator ? 'bg-red-500' : 'bg-gray-300'"
         type="submit"
         value="Delete Group"
+        :disabled="!isGroupCreator"
       />
     </form>
     <list
@@ -107,6 +127,13 @@ const emit = defineEmits(["hideModal"]);
 
 const showResults = ref(false);
 let title = "New Group";
+const isGroupCreator = computed(
+  () => groupModalData.value.group?.creator.id === getUserID.value
+);
+
+const pending = computed(
+  () => query.value.length > 0 && searchResults.value.length === 0
+);
 
 if (isModalTypeUpdate && groupModalData.value.group) {
   let group = groupModalData.value.group;

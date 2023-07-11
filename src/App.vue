@@ -32,7 +32,8 @@ onErrorCaptured((caughtError) => {
 
 let sessionToken = localStorage.getItem("auth");
 let isActiveSession = sessionToken && !pinia.authenticated;
-if (isActiveSession) {
+
+if (isActiveSession && router.currentRoute.value.path === "/") {
   // eslint-disable-next-line
   if (debug) console.log("Returning to an active session");
   pinia.setAuthenticated(true);

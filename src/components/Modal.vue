@@ -1,5 +1,8 @@
 <!-- https://vuejs.org/guide/built-ins/teleport.html#basic-usage -->
 
+<!-- New html dialog tag natively supports modal functionality -->
+<!-- https://www.youtube.com/watch?v=ywtkJkxJsdg -->
+
 <template>
   <div
     class="absolute z-50 sm:block w-80 sm:w-max h-88 rounded-md shadow-xl bg-white"
@@ -16,7 +19,7 @@
         <img src="../assets/black-x.svg" width="16" alt="a black x icon" />
       </button>
     </div>
-    <div class="sm:w-80 p-5">
+    <div class="p-5 grid justify-center">
       <slot></slot>
     </div>
   </div>

@@ -35,7 +35,7 @@
         <group
           @click="CloseGroupList"
           @display-modal="DisplayModal"
-          v-for="group in groupList"
+          v-for="group in sortedGroupList"
           :key="group.index"
           :id="group.id"
           :name="group.name"
@@ -44,8 +44,6 @@
           :members="group.members"
           :creator="group.creator"
           :index="group.index"
-          :messageList="group.messageList"
-          :unreadMessages="group.unreadMessages"
           :createdAt="group.createdAt"
         ></group>
       </div>
@@ -55,7 +53,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { PlaySound } from "@/utils";
 
 export default defineComponent({
   name: "groupList",
@@ -77,20 +74,18 @@ const emit = defineEmits(["displayModal"]);
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
-const { groupList, getActiveGroupID } = storeToRefs(groupsStore);
-const { isGroupListOpen, isMobile, socket } = storeToRefs(pinia);
+const { sortedGroupList } = storeToRefs(groupsStore);
+const { isGroupListOpen, isMobile } = storeToRefs(pinia);
 
 const { SignOut } = Users();
 
 const listItems = ref<ListItem[]>([]);
 
 let items = ["Profile", "Settings", "Sign Out"];
-items.forEach((item, index) =>
-  listItems.value.push({
-    id: index,
-    text: item,
-  })
-);
+listItems.value = items.map((item, index) => ({
+  id: index,
+  text: item,
+}));
 
 const AlertUnregistered = () => {
   confirm("We're sorry but this feature is still under development :/");
@@ -123,19 +118,6 @@ const HandleListItem = async (item: ListItem) => {
     AlertUnregistered();
   }
 };
-
-socket.value!.onmessage = (event) => {
-  // The data we created is in the event.data field
-  // The current datatype of event is message
-  let { message, type } = JSON.parse(event.data);
-  if (type == "message-new" && message.groupID != getActiveGroupID.value) {
-    // Send a notification (noise, highlight group with message, update group w/ number
-    // indicating the # of unread messages)
-    PlaySound();
-    // const unreadMessages = GetGroupUnreadMessages(GroupID);
-    // store.dispatch('SetGroupUnreadMessages', [message, ...unreadMessages]);
-  }
-};
 </script>
 
 <style>
@@ -150,16 +132,5 @@ socket.value!.onmessage = (event) => {
 
 .hide-groups-list {
   position: static;
-}
-
-/* we will explain what these classes do next! */
-.v-enter-active,
-.v-leave-active {
-  transform: translateX(0px);
-}
-
-.v-enter-from,
-.v-leave-to {
-  transform: translateX(100%);
 }
 </style>

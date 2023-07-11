@@ -1,8 +1,10 @@
 import { defineStore } from "pinia";
 // import { defineStore, storeToRefs } from "pinia";
-import { GroupModal, LocalGroup, LocalUser } from "../types";
+import { GroupModal, LocalGroup, LocalMessage } from "../types";
 import { ComputedRef, Ref, computed, ref } from "vue";
 // import usePiniaStore from "./pinia";
+import useMessageStore from "./messages";
+import { sortMessageListByDate } from "@/utils";
 // import { Users } from "@/api/users";
 
 const generalGroup: LocalGroup = {
@@ -18,7 +20,6 @@ const generalGroup: LocalGroup = {
   },
   members: [],
   private: false,
-  messageList: [],
   createdAt: new Date(),
   editedAt: new Date(),
   index: 0,
@@ -34,19 +35,19 @@ export interface State {
     type: string;
   }>;
   groupList: Ref<LocalGroup[]>;
+  sortedGroupList: Ref<LocalGroup[]>;
   // A fallback in case backend request fails on its initial attempt
   general: Ref<LocalGroup>; // TODO: Add to AppStore
-  membersUserData: Ref<LocalUser[]>;
   getActiveGroupID: ComputedRef<string>;
   getGroupModalGroupID: ComputedRef<string | undefined>;
   getGroupListIndex: ComputedRef<number | undefined>;
-  getMembersUserIDs: ComputedRef<number[]>;
   getGroupByID: (id: string) => LocalGroup | undefined;
   setActiveGroup: (group: LocalGroup, initialCall?: boolean) => void;
   setGroupModalData: (data: GroupModal) => void;
   clearGroupModalData: () => void;
   setGroupList: (list: LocalGroup[]) => void;
   clearGroupList: () => void;
+  setSortedGroupList: () => void;
   addToGroupList: (group: LocalGroup) => void;
   removeFromGroupList: (index: number) => void;
   updateGroupInGroupList: (index: number, group: LocalGroup) => void;
@@ -60,9 +61,11 @@ const useGroupsStore = defineStore("groups", (): State => {
     type: "",
   });
   const groupList = ref<LocalGroup[]>([]);
+  const sortedGroupList = ref<LocalGroup[]>([]);
   const general = ref<LocalGroup>(generalGroup);
-  const membersUserData = ref<LocalUser[]>([]);
+
   // const pinia = usePiniaStore();
+  const messageStore = useMessageStore();
   // const { user } = storeToRefs(pinia);
   // const { GetUserById } = Users();
 
@@ -77,9 +80,16 @@ const useGroupsStore = defineStore("groups", (): State => {
     () => groupModalData.value.group?.index
   );
 
-  const getMembersUserIDs = computed<number[]>(() =>
-    membersUserData.value.map((m) => m.id)
-  );
+  const getAllLatestMessages = () => {
+    return groupList.value.reduce((acc: LocalMessage[], group: LocalGroup) => {
+      const latestMessage = messageStore.getLatestMessage(group.id);
+      if (latestMessage) {
+        return [...acc, latestMessage];
+      } else {
+        return acc;
+      }
+    }, []);
+  };
 
   const getGroupByID = (id: string): LocalGroup | undefined => {
     const index = groupList.value.findIndex((group) => group.id === id);
@@ -147,6 +157,23 @@ const useGroupsStore = defineStore("groups", (): State => {
     groupList.value = [];
   };
 
+  const setSortedGroupList = () => {
+    const allLatestMessages = getAllLatestMessages();
+    const sortedMessages = sortMessageListByDate(allLatestMessages);
+    const sortedGroups = sortedMessages.reduce(
+      (acc: LocalGroup[], message: LocalMessage) => {
+        const group = getGroupByID(message.channelID);
+        if (group) {
+          return [...acc, group];
+        } else {
+          return acc;
+        }
+      },
+      []
+    );
+    sortedGroupList.value = sortedGroups;
+  };
+
   const addToGroupList = (group: LocalGroup) => {
     groupList.value.push(group);
   };
@@ -165,18 +192,18 @@ const useGroupsStore = defineStore("groups", (): State => {
     previousActiveGroup,
     groupModalData,
     groupList,
+    sortedGroupList,
     general,
-    membersUserData,
     getActiveGroupID,
     getGroupModalGroupID,
     getGroupListIndex,
-    getMembersUserIDs,
     getGroupByID,
     setActiveGroup,
     setGroupModalData,
     clearGroupModalData,
     setGroupList,
     clearGroupList,
+    setSortedGroupList,
     addToGroupList,
     removeFromGroupList,
     updateGroupInGroupList,

@@ -32,16 +32,17 @@
       id="view-messages"
       class="grid grid-flow-row auto-rows-max flex-grow pt-4 px-2 sm:px-4 pb-0 bg-white overflow-y-auto"
     >
+      <!-- TODO: Determine why createdAt property is not being propagated as Date type -->
       <message
-        v-for="(msg, index) in messageList"
+        v-for="(msg, index) in activeMessageList?.messages"
         :message="msg"
         :key="msg.id"
         :id="msg.channelID"
         :body="msg.body"
         :creator="msg.creator"
-        :createdAt="msg.createdAt"
+        :createdAt="new Date(msg.createdAt)"
         :createdAtTime="msg.createdAtTime"
-        @remove="messageList.splice(index, 1)"
+        @remove="activeMessageList?.messages.splice(index, 1)"
       ></message>
       <div id="anchor"></div>
     </div>
@@ -71,7 +72,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { onMounted } from "vue";
 
 export default defineComponent({
   name: "messageList",
@@ -79,42 +79,37 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, onBeforeMount, watch } from "vue";
+import { computed, watch, onMounted, onUpdated } from "vue";
 import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
+import useMessagesStore from "@/store/messages";
 import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
 import { LocalMessage, ServerMessage } from "../types";
 import { FormatDate, PlaySound, serverToClientMessage } from "@/utils";
 import { storeToRefs } from "pinia";
 
-const { bodyInput, messageList, GetMessages, SendMessage } = Messages();
+const { bodyInput, GetMessages, SendMessage } = Messages();
 
 const emit = defineEmits(["displayModal"]);
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
+const messageStore = useMessagesStore();
 const { socket } = storeToRefs(pinia);
 const { activeGroup, getActiveGroupID } = storeToRefs(groupsStore);
+const { activeMessageList } = storeToRefs(messageStore);
 const disableSendMessage = computed(() => bodyInput.value.length === 0);
 const isGeneral = computed(
   () => activeGroup.value.id === "5fec04e96d55740010123439"
 );
 
 // Clears the current messages & updates
-// Make sure this still works with the composition API/our API extracted
 watch(activeGroup, async () => {
-  if (activeGroup.value.messageList.length === 0) {
+  if (activeMessageList.value?.messages.length === 0) {
     if (pinia.debug) console.log("Getting Messages");
     await GetMessages();
-    if (pinia.debug) console.log(JSON.stringify(messageList.value));
-  } else {
-    messageList.value = activeGroup.value.messageList;
   }
-});
-
-watch(messageList, () => {
-  updateScroll();
 });
 
 const OpenGroupList = () => {
@@ -124,8 +119,9 @@ const OpenGroupList = () => {
   }
 };
 
-const updateScroll = () => {
-  const element = document.getElementById("view-messages");
+// Scrolls to the bottom of an html tag (the tag must have an id).
+const updateScroll = (htmlElementId: string) => {
+  const element = document.getElementById(htmlElementId);
   if (element) element.scrollTop = element.scrollHeight;
 };
 
@@ -149,16 +145,16 @@ if (activeGroup.value.name == "General") {
     createdAtTime: dateString,
   };
 
-  messageList.value.push(welcomeMessage);
+  messageStore.addToActiveMessageList(welcomeMessage);
+  // messageList.value.push(welcomeMessage);
 }
 
 // This hook triggers on page refresh, piping in the current active groups messages.
-onBeforeMount(async () => {
-  messageList.value = activeGroup.value.messageList;
-});
+// onBeforeMount(async () => {
+//   messageList.value = activeGroup.value.messageList;
+// });
 
 socket.value!.onmessage = (event: MessageEvent<any>) => {
-  // eslint-disable-next-line
   if (pinia.debug) console.log("Message Received!");
   // The current datatype of event is message
   const receivedData = JSON.parse(event.data);
@@ -166,12 +162,14 @@ socket.value!.onmessage = (event: MessageEvent<any>) => {
 
   if (receivedData.type == "message-new") {
     // This is "default behavior", when messages are received on the active group
-    if (serverMessage.channelID == getActiveGroupID.value) {
-      const localMessage = serverToClientMessage(serverMessage);
+    const localMessage = serverToClientMessage(serverMessage);
 
-      messageList.value.push(localMessage);
-      PlaySound();
+    if (serverMessage.channelID == getActiveGroupID.value) {
+      messageStore.addToActiveMessageList(localMessage);
+    } else {
+      messageStore.addUnreadMessage(localMessage);
     }
+    PlaySound();
   }
 };
 
@@ -190,7 +188,11 @@ const DisplayModal = () => {
 };
 
 onMounted(() => {
-  updateScroll();
+  updateScroll("view-messages");
+});
+
+onUpdated(() => {
+  updateScroll("view-messages");
 });
 </script>
 

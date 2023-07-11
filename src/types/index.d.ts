@@ -10,8 +10,6 @@ export interface LocalGroup {
   private: boolean;
   members: number[];
   creator: LocalUser;
-  messageList: LocalMessage[];
-  unreadMessages?: LocalMessage[];
   createdAt: Date;
   editedAt?: Date;
   index: number;
@@ -46,6 +44,12 @@ export interface LocalMessage {
   createdAt: Date;
   createdAtTime: string;
   creator: LocalUser;
+}
+
+export interface MessageList {
+  channelID: string;
+  messages: LocalMessage[];
+  unreadMessages?: LocalMessage[];
 }
 
 export interface ServerMessage {

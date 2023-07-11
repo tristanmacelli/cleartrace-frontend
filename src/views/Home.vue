@@ -44,10 +44,12 @@ import { useRouter } from "vue-router";
 import { defineAsyncComponent, onErrorCaptured, ref } from "vue";
 import { storeToRefs } from "pinia";
 import FullScreenLoading from "@/components/FullScreenLoading.vue";
-import { Groups } from "@/api/messaging.service";
+import { Groups, Messages } from "@/api/messaging.service";
 import { Users } from "@/api/users";
 import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
+import useMessagesStore from "@/store/messages";
+// import useUserStore from "@/store/users";
 
 const GroupList = defineAsyncComponent(
   () => import("../components/GroupList.vue")
@@ -59,9 +61,13 @@ const MessageList = defineAsyncComponent(
   () => import("../components/MessageList.vue")
 );
 
+const { GetAllMessages } = Messages();
+
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
-const { general } = storeToRefs(groupsStore);
+const messageStore = useMessagesStore();
+// const userStore = useUserStore();
+const { general, activeGroup } = storeToRefs(groupsStore);
 const router = useRouter();
 const { GetGroups } = Groups();
 const { SignOut } = Users();
@@ -88,6 +94,11 @@ const setSocket = pinia.setSocket();
 const setUser = pinia.setUser();
 await Promise.all([setSocket, setUser, getGroups]);
 
+const getMessages = GetAllMessages(); // This populates the messageList for all groups
+// const uniqueUsers = userStore.getUniqueUsers(); // This populates uniqueUsers
+await Promise.all([getMessages]);
+// await Promise.all([getMessages, uniqueUsers]);
+
 // This is intended to populate the active group's messageList.
 // In order for this to work GetGroups (with messages) must be called.
 const lastActiveGroup = localStorage.getItem("activeGroup");
@@ -97,6 +108,10 @@ if (lastActiveGroup) {
   const generalWithMessages = groupsStore.getGroupByID(general.value.id);
   groupsStore.setActiveGroup(generalWithMessages!, true);
 }
+
+const messageList = messageStore.getMessageList(activeGroup.value.id);
+messageStore.setActiveMessageList(messageList!);
+groupsStore.setSortedGroupList();
 
 const DisplayModal = () => {
   displayModal.value = true;

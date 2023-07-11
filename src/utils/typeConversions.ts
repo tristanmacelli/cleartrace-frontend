@@ -20,7 +20,6 @@ export const serverToClientGroup = (
     ...group,
     index: groupListLength,
     createdAt: new Date(group.createdAt),
-    messageList: [],
     creator: serverToClientUser(group.creator),
   };
 };

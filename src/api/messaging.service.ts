@@ -1,51 +1,87 @@
 import axios from "axios";
 
 import { ref, watch } from "vue";
-import { LocalGroup, LocalMessage, Member, ServerMessage } from "../types";
-import { FormatDate, serverToClientMessage, serverToClientUser } from "@/utils";
+import {
+  LocalGroup,
+  LocalMessage,
+  Member,
+  MessageList,
+  ServerGroup,
+  ServerMessage,
+} from "@/types";
+import {
+  FormatDate,
+  getRequest,
+  postRequest,
+  serverToClientMessage,
+  serverToClientUser,
+} from "@/utils";
 import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
+import useMessagesStore from "@/store/messages";
 import { storeToRefs } from "pinia";
+import { createLocalGroupName, createServerGroupName } from "@/utils/groups";
 
 const api_url = import.meta.env.VITE_CLEARTRACE_API;
 
 export const Messages = () => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
-  const { getActiveGroupID } = storeToRefs(groupsStore);
+  const messageStore = useMessagesStore();
+  const { getActiveGroupID, groupList } = storeToRefs(groupsStore);
   const { user } = storeToRefs(pinia);
   const bodyInput = ref("");
-  const messageList = ref<LocalMessage[]>([]);
 
   const GetMessages = async (id: string = getActiveGroupID.value) => {
     const url = api_url + "v1/channels/" + id;
     const sessionToken = localStorage.getItem("auth");
 
-    await axios
-      .get(url, {
-        headers: {
-          Authorization: sessionToken,
-        },
-      })
-      .then((response) => {
-        const messages = response.data;
-        if (!messages) {
-          return;
-        }
-        messageList.value = [];
-        messages
-          .slice()
-          .reverse()
-          .forEach((message: ServerMessage) => {
-            messageList.value.push(serverToClientMessage(message));
-          });
-      })
-      .catch((error) => {
-        alert(error);
+    const { data, error } = await getRequest<ServerMessage[]>(url, {
+      headers: { Authorization: sessionToken },
+    });
+
+    if (error) {
+      alert(error);
+    }
+    if (!data) return;
+    // .toReverse() leaves the original array intact and returns a new array in reverse order
+    // For more info see: https://www.youtube.com/watch?v=3CBD5JZJJKw
+    // messages.toReverse();
+
+    const receivedMessages: LocalMessage[] = data
+      .slice()
+      .reverse()
+      .map((message: ServerMessage) => {
+        return serverToClientMessage(message);
       });
+
+    const messageList: MessageList = {
+      channelID: receivedMessages[0].channelID,
+      messages: receivedMessages,
+      unreadMessages: [],
+    };
+    messageStore.addToMessageLists(messageList);
+  };
+
+  const GetAllMessages = async () => {
+    messageStore.clearMessageLists();
+    const promises: Promise<void>[] = [];
+
+    groupList.value.forEach((group) => {
+      promises.push(GetMessages(group.id));
+    });
+    await Promise.all(promises);
   };
 
   const SendMessage = async () => {
+    if (bodyInput.value.length === 0) return;
+    if (!user.value) {
+      alert(
+        "An unexpected error occurred.\nThe page will reload upon closing this message."
+      );
+      location.reload();
+      return;
+    }
     const url = api_url + "v1/channels/" + getActiveGroupID.value;
     const sessionToken = localStorage.getItem("auth");
     const date = new Date();
@@ -56,10 +92,10 @@ export const Messages = () => {
       body: bodyInput.value,
       createdAt: date,
       createdAtTime: formattedDate,
-      creator: user.value!,
+      creator: user.value,
     };
     // Setting the msg id locally to -1 (will self-correct on page refresh)
-    messageList.value.push(localMessage);
+    messageStore.addToActiveMessageList(localMessage);
 
     axios
       .post(url, localMessage, {
@@ -77,8 +113,8 @@ export const Messages = () => {
 
   return {
     bodyInput,
-    messageList,
     GetMessages,
+    GetAllMessages,
     SendMessage,
   };
 };
@@ -86,6 +122,7 @@ export const Messages = () => {
 export const Groups = () => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
+  const messageStore = useMessagesStore();
   const {
     groupModalData,
     getGroupModalGroupID,
@@ -93,6 +130,7 @@ export const Groups = () => {
     groupList,
     previousActiveGroup,
   } = storeToRefs(groupsStore);
+  const { getUserFullName } = storeToRefs(pinia);
   const awaitingGroupDetails = ref(false);
   const descriptionInput = ref("");
   const isModalTypeUpdate = groupModalData.value.type === "update";
@@ -102,9 +140,7 @@ export const Groups = () => {
   const nameInput = ref("");
 
   const getMemberIDs = () => {
-    const ids: number[] = [];
-    members.value.forEach((member) => ids.push(member.id));
-    return ids;
+    return members.value.map((member) => member.id);
   };
 
   const updateDetailsWatchHandler = (oldValue: any) => {
@@ -133,8 +169,8 @@ export const Groups = () => {
     () => {
       memberIDs.value = [];
       memberNames.value = [];
-      members.value.forEach((member) => memberIDs.value.push(member.id));
-      members.value.forEach((member) => memberNames.value.push(member.name));
+      memberIDs.value = members.value.map((member) => member.id);
+      memberNames.value = members.value.map((member) => member.name);
     },
     {
       deep: true,
@@ -145,19 +181,13 @@ export const Groups = () => {
     const url = api_url + "v1/channels?startsWith=" + groupName;
     const sessionToken = localStorage.getItem("auth");
 
-    const groups = await axios
-      .get(url, {
-        headers: {
-          Authorization: sessionToken,
-        },
-      })
-      .then((response) => {
-        return response.data;
-      })
-      .catch((error) => {
-        if (pinia.debug) alert(`Error getting specific group: ${error}`);
-      });
-    return groups;
+    const { data, error } = await getRequest<ServerGroup[]>(url, {
+      headers: { Authorization: sessionToken },
+    });
+    if (error) {
+      alert(`Error getting specific group: ${error}`);
+    }
+    return data;
   };
 
   const CreateGroup = async () => {
@@ -168,80 +198,71 @@ export const Groups = () => {
     const url = api_url + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
 
-    const names = memberNames.value.toString();
-    const ids = memberIDs.value;
+    const groupName = createServerGroupName(
+      memberNames.value,
+      getUserFullName.value!
+    );
     const date = new Date();
+
     const groupObject = {
-      name: names,
+      name: groupName,
       description: "*Enter a description*",
       private: true,
-      members: ids,
+      members: memberIDs.value,
       createdAt: date,
       editedAt: undefined,
     };
-    const headers = { Authorization: sessionToken };
-    const requestConfig = {
-      method: "post",
-      url: url,
-      headers: headers,
-      data: groupObject,
+
+    const { data, error } = await postRequest<typeof groupObject, ServerGroup>(
+      url,
+      groupObject,
+      {
+        headers: { Authorization: sessionToken },
+      }
+    );
+
+    if (error) {
+      alert(error);
+    }
+    if (!data) return;
+
+    const newGroup: LocalGroup = {
+      ...data,
+      index: groupList.value.length,
+      creator: serverToClientUser(data.creator),
     };
-    await axios(requestConfig)
-      .then((response) => {
-        const newGroup: LocalGroup = {
-          index: groupList.value.length,
-          ...response.data,
-        };
-        groupsStore.addToGroupList(newGroup);
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    groupsStore.addToGroupList(newGroup);
   };
 
   const GetGroups = async () => {
-    const { messageList, GetMessages } = Messages();
     const url = api_url + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
 
-    await axios
-      .get(url, {
-        headers: {
-          Authorization: sessionToken,
-        },
-      })
-      .then(async (response) => {
-        if (response == null) {
-          return;
-        }
-        groupsStore.clearGroupList();
-        const receivedGroups: LocalGroup[] = [];
-        const rawGroupData = response.data.slice().reverse();
+    const { data, error } = await getRequest<ServerGroup[]>(url, {
+      headers: { Authorization: sessionToken },
+    });
 
-        let i = 0;
-        for (const group of rawGroupData) {
-          const retrieveAndStoreMessageList = i < pinia.groupMessageListLimit;
-          if (retrieveAndStoreMessageList) {
-            await GetMessages(group.id);
-          }
+    if (error) {
+      alert(error);
+    }
+    if (!data) return;
 
-          // Query full users present new groups that are not in userData: user[]
-          const localGroup: LocalGroup = {
-            ...group,
-            createdAt: new Date(group.createdAt),
-            index: i,
-            messageList: retrieveAndStoreMessageList ? messageList.value : [],
-            creator: serverToClientUser(group.creator),
-          };
-          receivedGroups.push(localGroup);
-          i++;
-        }
+    groupsStore.clearGroupList();
 
-        groupsStore.setGroupList(receivedGroups);
-      })
-      .catch((error) => {
-        if (pinia.debug) alert(error);
-      });
+    const receivedGroups: LocalGroup[] = data.map((group, i): LocalGroup => {
+      const name = createLocalGroupName(group.name, getUserFullName.value!);
+
+      // Query full users present new groups that are not in userData: user[]
+      return {
+        ...group,
+        name,
+        createdAt: new Date(group.createdAt),
+        index: i,
+        creator: serverToClientUser(group.creator),
+      };
+    });
+
+    groupsStore.setGroupList(receivedGroups);
   };
 
   const UpdateGroupDetails = async () => {
@@ -301,6 +322,8 @@ export const Groups = () => {
         );
 
         groupsStore.setActiveGroup(previousGroup!);
+        const messageList = messageStore.getMessageList(previousGroup?.id!);
+        messageStore.setActiveMessageList(messageList!);
         groupsStore.removeFromGroupList(getGroupListIndex.value!);
       })
       .catch((error) => {
@@ -328,6 +351,8 @@ export const Groups = () => {
         );
 
         groupsStore.setActiveGroup(previousGroup!);
+        const messageList = messageStore.getMessageList(previousGroup?.id!);
+        messageStore.setActiveMessageList(messageList!);
         groupsStore.removeFromGroupList(getGroupListIndex.value!);
       })
       .catch((error) => {

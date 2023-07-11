@@ -12,7 +12,9 @@
       <!-- https://css-tricks.com/flexbox-truncated-text/ -->
       <div class="grow min-w-0">
         <div class="flex flex-row">
-          <p class="font-bold grow truncate">{{ name }}</p>
+          <p class="font-bold grow truncate">
+            {{ name }}
+          </p>
           <p class="text-sm font-extralight">
             {{ latestMessageDateTime }}
           </p>
@@ -36,7 +38,8 @@ export default defineComponent({
 <script lang="ts" setup>
 import { computed } from "vue";
 import useGroupsStore from "@/store/groups";
-import { LocalGroup, LocalMessage, LocalUser } from "../types";
+import useMessagesStore from "@/store/messages";
+import { LocalGroup, LocalUser } from "../types";
 import { latestMessageIndicator } from "@/utils";
 import { storeToRefs } from "pinia";
 
@@ -47,24 +50,24 @@ const props = defineProps<{
   private: boolean;
   members: Array<number>;
   creator: LocalUser;
-  messageList: LocalMessage[];
-  unreadMessages?: LocalMessage[];
   index: number;
   createdAt: Date;
 }>();
 
 const groupsStore = useGroupsStore();
+const messageStore = useMessagesStore();
 const { getActiveGroupID } = storeToRefs(groupsStore);
 
 // If this is true we want to apply the same css rules as applied to the .group:hover class
 const isStoredGroup = computed(() => props.id == getActiveGroupID.value);
 // TODO: refactor?
-const latestMessage = computed(() =>
-  props.messageList.at(props.messageList.length - 1)
-);
+const latestMessage = computed(() => messageStore.getLatestMessage(props.id));
 const latestMessageDateTime = computed(() => {
   return latestMessageIndicator(new Date(latestMessage.value?.createdAt!));
 });
+const unreadMessages = computed(
+  () => messageStore.getMessageList(props.id)?.unreadMessages
+);
 
 const SetGroup = () => {
   if (!isStoredGroup.value) {
@@ -75,12 +78,19 @@ const SetGroup = () => {
       private: props.private,
       members: props.members,
       creator: props.creator,
-      messageList: props.messageList,
-      unreadMessages: [],
       createdAt: props.createdAt,
       index: props.index,
     };
+    const messageList = messageStore.getMessageList(thisGroup.id);
+    if (!messageList) {
+      alert(
+        "An unexpected error occurred.\nThe page will reload upon closing this message."
+      );
+      location.reload();
+      return;
+    }
     groupsStore.setActiveGroup(thisGroup);
+    messageStore.setActiveMessageList(messageList);
   }
 };
 </script>
