@@ -8,7 +8,7 @@ export const WebSocketService = () => {
   const setSocket = async () => {
     if (pinia.debug) {
       // eslint-disable-next-line
-          console.log("setSocket triggered");
+      console.log("setSocket triggered");
     }
     const sessionToken = localStorage.getItem("auth");
     pinia.socket = new WebSocket(`${ws_url}v1/ws?auth=${sessionToken}`);
@@ -16,21 +16,21 @@ export const WebSocketService = () => {
     pinia.socket.onopen = () => {
       if (pinia.debug) {
         // eslint-disable-next-line
-            console.log("Successfully connected to the echo WebSocket server!");
+        console.log("Successfully connected to the echo WebSocket server!");
       }
     };
     pinia.socket.onclose = (close) => {
       if (pinia.debug) {
         // eslint-disable-next-line
-            console.log("close: ", close);
+        console.log("close: ", close);
         if (close.wasClean) {
           // eslint-disable-next-line
-              console.log(
+          console.log(
             "Successfully disconnected to the echo WebSocket server!"
           );
         } else {
           // eslint-disable-next-line
-              console.log(
+          console.log(
             "Not able to cleanly disconnected from the WebSocket server."
           );
         }
@@ -39,9 +39,9 @@ export const WebSocketService = () => {
     pinia.socket.onerror = (error) => {
       if (pinia.debug) {
         // eslint-disable-next-line
-            console.log("error: ", error);
+        console.log("error: ", error);
         // eslint-disable-next-line
-            console.log("Error originating from the echo websocket server...");
+        console.log("Error originating from the echo websocket server...");
       }
     };
   };
@@ -49,7 +49,7 @@ export const WebSocketService = () => {
   const clearSocket = async () => {
     if (pinia.debug) {
       // eslint-disable-next-line
-          console.log("clearSocket triggered");
+      console.log("clearSocket triggered");
     }
     if (!pinia.socket) return;
     // pinia.socket is defined && pinia.socket.readyState === WebSocket.OPEN

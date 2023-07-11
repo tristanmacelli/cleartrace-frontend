@@ -19,6 +19,7 @@ export const serverToClientGroup = (
   return {
     ...group,
     index: groupListLength,
+    createdAt: new Date(group.createdAt),
     messageList: [],
     creator: serverToClientUser(group.creator),
   };

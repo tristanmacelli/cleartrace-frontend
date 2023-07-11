@@ -1,11 +1,11 @@
 import { nextTick } from "vue";
-import { createRouter, createWebHistory } from "vue-router";
+import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import Account from "../views/Account.vue";
 import Landing from "../views/Landing.vue";
 import Terms from "../views/Terms.vue";
 import NotFound from "../components/NotFound.vue";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "Landing",
@@ -21,8 +21,7 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/Home.vue"),
+    component: () => import("../views/Home.vue") /* About.1kljhwe8.ts */,
   },
   {
     path: "/account",
@@ -62,3 +61,4 @@ router.afterEach((to) => {
 });
 
 export default router;
+export { routes };
