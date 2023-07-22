@@ -16,6 +16,7 @@ import { storeToRefs } from "pinia";
 
 const api_url = import.meta.env.VITE_CLEARTRACE_API;
 
+// TODO: Refactor functions, removing side effects caused after requests return
 export const Users = () => {
   const pinia = usePiniaStore();
   // const userStore = useUserStore();
@@ -28,14 +29,15 @@ export const Users = () => {
   const password = ref<string>("");
 
   const HandleAuthenticationData = (sessionToken: string, user: LocalUser) => {
-    if (sessionToken) {
-      localStorage.setItem("auth", sessionToken);
-      localStorage.setItem("userID", `${user.id}`);
-      pinia.setAuthenticated(true);
-      pinia.setUser(user);
-      router.push({ path: "/home" });
-      // router.push({ name: 'Home', params: { groupID: groupID } });
+    if (!sessionToken) {
+      return;
     }
+    localStorage.setItem("auth", sessionToken);
+    localStorage.setItem("userID", `${user.id}`);
+    pinia.setAuthenticated(true);
+    pinia.setUser(user);
+    router.push({ path: "/home" });
+    // router.push({ name: 'Home', params: { groupID: groupID } });
   };
 
   const SignIn = async (): Promise<{
@@ -259,11 +261,13 @@ export const Search = () => {
       return;
     }
 
-    searchResults.value = data
+    const userSearchResults = data
       .filter((user: ServerUser) => user.ID != getUserID.value)
       .map((user: ServerUser) => {
         return serverUserToUserSearchResult(user);
       });
+    searchResults.value = userSearchResults;
+    return userSearchResults;
   };
 
   const GetUsersFromIDs = async () => {
@@ -287,9 +291,11 @@ export const Search = () => {
       return;
     }
 
-    members.value = data.map((user: ServerUser) => {
+    const userMembers = data.map((user: ServerUser) => {
       return serverUserToMember(user);
     });
+    members.value = userMembers;
+    return userMembers;
   };
 
   return {

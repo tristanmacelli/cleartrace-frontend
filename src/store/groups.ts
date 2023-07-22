@@ -183,8 +183,7 @@ const useGroupsStore = defineStore("groups", (): State => {
   };
 
   const updateGroupInGroupList = (index: number, group: LocalGroup) => {
-    groupList.value.splice(index, 1);
-    groupList.value.splice(index, 0, group);
+    groupList.value[index] = group;
   };
 
   return {

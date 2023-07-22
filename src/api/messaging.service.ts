@@ -25,13 +25,14 @@ import { createLocalGroupName, createServerGroupName } from "@/utils/groups";
 
 const api_url = import.meta.env.VITE_CLEARTRACE_API;
 
+// TODO: Refactor functions, removing side effects caused after requests return
 export const Messages = () => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
   const messageStore = useMessagesStore();
   const { getActiveGroupID, groupList } = storeToRefs(groupsStore);
   const { user } = storeToRefs(pinia);
-  const bodyInput = ref("");
+  const bodyInput = ref<string>("");
 
   const GetMessages = async (id: string = getActiveGroupID.value) => {
     const url = api_url + "v1/channels/" + id;
@@ -62,20 +63,18 @@ export const Messages = () => {
       unreadMessages: [],
     };
     messageStore.addToMessageLists(messageList);
+    return messageList;
   };
 
   const GetAllMessages = async () => {
     messageStore.clearMessageLists();
-    // preallocated memory is better than jit malloc at high quantities
-    // (source: https://egghead.io/blog/object-pool-design-pattern)
-    const promises: Promise<void>[] = new Array(groupList.value.length).fill(
-      undefined
-    );
+    const messageListPromises: Promise<MessageList | undefined>[] = [];
 
-    groupList.value.forEach((group, i) => {
-      promises[i] = GetMessages(group.id);
+    groupList.value.forEach((group) => {
+      messageListPromises.push(GetMessages(group.id));
     });
-    await Promise.all(promises);
+    const messageLists = await Promise.all(messageListPromises);
+    return messageLists;
   };
 
   const SendMessage = async () => {
@@ -101,11 +100,16 @@ export const Messages = () => {
     // Setting the msg id locally to -1 (will self-correct on page refresh)
     messageStore.addToActiveMessageList(localMessage);
 
-    const { error } = await postRequest(url, localMessage, {
-      headers: {
-        Authorization: sessionToken,
-      },
-    });
+    const { data, error } = await postRequest<LocalMessage, ServerMessage>(
+      url,
+      localMessage,
+      {
+        headers: {
+          Authorization: sessionToken,
+        },
+      }
+    );
+    bodyInput.value = "";
 
     if (error) {
       // (message not sent)
@@ -115,7 +119,8 @@ export const Messages = () => {
       alert(error);
       return;
     }
-    bodyInput.value = "";
+    if (!data) return;
+    return serverToClientMessage(data);
   };
 
   return {
@@ -138,17 +143,13 @@ export const Groups = () => {
     previousActiveGroup,
   } = storeToRefs(groupsStore);
   const { getUserFullName } = storeToRefs(pinia);
-  const awaitingGroupDetails = ref(false);
-  const descriptionInput = ref("");
+  const awaitingGroupDetails = ref<boolean>(false);
+  const descriptionInput = ref<string>("");
   const isModalTypeUpdate = groupModalData.value.type === "update";
   const members = ref<Member[]>([]);
   const memberIDs = ref<number[]>([]);
   const memberNames = ref<string[]>([]);
-  const nameInput = ref("");
-
-  // const getMemberIDs = () => {
-  //   return members.value.map((member) => member.id);
-  // };
+  const nameInput = ref<string>("");
 
   const updateDetailsWatchHandler = (oldValue: any) => {
     // Don't update when previous was empty
@@ -195,7 +196,12 @@ export const Groups = () => {
       alert(`Error getting specific group: ${error}`);
       return;
     }
-    return data;
+    if (!data) return;
+    const localGroups = data.map((group) => {
+      return serverToClientGroup(group, -1);
+    });
+    // Groups in this list have an invalid index that needs to be modified before adding the group to the groupList
+    return localGroups;
   };
 
   const CreateGroup = async () => {
@@ -236,6 +242,7 @@ export const Groups = () => {
 
     const newGroup = serverToClientGroup(data, groupList.value.length);
     groupsStore.addToGroupList(newGroup);
+    return newGroup;
   };
 
   const GetGroups = async () => {
@@ -268,6 +275,7 @@ export const Groups = () => {
     });
 
     groupsStore.setGroupList(receivedGroups);
+    return receivedGroups;
   };
 
   const UpdateGroupDetails = async () => {
@@ -295,8 +303,8 @@ export const Groups = () => {
     if (!data) return;
 
     const updatedGroup = serverToClientGroup(data, getGroupListIndex.value!);
-
     groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
+    return updatedGroup;
   };
 
   const LeaveGroup = async () => {
@@ -362,8 +370,11 @@ export const Groups = () => {
     groupsStore.removeFromGroupList(getGroupListIndex.value!);
   };
 
-  // TODO: return updated Group
   const AddGroupMember = async (newMember: Member) => {
+    // Disable duplicate members
+    if (members.value.findIndex((member) => member.id === newMember.id) > -1) {
+      return;
+    }
     if (groupModalData.value.type === "create") {
       members.value.push(newMember);
       return;
@@ -391,9 +402,9 @@ export const Groups = () => {
     };
 
     groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
+    return updatedGroup;
   };
 
-  // TODO: return updated Group
   const RemoveGroupMember = async (memberIndex: number) => {
     if (groupModalData.value.type === "create") {
       members.value.splice(memberIndex, 1);
@@ -423,6 +434,7 @@ export const Groups = () => {
     };
 
     groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
+    return updatedGroup;
   };
 
   return {

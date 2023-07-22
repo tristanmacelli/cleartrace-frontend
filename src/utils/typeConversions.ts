@@ -32,13 +32,7 @@ export const serverToClientMessage = (message: ServerMessage): LocalMessage => {
     editedAt: new Date(message.editedAt),
     createdAt: new Date(message.createdAt),
     createdAtTime: FormatDate(message.createdAt),
-    creator: {
-      id: message.creator.ID,
-      email: message.creator.Email,
-      firstName: message.creator.FirstName,
-      lastName: message.creator.LastName,
-      photoURL: message.creator.PhotoURL,
-    },
+    creator: serverToClientUser(message.creator),
   };
 };
 
