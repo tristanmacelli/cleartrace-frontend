@@ -1,6 +1,17 @@
 # slack-clone-client
 
-## Project setup
+
+## Local Development
+
+In order to connect from another device it must be on the same network. Once on the network run one of the following
+commands to acquire the IP of the device running the app. Then append :8080 to this IP in the address bar of a browser
+to connect from an external device.
+- ipconfig getifaddr en0 (MacOS)
+- ipconfig/all (Windows)
+
+## Useful commands
+
+### Project Setup
 ```
 npm install
 ```
