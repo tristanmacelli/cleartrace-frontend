@@ -13,12 +13,12 @@ import { FormatDate } from "./datetime";
 // LocalGroup members is a list of numbers that corresponds to ids of users. All of these users are present in a
 // list called memberUserData (LocalUser[]) when full user data is needed
 export const serverToClientGroup = (
-  groupListLength: number,
-  group: ServerGroup
+  group: ServerGroup,
+  index: number
 ): LocalGroup => {
   return {
     ...group,
-    index: groupListLength,
+    index,
     createdAt: new Date(group.createdAt),
     creator: serverToClientUser(group.creator),
   };
@@ -29,6 +29,7 @@ export const serverToClientMessage = (message: ServerMessage): LocalMessage => {
     id: message.id,
     channelID: message.channelID,
     body: message.body || "",
+    editedAt: new Date(message.editedAt),
     createdAt: new Date(message.createdAt),
     createdAtTime: FormatDate(message.createdAt),
     creator: {
@@ -72,5 +73,15 @@ export const serverUserToMember = (user: ServerUser): Member => {
     id: user.ID,
     name: user.FirstName + " " + user.LastName,
     photoURL: user.PhotoURL,
+  };
+};
+
+export const userSearchResultToMember = (
+  userResult: UserSearchResult
+): Member => {
+  return {
+    id: userResult.id,
+    name: userResult.text,
+    photoURL: userResult.img,
   };
 };

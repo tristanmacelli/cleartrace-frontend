@@ -2,7 +2,7 @@
   <Modal
     :Title="title"
     :Description="
-      !isGroupCreator ? 'Heads Up: Only group creators can make updates' : ''
+      inputDisabled ? 'Heads Up: Only group creators can make updates' : ''
     "
     @hide-modal="HideModal"
   >
@@ -13,22 +13,30 @@
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="nameInput"
         type="text"
-        :disabled="!isGroupCreator"
+        :disabled="inputDisabled"
       />
       <input
         v-if="isModalTypeUpdate"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="descriptionInput"
         type="text"
-        :disabled="!isGroupCreator"
+        :disabled="inputDisabled"
       />
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="query"
         type="text"
         placeholder="Search for a Friend to add!"
-        :disabled="!isGroupCreator"
+        :disabled="inputDisabled"
       />
+      <list
+        class="overflow-y-auto"
+        @active-list-item="AddMember"
+        v-if="showResults"
+        :positionRight="false"
+        :items="searchResults"
+      >
+      </list>
       <div class="grid w-12 h-12 justify-self-center">
         <img
           v-if="pending"
@@ -44,13 +52,13 @@
           :key="index"
           :index="index"
           :name="name"
-          :disabled="!isGroupCreator"
+          :disabled="inputDisabled"
           @remove="RemoveGroupMember"
         >
         </group-member>
       </div>
       <input
-        @click="SubmitForm('create')"
+        @click.prevent="SubmitForm('create')"
         v-if="!isModalTypeUpdate"
         class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
         type="submit"
@@ -58,30 +66,22 @@
       />
       <!-- This slot allows for a Update Group modal (Delete group button here) -->
       <input
-        @click="SubmitForm('leave')"
+        @click.prevent="SubmitForm('leave')"
         v-if="isModalTypeUpdate && leavableGroup"
         class="w-full px-16 py-2 bg-white border-2 border-red-500 font-bold text-red-500 cursor-pointer rounded-md"
         type="submit"
         value="Leave Group"
       />
       <input
-        @click="SubmitForm('delete')"
+        @click.prevent="SubmitForm('delete')"
         v-if="isModalTypeUpdate"
         class="w-full px-16 py-2 font-bold text-white cursor-pointer rounded-md"
-        :class="isGroupCreator ? 'bg-red-500' : 'bg-gray-300'"
+        :class="inputDisabled ? 'bg-red-500' : 'bg-gray-300'"
         type="submit"
         value="Delete Group"
-        :disabled="!isGroupCreator"
+        :disabled="inputDisabled"
       />
     </form>
-    <list
-      class="overflow-y-auto"
-      @active-list-item="AddGroupMember"
-      v-if="showResults"
-      :positionRight="false"
-      :items="searchResults"
-    >
-    </list>
   </Modal>
 </template>
 
@@ -104,6 +104,8 @@ import { Groups } from "@/api/messaging.service";
 import { Search } from "@/api/users";
 import useGroupsStore from "@/store/groups";
 import { storeToRefs } from "pinia";
+import { UserSearchResult } from "@/types";
+import { userSearchResultToMember } from "@/utils";
 
 const {
   descriptionInput,
@@ -127,9 +129,9 @@ const emit = defineEmits(["hideModal"]);
 
 const showResults = ref(false);
 let title = "New Group";
-const isGroupCreator = computed(
-  () => groupModalData.value.group?.creator.id === getUserID.value
-);
+const isGroupCreator =
+  groupModalData.value.group?.creator.id === getUserID.value;
+const inputDisabled = !isGroupCreator && isModalTypeUpdate;
 
 const pending = computed(
   () => query.value.length > 0 && searchResults.value.length === 0
@@ -159,6 +161,11 @@ const HideResults = () => {
 
 const HideModal = () => {
   emit("hideModal");
+};
+
+const AddMember = (userResult: UserSearchResult) => {
+  const newMember = userSearchResultToMember(userResult);
+  AddGroupMember(newMember);
 };
 
 const SubmitForm = async (type: string) => {

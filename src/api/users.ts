@@ -1,15 +1,14 @@
-import axios from "axios";
-
 import { watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
-// import useUserStore from "@/store/users";
-import { Member, ServerUser, UserSearchResult } from "../types";
+import { LocalUser, Member, ServerUser, UserSearchResult } from "../types";
+import { WebSocketService } from "@/api/websocket";
 import {
   deleteRequest,
   getRequest,
   patchRequest,
   postRequest,
+  serverToClientUser,
   serverUserToMember,
   serverUserToUserSearchResult,
 } from "@/utils";
@@ -21,38 +20,55 @@ export const Users = () => {
   const pinia = usePiniaStore();
   // const userStore = useUserStore();
   const { user } = storeToRefs(pinia);
+  const { ClearSocket } = WebSocketService();
   const router = useRouter();
   const email = ref<string>("");
   const firstName = ref<string>("");
   const lastName = ref<string>("");
   const password = ref<string>("");
 
-  const SignIn = async () => {
+  const HandleAuthenticationData = (sessionToken: string, user: LocalUser) => {
+    if (sessionToken) {
+      localStorage.setItem("auth", sessionToken);
+      localStorage.setItem("userID", `${user.id}`);
+      pinia.setAuthenticated(true);
+      pinia.setUser(user);
+      router.push({ path: "/home" });
+      // router.push({ name: 'Home', params: { groupID: groupID } });
+    }
+  };
+
+  const SignIn = async (): Promise<{
+    sessionToken?: string;
+    user?: LocalUser;
+  }> => {
     const url = api_url + "v1/sessions";
     if (!email.value || !password.value) {
       alert("Error: Invalid Credentials");
-      return;
+      return {};
     }
-
-    const { response, error } = await postRequest<
-      { Email: string; Password: string },
-      void
-    >(url, {
+    const credentials = {
       Email: email.value,
       Password: password.value,
-    });
+    };
+
+    const { response, data, error } = await postRequest<
+      typeof credentials,
+      ServerUser
+    >(url, credentials);
 
     if (error) {
       alert(error);
+      return {};
     }
-    if (!response) return;
+    if (!response || !data) return {};
 
-    const sessionToken = response.headers["authorization"];
-    if (sessionToken) {
-      localStorage.setItem("auth", sessionToken);
-      pinia.setAuthenticated(true);
-      router.push({ path: "/home" });
-    }
+    const user = serverToClientUser(data);
+    HandleAuthenticationData(response.headers["authorization"], user);
+    return {
+      sessionToken: response.headers["authorization"],
+      user,
+    };
   };
 
   const SignOut = async () => {
@@ -65,24 +81,29 @@ export const Users = () => {
     });
     if (error) {
       alert(error);
+      return;
     }
 
     localStorage.removeItem("auth");
+    localStorage.removeItem("userID");
     pinia.setAuthenticated(false);
-    pinia.clearSocket();
+    ClearSocket();
     if (router.currentRoute.value.path != "/") {
       router.push({ path: "/" });
     }
   };
 
-  const SignUp = async () => {
+  const SignUp = async (): Promise<{
+    sessionToken?: string;
+    user?: LocalUser;
+  }> => {
     const url = api_url + "v1/users";
     const username = firstName.value + "." + lastName.value;
 
     if (!email.value || !password.value) {
       alert("Error: Invalid New User Input");
       // TODO: alter a field condition to style the input border red, indicating incorrect input
-      return;
+      return {};
     }
     const user = {
       Email: email.value,
@@ -92,78 +113,61 @@ export const Users = () => {
       FirstName: firstName.value,
       LastName: lastName.value,
     };
-    const { response, error } = await postRequest<typeof user, void>(url, user);
+    const { response, data, error } = await postRequest<
+      typeof user,
+      ServerUser
+    >(url, user);
 
     if (error) {
       alert(error);
+      return {};
     }
-    if (!response) return;
+    if (!response || !data) return {};
 
-    const sessionToken = response.headers["authorization"];
-    if (sessionToken) {
-      localStorage.setItem("auth", sessionToken);
-      pinia.setAuthenticated(true);
-      router.push({ path: "/home" });
-      // router.push({ name: 'Home', params: { groupID: groupID } });
-    }
+    const newUser = serverToClientUser(data);
+    HandleAuthenticationData(response.headers["authorization"], newUser);
+    return {
+      sessionToken: response.headers["authorization"],
+      user: newUser,
+    };
   };
 
-  const GetUser = async (): Promise<{ user?: ServerUser; error?: Error }> => {
+  // GetUser
+  const GetUser = async (
+    userID?: string
+  ): Promise<{ user?: LocalUser; error?: Error }> => {
     const sessionToken = localStorage.getItem("auth");
-    const url = api_url + "v1/users/";
+    const currentUserID = user.value?.id || localStorage.getItem("userID");
+    // If an userID is passed, prefer that value. Otherwise, use the current user's id
+    const id = userID || currentUserID;
+    const url = api_url + "v1/users/" + id;
 
     const { data, error } = await getRequest<ServerUser>(url, {
       headers: { Authorization: sessionToken },
     });
 
-    if (pinia.debug && error) console.log(`Error retrieving user: ${error}`);
+    if (pinia.debug && error) {
+      console.log(`Error retrieving user: ${error}`);
+      return { error };
+    }
+    if (!data) return { error: new Error("No User Found") };
 
     return {
-      user: data,
+      user: serverToClientUser(data),
       error,
     };
   };
 
-  // TODO: create backend endpoint to return user information
-  // const GetUserById = async (
-  //   id: number
-  // ): Promise<{ user?: LocalUser; error?: Error }> => {
-  //   const sessionToken = localStorage.getItem("auth");
-  //   const url = api_url + "v1/users/" + id;
-
-  //   const { data, error } = await getRequest<ServerUser>(url, {
-  //     headers: { Authorization: sessionToken },
-  //   });
-
-  //   if (error) {
-  //     // eslint-disable-next-line
-  //     if (pinia.debug) console.log(`Error retrieving user: ${error}`);
-  //     return {
-  //       user: undefined,
-  //       error,
-  //     };
-  //   }
-  //   if (!data) {
-  //     return {
-  //       user: undefined,
-  //       error: new Error("No user data"),
-  //     };
-  //   }
-
-  //   const user = serverToClientUser(data);
-  //   userStore.addUniqueUser(user);
-
-  //   return {
-  //     user,
-  //     error,
-  //   };
-  // };
-
-  const UpdateUser = async () => {
+  const UpdateUser = async (): Promise<{
+    user?: LocalUser;
+    error?: Error;
+  }> => {
     const url = api_url + "v1/users/me";
     if (!firstName.value || !lastName.value) {
       alert("Error: Invalid name change, names must not be blank");
-      return;
+      return {
+        error: new Error("Invalid name change, names must not be blank"),
+      };
     }
 
     const sessionToken = localStorage.getItem("auth");
@@ -173,7 +177,7 @@ export const Users = () => {
     };
 
     // send a get request with the above data
-    const { error } = await patchRequest<typeof nameChange, void>(
+    const { data, error } = await patchRequest<typeof nameChange, ServerUser>(
       url,
       nameChange,
       {
@@ -182,16 +186,13 @@ export const Users = () => {
     );
     if (error) {
       alert(error);
+      return { error };
     }
+    if (!data) {
+      return { error: new Error("") };
+    }
+    return { user: serverToClientUser(data) };
 
-    // TODO: Check back end to see if endpoint supports new request formatting above (below was previous formatting)
-    // await axios.patch(url, {
-    //   headers: {
-    //     Authorization: sessionToken,
-    //   },
-    //   FirstName: firstName,
-    //   LastName: lastName,
-    // });
     // Since there are no errors and the name fields are updated locally, there is no need to
     // make a request for user information until the user returns to this page later
   };
@@ -206,7 +207,6 @@ export const Users = () => {
     SignOut,
     SignUp,
     GetUser,
-    // GetUserById,
     UpdateUser,
   };
 };
@@ -243,30 +243,26 @@ export const Search = () => {
     const url = api_url + "v1/users/search/?q=" + query.value;
     const sessionToken = localStorage.getItem("auth");
 
-    axios
-      .get(url, {
-        headers: {
-          Authorization: sessionToken,
-        },
-      })
-      .catch((error) => {
-        alert(error);
-      })
-      .then((response) => {
-        if (response && response.data) {
-          const receivedUsers: ServerUser[] = response.data;
+    const { data, error } = await getRequest<ServerUser[]>(url, {
+      headers: {
+        Authorization: sessionToken,
+      },
+    });
 
-          searchResults.value = receivedUsers
-            .filter((user: ServerUser) => user.ID != getUserID.value)
-            .map((user: ServerUser) => {
-              return serverUserToUserSearchResult(user);
-            });
-          if (searchResults.value.length > 0) {
-            // Hide loading animation component
-          }
-          return;
-        }
-        // Hide results list if there are no results
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    if (!data) {
+      // Hide results list if there are no results
+      return;
+    }
+
+    searchResults.value = data
+      .filter((user: ServerUser) => user.ID != getUserID.value)
+      .map((user: ServerUser) => {
+        return serverUserToUserSearchResult(user);
       });
   };
 

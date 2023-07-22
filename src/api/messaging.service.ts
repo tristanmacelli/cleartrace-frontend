@@ -1,5 +1,3 @@
-import axios from "axios";
-
 import { ref, watch } from "vue";
 import {
   LocalGroup,
@@ -11,8 +9,11 @@ import {
 } from "@/types";
 import {
   FormatDate,
+  deleteRequest,
   getRequest,
+  patchRequest,
   postRequest,
+  serverToClientGroup,
   serverToClientMessage,
   serverToClientUser,
 } from "@/utils";
@@ -42,6 +43,7 @@ export const Messages = () => {
 
     if (error) {
       alert(error);
+      return;
     }
     if (!data) return;
     // .toReverse() leaves the original array intact and returns a new array in reverse order
@@ -49,14 +51,13 @@ export const Messages = () => {
     // messages.toReverse();
 
     const receivedMessages: LocalMessage[] = data
-      .slice()
       .reverse()
       .map((message: ServerMessage) => {
         return serverToClientMessage(message);
       });
 
     const messageList: MessageList = {
-      channelID: receivedMessages[0].channelID,
+      channelID: id,
       messages: receivedMessages,
       unreadMessages: [],
     };
@@ -65,10 +66,14 @@ export const Messages = () => {
 
   const GetAllMessages = async () => {
     messageStore.clearMessageLists();
-    const promises: Promise<void>[] = [];
+    // preallocated memory is better than jit malloc at high quantities
+    // (source: https://egghead.io/blog/object-pool-design-pattern)
+    const promises: Promise<void>[] = new Array(groupList.value.length).fill(
+      undefined
+    );
 
-    groupList.value.forEach((group) => {
-      promises.push(GetMessages(group.id));
+    groupList.value.forEach((group, i) => {
+      promises[i] = GetMessages(group.id);
     });
     await Promise.all(promises);
   };
@@ -85,30 +90,32 @@ export const Messages = () => {
     const url = api_url + "v1/channels/" + getActiveGroupID.value;
     const sessionToken = localStorage.getItem("auth");
     const date = new Date();
-    const formattedDate = FormatDate(date);
 
     const localMessage: LocalMessage = {
       channelID: getActiveGroupID.value,
       body: bodyInput.value,
       createdAt: date,
-      createdAtTime: formattedDate,
+      createdAtTime: FormatDate(date),
       creator: user.value,
     };
     // Setting the msg id locally to -1 (will self-correct on page refresh)
     messageStore.addToActiveMessageList(localMessage);
 
-    axios
-      .post(url, localMessage, {
-        headers: {
-          Authorization: sessionToken,
-        },
-      })
-      .then(() => {
-        bodyInput.value = "";
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    const { error } = await postRequest(url, localMessage, {
+      headers: {
+        Authorization: sessionToken,
+      },
+    });
+
+    if (error) {
+      // (message not sent)
+      // Provide remedial action options:
+      // 1. Attempt to send again
+      // 2. Delete message (pop message off of message list)
+      alert(error);
+      return;
+    }
+    bodyInput.value = "";
   };
 
   return {
@@ -139,9 +146,9 @@ export const Groups = () => {
   const memberNames = ref<string[]>([]);
   const nameInput = ref("");
 
-  const getMemberIDs = () => {
-    return members.value.map((member) => member.id);
-  };
+  // const getMemberIDs = () => {
+  //   return members.value.map((member) => member.id);
+  // };
 
   const updateDetailsWatchHandler = (oldValue: any) => {
     // Don't update when previous was empty
@@ -186,6 +193,7 @@ export const Groups = () => {
     });
     if (error) {
       alert(`Error getting specific group: ${error}`);
+      return;
     }
     return data;
   };
@@ -202,14 +210,13 @@ export const Groups = () => {
       memberNames.value,
       getUserFullName.value!
     );
-    const date = new Date();
 
     const groupObject = {
       name: groupName,
       description: "*Enter a description*",
       private: true,
       members: memberIDs.value,
-      createdAt: date,
+      createdAt: new Date(),
       editedAt: undefined,
     };
 
@@ -223,14 +230,11 @@ export const Groups = () => {
 
     if (error) {
       alert(error);
+      return;
     }
     if (!data) return;
 
-    const newGroup: LocalGroup = {
-      ...data,
-      index: groupList.value.length,
-      creator: serverToClientUser(data.creator),
-    };
+    const newGroup = serverToClientGroup(data, groupList.value.length);
     groupsStore.addToGroupList(newGroup);
   };
 
@@ -244,6 +248,7 @@ export const Groups = () => {
 
     if (error) {
       alert(error);
+      return;
     }
     if (!data) return;
 
@@ -273,62 +278,58 @@ export const Groups = () => {
       description: descriptionInput.value,
     };
 
-    axios
-      .patch(url, body, {
+    const { data, error } = await patchRequest<typeof body, ServerGroup>(
+      url,
+      body,
+      {
         headers: {
           Authorization: sessionToken,
         },
-      })
-      .then((response) => {
-        const updatedGroup = response.data;
-        updatedGroup.index = getGroupListIndex.value;
+      }
+    );
 
-        groupsStore.updateGroupInGroupList(
-          getGroupListIndex.value!,
-          updatedGroup
-        );
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    if (error) {
+      alert(error);
+      return;
+    }
+    if (!data) return;
+
+    const updatedGroup = serverToClientGroup(data, getGroupListIndex.value!);
+
+    groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
   };
 
   const LeaveGroup = async () => {
     if (!confirm("Are you sure you want to leave this group?")) {
       return;
     }
-    const currentUserId = pinia.getUserID;
     const url =
       api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
     const sessionToken = localStorage.getItem("auth");
-    const data = {
-      id: currentUserId,
-    };
-    const headers = {
-      Authorization: sessionToken,
-    };
-    axios
-      .delete(url, {
-        headers,
-        data,
-      })
-      .then(() => {
-        if (!groupModalData.value.group) return;
+    const currentUserId = pinia.getUserID;
 
-        // Go back to the general group when deleting the channel
-        // const general = store.getters.getGroupByID(store.state.general.id);
-        const previousGroup = groupsStore.getGroupByID(
-          previousActiveGroup.value.id
-        );
+    const { error } = await deleteRequest(url, {
+      headers: { Authorization: sessionToken },
+      data: { id: currentUserId },
+    });
 
-        groupsStore.setActiveGroup(previousGroup!);
-        const messageList = messageStore.getMessageList(previousGroup?.id!);
-        messageStore.setActiveMessageList(messageList!);
-        groupsStore.removeFromGroupList(getGroupListIndex.value!);
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    if (!groupModalData.value.group) return;
+
+    // Go back to the general group when deleting the channel
+    // const general = store.getters.getGroupByID(store.state.general.id);
+    const previousGroup = groupsStore.getGroupByID(
+      previousActiveGroup.value.id
+    );
+
+    groupsStore.setActiveGroup(previousGroup!);
+    const messageList = messageStore.getMessageList(previousGroup?.id!);
+    messageStore.setActiveMessageList(messageList!);
+    groupsStore.removeFromGroupList(getGroupListIndex.value!);
   };
 
   const DeleteGroup = async () => {
@@ -337,29 +338,31 @@ export const Groups = () => {
     }
     const url = api_url + "v1/channels/" + getGroupModalGroupID.value;
     const sessionToken = localStorage.getItem("auth");
-    axios
-      .delete(url, {
-        headers: {
-          Authorization: sessionToken,
-        },
-      })
-      .then(() => {
-        // Go back to the general group when deleting the channel
-        // const general = store.getters.getGroupByID(store.state.general.id);
-        const previousGroup = groupsStore.getGroupByID(
-          previousActiveGroup.value.id
-        );
 
-        groupsStore.setActiveGroup(previousGroup!);
-        const messageList = messageStore.getMessageList(previousGroup?.id!);
-        messageStore.setActiveMessageList(messageList!);
-        groupsStore.removeFromGroupList(getGroupListIndex.value!);
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    const { error } = await deleteRequest<undefined>(url, {
+      headers: {
+        Authorization: sessionToken,
+      },
+    });
+
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    // Go back to the general group when deleting the channel
+    // const general = store.getters.getGroupByID(store.state.general.id);
+    const previousGroup = groupsStore.getGroupByID(
+      previousActiveGroup.value.id
+    );
+
+    groupsStore.setActiveGroup(previousGroup!);
+    const messageList = messageStore.getMessageList(previousGroup?.id!);
+    messageStore.setActiveMessageList(messageList!);
+    groupsStore.removeFromGroupList(getGroupListIndex.value!);
   };
 
+  // TODO: return updated Group
   const AddGroupMember = async (newMember: Member) => {
     if (groupModalData.value.type === "create") {
       members.value.push(newMember);
@@ -367,76 +370,59 @@ export const Groups = () => {
     }
     const url =
       api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
-    const headers = { Authorization: localStorage.getItem("auth") };
+    const sessionToken = localStorage.getItem("auth");
     const body = { id: newMember.id };
-    const requestConfig = {
-      method: "post",
-      url: url,
-      headers: headers,
-      data: body,
+
+    const { error } = await postRequest(url, body, {
+      headers: { Authorization: sessionToken },
+    });
+
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    if (!groupModalData.value.group) return;
+
+    members.value.push(newMember);
+    const updatedGroup: LocalGroup = {
+      ...groupModalData.value.group,
+      members: memberIDs.value,
     };
 
-    axios(requestConfig)
-      .then(() => {
-        if (!groupModalData.value.group) return;
-
-        members.value.push(newMember);
-        const ids = getMemberIDs();
-        const updatedGroup: LocalGroup = {
-          ...groupModalData.value.group,
-          members: ids,
-          name: nameInput.value,
-        };
-
-        groupsStore.updateGroupInGroupList(
-          getGroupListIndex.value!,
-          updatedGroup
-        );
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
   };
 
+  // TODO: return updated Group
   const RemoveGroupMember = async (memberIndex: number) => {
     if (groupModalData.value.type === "create") {
       members.value.splice(memberIndex, 1);
       return;
     }
-    const id = members.value[memberIndex].id;
     const url =
       api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
     const sessionToken = localStorage.getItem("auth");
-    const data = {
-      id: id,
-    };
-    const headers = {
-      Authorization: sessionToken,
-    };
-    axios
-      .delete(url, {
-        headers,
-        data,
-      })
-      .then(() => {
-        if (!groupModalData.value.group) return;
+    const id = members.value[memberIndex].id;
 
-        members.value.splice(memberIndex, 1);
-        const ids = getMemberIDs();
-        const updatedGroup: LocalGroup = {
-          ...groupModalData.value.group,
-          members: ids,
-          name: nameInput.value,
-        };
+    const { error } = await deleteRequest(url, {
+      headers: { Authorization: sessionToken },
+      data: { id },
+    });
 
-        groupsStore.updateGroupInGroupList(
-          getGroupListIndex.value!,
-          updatedGroup
-        );
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    if (!groupModalData.value.group) return;
+
+    members.value.splice(memberIndex, 1);
+    const updatedGroup: LocalGroup = {
+      ...groupModalData.value.group,
+      members: memberIDs.value,
+    };
+
+    groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
   };
 
   return {
