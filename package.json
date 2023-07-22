@@ -8,8 +8,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "deploy": "bash deploy.sh",
-    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "type-check": "vue-tsc -p tsconfig.app.json",
+    "lint": "eslint . --ext .vue,.ts --fix --ignore-path .gitignore",
     "format": "prettier --write src/"
   },
   "dependencies": {
