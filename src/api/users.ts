@@ -15,6 +15,9 @@ import {
 import { storeToRefs } from "pinia";
 
 const api_url = import.meta.env.VITE_CLEARTRACE_API;
+const INVALID_CREDENTIALS_ERROR =
+  "Error: the email and/or password was incorrect";
+const INVALID_NEW_USER_ERROR = "Error: the new user data is invalid";
 
 // TODO: Refactor functions, removing side effects caused after requests return
 export const Users = () => {
@@ -43,11 +46,16 @@ export const Users = () => {
   const SignIn = async (): Promise<{
     sessionToken?: string;
     user?: LocalUser;
+    error?: Error;
   }> => {
     const url = api_url + "v1/sessions";
     if (!email.value || !password.value) {
-      alert("Error: Invalid Credentials");
-      return {};
+      if (pinia.debug) {
+        console.error(INVALID_CREDENTIALS_ERROR);
+      }
+      return {
+        error: new Error(INVALID_CREDENTIALS_ERROR),
+      };
     }
     const credentials = {
       Email: email.value,
@@ -60,8 +68,12 @@ export const Users = () => {
     >(url, credentials);
 
     if (error) {
-      alert(error);
-      return {};
+      if (pinia.debug) {
+        console.error(INVALID_CREDENTIALS_ERROR);
+      }
+      return {
+        error: new Error(INVALID_CREDENTIALS_ERROR),
+      };
     }
     if (!response || !data) return {};
 
@@ -95,25 +107,31 @@ export const Users = () => {
     }
   };
 
-  const SignUp = async (): Promise<{
+  const SignUp = async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<{
     sessionToken?: string;
     user?: LocalUser;
   }> => {
     const url = api_url + "v1/users";
-    const username = firstName.value + "." + lastName.value;
+    const username = firstName + "." + lastName;
 
-    if (!email.value || !password.value) {
-      alert("Error: Invalid New User Input");
-      // TODO: alter a field condition to style the input border red, indicating incorrect input
+    if (!email || !password) {
+      if (pinia.debug) {
+        console.error(INVALID_NEW_USER_ERROR);
+      }
       return {};
     }
     const user = {
-      Email: email.value,
-      Password: password.value,
-      PasswordConf: password.value,
+      Email: email,
+      Password: password,
+      PasswordConf: password,
       UserName: username,
-      FirstName: firstName.value,
-      LastName: lastName.value,
+      FirstName: firstName,
+      LastName: lastName,
     };
     const { response, data, error } = await postRequest<
       typeof user,
@@ -121,7 +139,9 @@ export const Users = () => {
     >(url, user);
 
     if (error) {
-      alert(error);
+      if (pinia.debug) {
+        console.error(INVALID_NEW_USER_ERROR);
+      }
       return {};
     }
     if (!response || !data) return {};
@@ -134,8 +154,8 @@ export const Users = () => {
     };
   };
 
-  // GetUser
-  const GetUser = async (
+  // GetUserById
+  const GetUserById = async (
     userID?: string
   ): Promise<{ user?: LocalUser; error?: Error }> => {
     const sessionToken = localStorage.getItem("auth");
@@ -148,14 +168,37 @@ export const Users = () => {
       headers: { Authorization: sessionToken },
     });
 
-    if (pinia.debug && error) {
-      console.log(`Error retrieving user: ${error}`);
+    if (error) {
+      console.error(`Error retrieving user: ${error}`);
       return { error };
     }
     if (!data) return { error: new Error("No User Found") };
 
     return {
       user: serverToClientUser(data),
+      error,
+    };
+  };
+
+  // GetUserByEmail
+  const GetUserByEmail = async (
+    email: string
+  ): Promise<{ foundUser?: boolean; error?: Error }> => {
+    const sessionToken = localStorage.getItem("auth");
+    const url = api_url + "v1/users/email/" + email;
+
+    const { data, error } = await getRequest<{ foundUser: boolean }>(url, {
+      headers: { Authorization: sessionToken },
+    });
+
+    if (error) {
+      console.error(`Error retrieving user: ${error}`);
+      return { error };
+    }
+    if (!data) return { error: new Error("No User Found") };
+
+    return {
+      foundUser: data.foundUser,
       error,
     };
   };
@@ -208,7 +251,8 @@ export const Users = () => {
     SignIn,
     SignOut,
     SignUp,
-    GetUser,
+    GetUserById,
+    GetUserByEmail,
     UpdateUser,
   };
 };

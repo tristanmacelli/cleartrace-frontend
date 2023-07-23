@@ -140,3 +140,22 @@ export const sortMessageListByDate = (messageList: LocalMessage[]) => {
   listCopy.sort((a, b) => sortLocalMessagesByDate(a, b));
   return listCopy;
 };
+
+const sortTransactionsByDate = (
+  a: { groupID: string; createdAt: Date },
+  b: { groupID: string; createdAt: Date }
+) =>
+  sortByDate<{ groupID: string; createdAt: Date }, "createdAt">(
+    a,
+    b,
+    "createdAt"
+  );
+
+export const sortTransactionListByDate = (
+  transactions: {
+    groupID: string;
+    createdAt: Date;
+  }[]
+) => {
+  return transactions.sort((a, b) => sortTransactionsByDate(a, b));
+};

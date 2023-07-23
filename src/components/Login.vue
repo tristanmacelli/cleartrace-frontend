@@ -1,28 +1,48 @@
 <template>
   <div
     id="login"
-    class="w-72 sm:w-96 h-66 sm:h-72 shadow-lg bg-white rounded-md p-4"
+    class="w-72 sm:w-96 h-66 sm:h-76 shadow-lg bg-white rounded-md p-4"
   >
     <form
-      v-on:submit.prevent="SignIn"
+      v-on:submit.prevent="SubmitForm"
       accept-charset="UTF-8"
-      class="grid grid-rows-3 gap-y-2 w-full pb-2 border-b border-gray-300 border-solid"
+      class="grid grid-flow-row gap-y-1 w-full pb-2 border-b border-gray-300 border-solid"
     >
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
+        :class="validEmail && validCredentials ? '' : 'border-2 border-red-600'"
         placeholder="Email"
         type="text"
         v-model="email"
+        @focusout="validateEmail = true"
       />
       <input
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-inner rounded-md"
+        :class="validCredentials ? '' : 'border-2 border-red-600'"
         placeholder="Password"
-        type="password"
+        :type="showPassword"
         v-model="password"
       />
+      <p v-if="!validCredentials" class="text-red-600 text-sm font-medium">
+        Error: the email and/or password was incorrect
+      </p>
+      <div class="mb-4">
+        <input
+          type="checkbox"
+          id="showPassword"
+          v-model="showPassword"
+          true-value="text"
+          false-value="password"
+          class="w-4 h-4"
+        />
+        <label for="showPassword" class="ml-1.5 text-sm font-light"
+          >Show Password</label
+        >
+      </div>
       <input
         class="w-full px-16 py-2 bg-blue-500 font-bold text-white cursor-pointer rounded-md"
         type="submit"
+        :disabled="!validEmail || password.length === 0"
         value="Log In"
       />
       <a
@@ -56,9 +76,28 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { Users } from "@/api/users";
+import { ValidateEmail } from "@/utils";
+import { computed, ref } from "vue";
 
 const emit = defineEmits(["displaySignup"]);
 const { email, password, SignIn } = Users();
+const showPassword = ref<string>("password");
+const validateEmail = ref<boolean>(false);
+const validCredentials = ref<boolean>(true);
+
+const validEmail = computed(() => {
+  if (email.value.length > 10 && validateEmail.value) {
+    return ValidateEmail(email.value);
+  }
+  return true;
+});
+
+const SubmitForm = async () => {
+  const { error } = await SignIn();
+  if (error) {
+    validCredentials.value = false;
+  }
+};
 
 // Creating a new session based on the form values
 const Alert = () => {
