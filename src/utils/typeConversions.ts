@@ -31,7 +31,7 @@ export const serverToClientMessage = (message: ServerMessage): LocalMessage => {
     body: message.body || "",
     editedAt: new Date(message.editedAt),
     createdAt: new Date(message.createdAt),
-    createdAtTime: FormatDate(message.createdAt),
+    createdAtTime: FormatDate(new Date(message.createdAt)),
     creator: serverToClientUser(message.creator),
   };
 };

@@ -64,7 +64,7 @@ const isStoredGroup = computed(() => props.id == getActiveGroupID.value);
 const latestMessage = computed(() => messageStore.getLatestMessage(props.id));
 const latestMessageDateTime = computed(() => {
   if (latestMessage.value) {
-    return latestMessageIndicator(new Date(latestMessage.value.createdAt));
+    return latestMessageIndicator(latestMessage.value.createdAt);
   }
   return "";
 });

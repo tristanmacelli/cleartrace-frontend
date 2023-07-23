@@ -26,9 +26,7 @@ const formatHours = (date: Date): string => {
   return "0" + hh;
 };
 
-export const FormatDate = (date: Date | string): string => {
-  if (typeof date === "string") date = new Date(date);
-
+export const FormatDate = (date: Date): string => {
   const dd = AmOrPm(date);
   const minutes = date.getMinutes();
   const h = formatHours(date);

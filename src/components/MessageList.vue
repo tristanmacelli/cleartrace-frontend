@@ -32,7 +32,6 @@
       id="view-messages"
       class="grid grid-flow-row auto-rows-max flex-grow pt-4 px-2 sm:px-4 pb-0 bg-white overflow-y-auto"
     >
-      <!-- TODO: Determine why createdAt property is not being propagated as Date type -->
       <message
         v-for="(msg, index) in activeMessageList?.messages"
         :message="msg"
@@ -40,7 +39,7 @@
         :id="msg.channelID"
         :body="msg.body"
         :creator="msg.creator"
-        :createdAt="new Date(msg.createdAt)"
+        :createdAt="msg.createdAt"
         :createdAtTime="msg.createdAtTime"
         @remove="activeMessageList?.messages.splice(index, 1)"
       ></message>
@@ -128,9 +127,8 @@ const updateScroll = (htmlElementId: string) => {
 // Create initial message
 if (activeGroup.value.name == "General") {
   const now = new Date();
-  const dateString = FormatDate(now);
 
-  let welcomeMessage: LocalMessage = {
+  const welcomeMessage: LocalMessage = {
     id: "",
     channelID: "-1",
     body: "Welcome to the " + activeGroup.value.name + " group",
@@ -142,7 +140,7 @@ if (activeGroup.value.name == "General") {
       photoURL: "",
     },
     createdAt: now,
-    createdAtTime: dateString,
+    createdAtTime: FormatDate(now),
   };
 
   messageStore.addToActiveMessageList(welcomeMessage);

@@ -15,7 +15,6 @@ import {
   postRequest,
   serverToClientGroup,
   serverToClientMessage,
-  serverToClientUser,
 } from "@/utils";
 import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
@@ -263,15 +262,8 @@ export const Groups = () => {
 
     const receivedGroups: LocalGroup[] = data.map((group, i): LocalGroup => {
       const name = createLocalGroupName(group.name, getUserFullName.value!);
-
       // Query full users present new groups that are not in userData: user[]
-      return {
-        ...group,
-        name,
-        createdAt: new Date(group.createdAt),
-        index: i,
-        creator: serverToClientUser(group.creator),
-      };
+      return serverToClientGroup({ ...group, name }, i);
     });
 
     groupsStore.setGroupList(receivedGroups);
