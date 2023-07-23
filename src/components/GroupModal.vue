@@ -23,6 +23,7 @@
         :disabled="inputDisabled"
       />
       <input
+        v-if="!inputDisabled && memberNames.length > 1"
         class="w-full p-2 border border-solid border-gray-200 focus:outline-none shadow-inner rounded-md"
         v-model="query"
         type="text"
@@ -45,14 +46,14 @@
           height="48"
         />
       </div>
-      <h4 class="font-bold h-8 text-center">Members:</h4>
+      <h4 class="font-bold h-8 text-center">People:</h4>
       <div class="flex flex-wrap gap-y-1 max-h-32 overflow-y-auto">
         <group-member
           v-for="(name, index) in memberNames"
           :key="index"
           :index="index"
           :name="name"
-          :disabled="inputDisabled"
+          :disabled="inputDisabled || memberNames.length < 2"
           @remove="RemoveGroupMember"
         >
         </group-member>
@@ -74,9 +75,8 @@
       />
       <input
         @click.prevent="SubmitForm('delete')"
-        v-if="isModalTypeUpdate"
-        class="w-full px-16 py-2 font-bold text-white cursor-pointer rounded-md"
-        :class="inputDisabled ? 'bg-red-500' : 'bg-gray-300'"
+        v-if="isModalTypeUpdate && !inputDisabled"
+        class="w-full px-16 py-2 font-bold text-white bg-red-500 cursor-pointer rounded-md"
         type="submit"
         value="Delete Group"
         :disabled="inputDisabled"

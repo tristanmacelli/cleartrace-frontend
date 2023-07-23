@@ -60,10 +60,13 @@ const { getActiveGroupID } = storeToRefs(groupsStore);
 
 // If this is true we want to apply the same css rules as applied to the .group:hover class
 const isStoredGroup = computed(() => props.id == getActiveGroupID.value);
-// TODO: refactor?
+
 const latestMessage = computed(() => messageStore.getLatestMessage(props.id));
 const latestMessageDateTime = computed(() => {
-  return latestMessageIndicator(new Date(latestMessage.value?.createdAt!));
+  if (latestMessage.value) {
+    return latestMessageIndicator(new Date(latestMessage.value.createdAt));
+  }
+  return "";
 });
 const unreadMessages = computed(
   () => messageStore.getMessageList(props.id)?.unreadMessages

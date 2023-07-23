@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
 // import { defineStore, storeToRefs } from "pinia";
-import { GroupModal, LocalGroup, LocalMessage } from "../types";
+import { GroupModal, LocalGroup } from "../types";
 import { ComputedRef, Ref, computed, ref } from "vue";
 // import usePiniaStore from "./pinia";
 import useMessageStore from "./messages";
-import { sortMessageListByDate } from "@/utils";
+import { sortTransactionListByDate } from "@/utils";
 // import { Users } from "@/api/users";
 
 const generalGroup: LocalGroup = {
@@ -80,15 +80,33 @@ const useGroupsStore = defineStore("groups", (): State => {
     () => groupModalData.value.group?.index
   );
 
-  const getAllLatestMessages = () => {
-    return groupList.value.reduce((acc: LocalMessage[], group: LocalGroup) => {
-      const latestMessage = messageStore.getLatestMessage(group.id);
-      if (latestMessage) {
-        return [...acc, latestMessage];
-      } else {
-        return acc;
-      }
-    }, []);
+  // const getAllLatestMessages = () => {
+  //   return groupList.value.reduce((acc: LocalMessage[], group: LocalGroup) => {
+  //     const latestMessage = messageStore.getLatestMessage(group.id);
+  //     if (latestMessage) {
+  //       return [...acc, latestMessage];
+  //     } else {
+  //       return acc;
+  //     }
+  //   }, []);
+  // };
+
+  // Returns the latest message for each group. If a group doesn't have messages it returns the group creation date
+  const getAllLatestTransactions = () => {
+    return groupList.value.reduce(
+      (acc: { groupID: string; createdAt: Date }[], group: LocalGroup) => {
+        const latestMessage = messageStore.getLatestMessage(group.id);
+        if (latestMessage) {
+          return [
+            ...acc,
+            { groupID: group.id, createdAt: latestMessage.createdAt },
+          ];
+        } else {
+          return [...acc, { groupID: group.id, createdAt: group.createdAt }];
+        }
+      },
+      []
+    );
   };
 
   const getGroupByID = (id: string): LocalGroup | undefined => {
@@ -157,12 +175,34 @@ const useGroupsStore = defineStore("groups", (): State => {
     groupList.value = [];
   };
 
+  // const setSortedGroupList = () => {
+  //   const allLatestMessages = getAllLatestMessages();
+  //   const sortedMessages = sortMessageListByDate(allLatestMessages);
+
+  //   const sortedGroups = sortedMessages.reduce(
+  //     (acc: LocalGroup[], message: LocalMessage) => {
+  //       const group = getGroupByID(message.channelID);
+  //       if (group) {
+  //         return [...acc, group];
+  //       } else {
+  //         return acc;
+  //       }
+  //     },
+  //     []
+  //   );
+  //   sortedGroupList.value = sortedGroups;
+  // };
+
   const setSortedGroupList = () => {
-    const allLatestMessages = getAllLatestMessages();
-    const sortedMessages = sortMessageListByDate(allLatestMessages);
-    const sortedGroups = sortedMessages.reduce(
-      (acc: LocalGroup[], message: LocalMessage) => {
-        const group = getGroupByID(message.channelID);
+    const allLatestTransactions = getAllLatestTransactions();
+    const sortedTransactions = sortTransactionListByDate(allLatestTransactions);
+
+    const sortedGroups = sortedTransactions.reduce(
+      (
+        acc: LocalGroup[],
+        transaction: { groupID: string; createdAt: Date }
+      ) => {
+        const group = getGroupByID(transaction.groupID);
         if (group) {
           return [...acc, group];
         } else {
