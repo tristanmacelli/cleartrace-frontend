@@ -21,6 +21,7 @@ import useGroupsStore from "@/store/groups";
 import useMessagesStore from "@/store/messages";
 import { storeToRefs } from "pinia";
 import { createLocalGroupName, createServerGroupName } from "@/utils/groups";
+import { AxiosError } from "axios";
 
 const api_url = import.meta.env.VITE_CLEARTRACE_API;
 
@@ -184,6 +185,14 @@ export const Groups = () => {
     }
   );
 
+  const setPreviousGroupToActive = () => {
+    groupsStore.setActiveGroup(previousActiveGroup.value);
+    const messageList = messageStore.getMessageList(
+      previousActiveGroup.value.id!
+    );
+    messageStore.setActiveMessageList(messageList!);
+  };
+
   const GetSpecificGroup = async (groupName: string) => {
     const url = api_url + "v1/channels?startsWith=" + groupName;
     const sessionToken = localStorage.getItem("auth");
@@ -299,9 +308,12 @@ export const Groups = () => {
     return updatedGroup;
   };
 
-  const LeaveGroup = async () => {
+  const LeaveGroup = async (): Promise<{
+    index?: number | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
     if (!confirm("Are you sure you want to leave this group?")) {
-      return;
+      return {};
     }
     const url =
       api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
@@ -315,26 +327,21 @@ export const Groups = () => {
 
     if (error) {
       alert(error);
-      return;
+      return { error };
     }
+    if (!groupModalData.value.group) return {};
 
-    if (!groupModalData.value.group) return;
-
-    // Go back to the general group when deleting the channel
-    // const general = store.getters.getGroupByID(store.state.general.id);
-    const previousGroup = groupsStore.getGroupByID(
-      previousActiveGroup.value.id
-    );
-
-    groupsStore.setActiveGroup(previousGroup!);
-    const messageList = messageStore.getMessageList(previousGroup?.id!);
-    messageStore.setActiveMessageList(messageList!);
+    setPreviousGroupToActive();
     groupsStore.removeFromGroupList(getGroupListIndex.value!);
+    return { index: getGroupListIndex.value! };
   };
 
-  const DeleteGroup = async () => {
+  const DeleteGroup = async (): Promise<{
+    index?: number | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
     if (!confirm("Are you sure you want to delete this group?")) {
-      return;
+      return {};
     }
     const url = api_url + "v1/channels/" + getGroupModalGroupID.value;
     const sessionToken = localStorage.getItem("auth");
@@ -347,19 +354,12 @@ export const Groups = () => {
 
     if (error) {
       alert(error);
-      return;
+      return { error };
     }
 
-    // Go back to the general group when deleting the channel
-    // const general = store.getters.getGroupByID(store.state.general.id);
-    const previousGroup = groupsStore.getGroupByID(
-      previousActiveGroup.value.id
-    );
-
-    groupsStore.setActiveGroup(previousGroup!);
-    const messageList = messageStore.getMessageList(previousGroup?.id!);
-    messageStore.setActiveMessageList(messageList!);
+    setPreviousGroupToActive();
     groupsStore.removeFromGroupList(getGroupListIndex.value!);
+    return { index: getGroupListIndex.value! };
   };
 
   const AddGroupMember = async (newMember: Member) => {
