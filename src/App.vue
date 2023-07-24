@@ -21,7 +21,7 @@ import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
 
 const pinia = usePiniaStore();
-const { debug } = storeToRefs(pinia);
+const { authenticated, debug } = storeToRefs(pinia);
 const router = useRouter();
 const error = ref<Error>();
 
@@ -30,20 +30,22 @@ onErrorCaptured((caughtError) => {
   return true;
 });
 
-let sessionToken = localStorage.getItem("auth");
-let isActiveSession = sessionToken && !pinia.authenticated;
+const sessionToken = localStorage.getItem("auth");
+const isActiveSession = sessionToken && !authenticated.value;
 
 if (isActiveSession && router.currentRoute.value.path === "/") {
   // eslint-disable-next-line
-  if (debug) console.log("Returning to an active session");
+  if (debug.value) console.log("Returning to an active session");
   pinia.setAuthenticated(true);
   router.push({ path: "/home" });
   // router.push({ name: 'Home', params: { groupID: groupID } });
 }
 
 onMounted(() => {
+  // Ensure mobile screens are detected properly on component mount.
+  pinia.setIsMobile(window.innerWidth < 640);
+  // Ensure mobile screen sizes are detected on window resize.
   window.onresize = () => {
-    pinia.setScreenDimensions(window.innerWidth, window.innerHeight);
     pinia.setIsMobile(window.innerWidth < 640);
   };
 });
