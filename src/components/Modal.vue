@@ -38,6 +38,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
+import { onMounted, onUnmounted } from "vue";
 defineProps<{
   Title: string; // Note: this prop was previously optional.
   Description: string;
@@ -45,7 +46,13 @@ defineProps<{
 
 const emit = defineEmits(["hideModal"]);
 
-window.addEventListener("keydown", (e: KeyboardEvent) => {
+const hideModalOnEscape = (e: KeyboardEvent) => {
   if (e.key === "Escape") emit("hideModal");
+};
+onMounted(() => {
+  window.addEventListener("keydown", hideModalOnEscape);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", hideModalOnEscape);
 });
 </script>

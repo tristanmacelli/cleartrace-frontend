@@ -9,7 +9,7 @@
         <p>It's easy!</p>
       </div>
       <button
-        @click="HideSignUp"
+        @click="HideModal"
         class="p-2 h-8 cursor-pointer hover:bg-gray-200 focus:bg-gray-300 focus:outline-none rounded-3xl"
       >
         <img src="../assets/black-x.svg" width="16" alt="a black x icon" />
@@ -133,7 +133,7 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { Users } from "@/api/users";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { ValidateEmail, ValidateNewPassword } from "@/utils";
 
@@ -200,10 +200,16 @@ const RouteToTerms = () => {
   let routeData = router.resolve({ path: "/legal/terms" });
   window.open(routeData.href, "_blank");
 };
-const HideSignUp = () => {
+const HideModal = () => {
   emit("hideModal");
 };
-window.addEventListener("keydown", (e: KeyboardEvent) => {
-  if (e.key === "Escape") HideSignUp();
+const hideModalOnEscape = (e: KeyboardEvent) => {
+  if (e.key === "Escape") HideModal();
+};
+onMounted(() => {
+  window.addEventListener("keydown", hideModalOnEscape);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", hideModalOnEscape);
 });
 </script>
