@@ -74,7 +74,7 @@ const unreadMessages = computed(
 
 const SetGroup = () => {
   if (!isStoredGroup.value) {
-    let thisGroup: LocalGroup = {
+    const thisGroup: LocalGroup = {
       id: props.id,
       name: props.name,
       description: props.description,

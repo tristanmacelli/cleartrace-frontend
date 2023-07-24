@@ -97,7 +97,7 @@ const twoDigitYear = (date: Date): string => {
 
 const mmDDYYYY = (date: Date): string => {
   const dayOfMonth = date.getDate();
-  const month = date.getMonth();
+  const month = date.getMonth() + 1; // .getMonth() returns a value 0-11 so it must be adjusted
   const dayOfMonthString = dayOfMonth > 9 ? `${dayOfMonth}` : `0${dayOfMonth}`;
   const monthString = month > 9 ? `${month}` : `0${month}`;
 
@@ -127,7 +127,7 @@ const sortByDate = <T extends Record<K, Date>, K extends keyof T>(
   dateField: K
 ) => {
   // .getTime() will return a greater number for a later date.
-  return new Date(b[dateField]).getTime() - new Date(a[dateField]).getTime();
+  return b[dateField].getTime() - a[dateField].getTime();
 };
 
 const sortLocalMessagesByDate = (a: LocalMessage, b: LocalMessage) =>

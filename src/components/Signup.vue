@@ -197,7 +197,7 @@ const SubmitForm = () => {
 };
 
 const RouteToTerms = () => {
-  let routeData = router.resolve({ path: "/legal/terms" });
+  const routeData = router.resolve({ path: "/legal/terms" });
   window.open(routeData.href, "_blank");
 };
 const HideModal = () => {

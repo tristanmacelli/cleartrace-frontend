@@ -121,7 +121,7 @@ const updateScroll = (htmlElementId: string) => {
 };
 
 const DisplayModalUpdate = () => {
-  let modalData = {
+  const modalData = {
     group: activeGroup.value,
     type: "update",
   };

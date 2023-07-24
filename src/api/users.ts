@@ -23,7 +23,7 @@ const INVALID_NEW_USER_ERROR = "Error: the new user data is invalid";
 export const Users = () => {
   const pinia = usePiniaStore();
   // const userStore = useUserStore();
-  const { user } = storeToRefs(pinia);
+  const { debug, user } = storeToRefs(pinia);
   const { ClearSocket } = WebSocketService();
   const router = useRouter();
   const email = ref<string>("");
@@ -50,7 +50,7 @@ export const Users = () => {
   }> => {
     const url = api_url + "v1/sessions";
     if (!email.value || !password.value) {
-      if (pinia.debug) {
+      if (debug.value) {
         console.error(INVALID_CREDENTIALS_ERROR);
       }
       return {
@@ -68,7 +68,7 @@ export const Users = () => {
     >(url, credentials);
 
     if (error) {
-      if (pinia.debug) {
+      if (debug.value) {
         console.error(INVALID_CREDENTIALS_ERROR);
       }
       return {
@@ -120,7 +120,7 @@ export const Users = () => {
     const username = firstName + "." + lastName;
 
     if (!email || !password) {
-      if (pinia.debug) {
+      if (debug.value) {
         console.error(INVALID_NEW_USER_ERROR);
       }
       return {};
@@ -139,7 +139,7 @@ export const Users = () => {
     >(url, user);
 
     if (error) {
-      if (pinia.debug) {
+      if (debug.value) {
         console.error(INVALID_NEW_USER_ERROR);
       }
       return {};

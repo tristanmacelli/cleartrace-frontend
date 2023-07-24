@@ -81,7 +81,7 @@ const { SignOut } = Users();
 
 const listItems = ref<ListItem[]>([]);
 
-let items = ["Profile", "Settings", "Sign Out"];
+const items = ["Profile", "Settings", "Sign Out"];
 listItems.value = items.map((item, index) => ({
   id: index,
   text: item,
@@ -99,7 +99,7 @@ const CloseGroupList = () => {
 };
 
 const DisplayModalCreate = () => {
-  let modalData = {
+  const modalData = {
     group: undefined,
     type: "create",
   };
@@ -120,6 +120,7 @@ const HandleListItem = async (item: ListItem) => {
 };
 </script>
 
+<!-- TODO: Remove style tag & classes -->
 <style>
 /* 
    TailwindCSS has utilites for position, but they do not properly remove
