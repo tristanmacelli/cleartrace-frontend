@@ -2,7 +2,7 @@
   <div class="flex sm:w-min" :class="{ 'justify-self-end': isAuthor }">
     <p
       class="m-1 px-3 py-2 text-sm rounded-3xl bg-gray-300 max-w-xs sm:w-max select-none"
-      :class="{ author: isAuthor }"
+      :class="isAuthorMessageProperties"
     >
       <strong v-if="!isAuthor">{{
         creator.firstName + " " + creator.lastName
@@ -21,7 +21,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, reactive } from "vue";
 import usePiniaStore from "@/store/pinia";
 import { LocalUser } from "../types";
 import { storeToRefs } from "pinia";
@@ -41,12 +41,10 @@ const { user } = storeToRefs(pinia);
 const isAuthor = computed(
   () => props.creator.firstName == user.value?.firstName
 );
-</script>
 
-<style>
-.author {
-  color: white;
-  justify-self: end;
-  background-color: dodgerblue;
-}
-</style>
+const isAuthorMessageProperties = reactive({
+  "text-white": isAuthor,
+  "justify-self-end": isAuthor,
+  "bg-dodgerblue": isAuthor,
+});
+</script>

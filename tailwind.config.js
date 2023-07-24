@@ -12,6 +12,9 @@ module.exports = {
       screens: {
         xs: "460px",
       },
+      colors: {
+        dodgerblue: '#1e90ff',
+      }
     },
   },
   variants: {
