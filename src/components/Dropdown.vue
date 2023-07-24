@@ -23,7 +23,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import usePiniaStore from "@/store/pinia";
 import { storeToRefs } from "pinia";
 
@@ -39,7 +39,13 @@ const HideDropdown = () => {
   showDropdown.value = false;
 };
 
-window.addEventListener("keydown", (e: KeyboardEvent) => {
+const hideDropdownOnEscape = (e: KeyboardEvent) => {
   if (e.key === "Escape") HideDropdown();
+};
+onMounted(() => {
+  window.addEventListener("keydown", hideDropdownOnEscape);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", hideDropdownOnEscape);
 });
 </script>
