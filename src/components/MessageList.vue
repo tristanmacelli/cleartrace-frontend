@@ -30,7 +30,7 @@
     </div>
     <div
       id="view-messages"
-      class="grid grid-flow-row auto-rows-max flex-grow pt-4 px-2 sm:px-4 pb-0 bg-white overflow-y-auto"
+      class="grid grid-flow-row auto-rows-max flex-grow overflow-y-auto [overflow-anchor:auto] pt-4 px-2 sm:px-4 pb-0 bg-white"
     >
       <message
         v-for="(msg, index) in activeMessageList?.messages"
@@ -43,7 +43,7 @@
         :createdAtTime="msg.createdAtTime"
         @remove="activeMessageList?.messages.splice(index, 1)"
       ></message>
-      <div id="anchor"></div>
+      <div id="anchor" class="[overflow-anchor:auto] h-px"></div>
     </div>
     <div class="w-full h-12 sm:h-14 bg-white p-3">
       <form
@@ -84,8 +84,6 @@ import useGroupsStore from "@/store/groups";
 import useMessagesStore from "@/store/messages";
 import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
-import { LocalMessage, ServerMessage } from "../types";
-import { FormatDate, PlaySound, serverToClientMessage } from "@/utils";
 import { storeToRefs } from "pinia";
 
 const { bodyInput, GetMessages, SendMessage } = Messages();
@@ -95,25 +93,23 @@ const emit = defineEmits(["displayModal"]);
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
 const messageStore = useMessagesStore();
-const { socket } = storeToRefs(pinia);
-const { activeGroup, getActiveGroupID } = storeToRefs(groupsStore);
+const { debug, isMobile } = storeToRefs(pinia);
+const { activeGroup, general } = storeToRefs(groupsStore);
 const { activeMessageList } = storeToRefs(messageStore);
 const disableSendMessage = computed(() => bodyInput.value.length === 0);
-const isGeneral = computed(
-  () => activeGroup.value.id === "5fec04e96d55740010123439"
-);
+const isGeneral = computed(() => activeGroup.value.id === general.value.id);
 
 // Clears the current messages & updates
-watch(activeGroup, async () => {
-  if (activeMessageList.value?.messages.length === 0) {
-    if (pinia.debug) console.log("Getting Messages");
+watch(activeMessageList, async (newActiveMessageList) => {
+  if (newActiveMessageList?.messages.length === 0) {
+    if (debug.value) console.log("Getting Messages");
     await GetMessages();
   }
 });
 
+// Transition #groupList to the left
 const OpenGroupList = () => {
-  // Transition #groupList to the right
-  if (pinia.isMobile) {
+  if (isMobile.value) {
     pinia.setIsGroupListOpen(true);
   }
 };
@@ -122,53 +118,6 @@ const OpenGroupList = () => {
 const updateScroll = (htmlElementId: string) => {
   const element = document.getElementById(htmlElementId);
   if (element) element.scrollTop = element.scrollHeight;
-};
-
-// Create initial message
-if (activeGroup.value.name == "General") {
-  const now = new Date();
-
-  const welcomeMessage: LocalMessage = {
-    id: "",
-    channelID: "-1",
-    body: "Welcome to the " + activeGroup.value.name + " group",
-    creator: {
-      id: -1,
-      email: "",
-      firstName: "Automated",
-      lastName: "",
-      photoURL: "",
-    },
-    createdAt: now,
-    createdAtTime: FormatDate(now),
-  };
-
-  messageStore.addToActiveMessageList(welcomeMessage);
-  // messageList.value.push(welcomeMessage);
-}
-
-// This hook triggers on page refresh, piping in the current active groups messages.
-// onBeforeMount(async () => {
-//   messageList.value = activeGroup.value.messageList;
-// });
-
-socket.value!.onmessage = (event: MessageEvent<any>) => {
-  if (pinia.debug) console.log("Message Received!");
-  // The current datatype of event is message
-  const receivedData = JSON.parse(event.data);
-  const serverMessage: ServerMessage = receivedData.message;
-
-  if (receivedData.type == "message-new") {
-    // This is "default behavior", when messages are received on the active group
-    const localMessage = serverToClientMessage(serverMessage);
-
-    if (serverMessage.channelID == getActiveGroupID.value) {
-      messageStore.addToActiveMessageList(localMessage);
-    } else {
-      messageStore.addUnreadMessage(localMessage);
-    }
-    PlaySound();
-  }
 };
 
 const DisplayModalUpdate = () => {
@@ -198,14 +147,5 @@ onUpdated(() => {
 .arrow {
   /* https://www.flaticon.com/free-icon/right-arrow_724954?term=send&page=1&position=19 */
   background: url("../assets/send.svg") no-repeat;
-}
-
-#view-messages {
-  overflow-anchor: none;
-}
-
-#anchor {
-  overflow-anchor: auto;
-  height: 1px;
 }
 </style>
