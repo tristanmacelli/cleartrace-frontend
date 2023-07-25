@@ -1,4 +1,3 @@
-import { ref, watch } from "vue";
 import {
   LocalGroup,
   LocalMessage,
@@ -31,10 +30,14 @@ export const Messages = () => {
   const groupsStore = useGroupsStore();
   const messageStore = useMessagesStore();
   const { getActiveGroupID, groupList } = storeToRefs(groupsStore);
-  const { user } = storeToRefs(pinia);
-  const bodyInput = ref<string>("");
+  const { debug, user } = storeToRefs(pinia);
 
-  const GetMessages = async (id: string = getActiveGroupID.value) => {
+  const GetMessages = async (
+    id: string = getActiveGroupID.value
+  ): Promise<{
+    messageList?: MessageList | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
     const url = api_url + "v1/channels/" + id;
     const sessionToken = localStorage.getItem("auth");
 
@@ -43,10 +46,10 @@ export const Messages = () => {
     });
 
     if (error) {
-      alert(error);
-      return;
+      if (debug.value) console.error(error);
+      return { error };
     }
-    if (!data) return;
+    if (!data) return {};
     // .toReverse() leaves the original array intact and returns a new array in reverse order
     // For more info see: https://www.youtube.com/watch?v=3CBD5JZJJKw
     // messages.toReverse();
@@ -63,12 +66,15 @@ export const Messages = () => {
       unreadMessages: [],
     };
     messageStore.addToMessageLists(messageList);
-    return messageList;
+    return { messageList };
   };
 
   const GetAllMessages = async () => {
     messageStore.clearMessageLists();
-    const messageListPromises: Promise<MessageList | undefined>[] = [];
+    const messageListPromises: Promise<{
+      messageList?: MessageList | undefined;
+      error?: Error | AxiosError<unknown, any> | undefined;
+    }>[] = [];
 
     groupList.value.forEach((group) => {
       messageListPromises.push(GetMessages(group.id));
@@ -77,14 +83,21 @@ export const Messages = () => {
     return messageLists;
   };
 
-  const SendMessage = async () => {
-    if (bodyInput.value.length === 0) return;
+  const SendMessage = async (
+    messageBody: string
+  ): Promise<{
+    newMessage?: LocalMessage | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
+    if (messageBody.length === 0) return {};
     if (!user.value) {
-      alert(
-        "An unexpected error occurred.\nThe page will reload upon closing this message."
-      );
+      if (debug.value) {
+        console.error(
+          "An unexpected error occurred.\nThe page will reload upon closing this message."
+        );
+      }
       location.reload();
-      return;
+      return {};
     }
     const url = api_url + "v1/channels/" + getActiveGroupID.value;
     const sessionToken = localStorage.getItem("auth");
@@ -92,7 +105,7 @@ export const Messages = () => {
 
     const localMessage: LocalMessage = {
       channelID: getActiveGroupID.value,
-      body: bodyInput.value,
+      body: messageBody,
       createdAt: date,
       createdAtTime: FormatDate(date),
       creator: user.value,
@@ -109,22 +122,21 @@ export const Messages = () => {
         },
       }
     );
-    bodyInput.value = "";
 
     if (error) {
       // (message not sent)
       // Provide remedial action options:
       // 1. Attempt to send again
       // 2. Delete message (pop message off of message list)
-      alert(error);
-      return;
+      if (debug.value) console.error(error);
+      return { error };
     }
-    if (!data) return;
-    return serverToClientMessage(data);
+    if (!data) return {};
+    const newMessage = serverToClientMessage(data);
+    return { newMessage };
   };
 
   return {
-    bodyInput,
     GetMessages,
     GetAllMessages,
     SendMessage,
@@ -134,66 +146,15 @@ export const Messages = () => {
 export const Groups = () => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
-  const messageStore = useMessagesStore();
-  const {
-    groupModalData,
-    getGroupModalGroupID,
-    getGroupListIndex,
-    groupList,
-    previousActiveGroup,
-  } = storeToRefs(groupsStore);
-  const { getUserFullName } = storeToRefs(pinia);
-  const awaitingGroupDetails = ref<boolean>(false);
-  const descriptionInput = ref<string>("");
-  const isModalTypeUpdate = groupModalData.value.type === "update";
-  const members = ref<Member[]>([]);
-  const memberIDs = ref<number[]>([]);
-  const memberNames = ref<string[]>([]);
-  const nameInput = ref<string>("");
+  const { groupList } = storeToRefs(groupsStore);
+  const { debug, getUserFullName } = storeToRefs(pinia);
 
-  const updateDetailsWatchHandler = (oldValue: any) => {
-    // Don't update when previous was empty
-    if (oldValue === "") {
-      return;
-    }
-    if (!awaitingGroupDetails.value) {
-      setTimeout(() => {
-        UpdateGroupDetails();
-        awaitingGroupDetails.value = false;
-      }, 1000); // 1 sec delay
-    }
-    awaitingGroupDetails.value = true;
-  };
-
-  if (isModalTypeUpdate) {
-    watch(nameInput, (_, oldValue) => updateDetailsWatchHandler(oldValue));
-    watch(descriptionInput, (_, oldValue) =>
-      updateDetailsWatchHandler(oldValue)
-    );
-  }
-
-  watch(
-    members,
-    () => {
-      memberIDs.value = [];
-      memberNames.value = [];
-      memberIDs.value = members.value.map((member) => member.id);
-      memberNames.value = members.value.map((member) => member.name);
-    },
-    {
-      deep: true,
-    }
-  );
-
-  const setPreviousGroupToActive = () => {
-    groupsStore.setActiveGroup(previousActiveGroup.value);
-    const messageList = messageStore.getMessageList(
-      previousActiveGroup.value.id!
-    );
-    messageStore.setActiveMessageList(messageList!);
-  };
-
-  const GetSpecificGroup = async (groupName: string) => {
+  const GetSpecificGroup = async (
+    groupName: string
+  ): Promise<{
+    groups?: LocalGroup[] | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
     const url = api_url + "v1/channels?startsWith=" + groupName;
     const sessionToken = localStorage.getItem("auth");
 
@@ -201,27 +162,37 @@ export const Groups = () => {
       headers: { Authorization: sessionToken },
     });
     if (error) {
-      alert(`Error getting specific group: ${error}`);
-      return;
+      console.error(error);
+      return { error };
     }
-    if (!data) return;
+    if (!data)
+      return {
+        error: new Error(`no groups found with a name similar to ${groupName}`),
+      };
     const localGroups = data.map((group) => {
       return serverToClientGroup(group, -1);
     });
     // Groups in this list have an invalid index that needs to be modified before adding the group to the groupList
-    return localGroups;
+    return { groups: localGroups };
   };
 
-  const CreateGroup = async () => {
-    if (members.value.length === 0) {
-      alert("Error: Invalid New Group Input");
-      return;
+  const CreateGroup = async (
+    members: Member[]
+  ): Promise<{
+    newGroup?: LocalGroup | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
+    if (members.length === 0) {
+      console.error("Invalid New Group Input");
+      return { error: new Error("Invalid New Group Input") };
     }
     const url = api_url + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
+    const memberNames = members.map((m) => m.name);
+    const memberIDs = members.map((m) => m.id);
 
     const groupName = createServerGroupName(
-      memberNames.value,
+      memberNames,
       getUserFullName.value!
     );
 
@@ -229,7 +200,7 @@ export const Groups = () => {
       name: groupName,
       description: "*Enter a description*",
       private: true,
-      members: memberIDs.value,
+      members: memberIDs,
       createdAt: new Date(),
       editedAt: undefined,
     };
@@ -243,17 +214,19 @@ export const Groups = () => {
     );
 
     if (error) {
-      alert(error);
-      return;
+      console.error(error);
+      return { error };
     }
-    if (!data) return;
+    if (!data) return {};
 
     const newGroup = serverToClientGroup(data, groupList.value.length);
-    groupsStore.addToGroupList(newGroup);
-    return newGroup;
+    return { newGroup };
   };
 
-  const GetGroups = async () => {
+  const GetGroups = async (): Promise<{
+    groups?: LocalGroup[] | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
     const url = api_url + "v1/channels";
     const sessionToken = localStorage.getItem("auth");
 
@@ -262,29 +235,36 @@ export const Groups = () => {
     });
 
     if (error) {
-      alert(error);
-      return;
+      if (debug.value) console.error(error);
+      return { error };
     }
-    if (!data) return;
+    if (!data) return {};
 
     groupsStore.clearGroupList();
 
-    const receivedGroups: LocalGroup[] = data.map((group, i): LocalGroup => {
+    const groups: LocalGroup[] = data.map((group, i): LocalGroup => {
       const name = createLocalGroupName(group.name, getUserFullName.value!);
       // Query full users present new groups that are not in userData: user[]
       return serverToClientGroup({ ...group, name }, i);
     });
 
-    groupsStore.setGroupList(receivedGroups);
-    return receivedGroups;
+    groupsStore.setGroupList(groups);
+    return { groups };
   };
 
-  const UpdateGroupDetails = async () => {
-    const url = api_url + "v1/channels/" + getGroupModalGroupID.value;
+  const UpdateGroupDetails = async (
+    group: LocalGroup,
+    name: string,
+    description: string
+  ): Promise<{
+    updatedGroup?: LocalGroup | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
+    const url = api_url + "v1/channels/" + group.id;
     const sessionToken = localStorage.getItem("auth");
     const body = {
-      name: nameInput.value,
-      description: descriptionInput.value,
+      name,
+      description,
     };
 
     const { data, error } = await patchRequest<typeof body, ServerGroup>(
@@ -298,25 +278,27 @@ export const Groups = () => {
     );
 
     if (error) {
-      alert(error);
-      return;
+      if (debug.value) console.error(error);
+      return { error };
     }
-    if (!data) return;
+    if (!data) return {};
 
-    const updatedGroup = serverToClientGroup(data, getGroupListIndex.value!);
-    groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
-    return updatedGroup;
+    const updatedGroup = serverToClientGroup(data, group.index);
+    groupsStore.updateGroupInGroupList(group.index, updatedGroup);
+    return { updatedGroup };
   };
 
-  const LeaveGroup = async (): Promise<{
+  const LeaveGroup = async (
+    groupID: string,
+    index: number
+  ): Promise<{
     index?: number | undefined;
     error?: Error | AxiosError<unknown, any> | undefined;
   }> => {
     if (!confirm("Are you sure you want to leave this group?")) {
       return {};
     }
-    const url =
-      api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
+    const url = api_url + "v1/channels/" + groupID + "/members";
     const sessionToken = localStorage.getItem("auth");
     const currentUserId = pinia.getUserID;
 
@@ -326,24 +308,24 @@ export const Groups = () => {
     });
 
     if (error) {
-      alert(error);
+      if (debug.value) console.error(error);
       return { error };
     }
-    if (!groupModalData.value.group) return {};
 
-    setPreviousGroupToActive();
-    groupsStore.removeFromGroupList(getGroupListIndex.value!);
-    return { index: getGroupListIndex.value! };
+    return { index };
   };
 
-  const DeleteGroup = async (): Promise<{
+  const DeleteGroup = async (
+    groupID: string,
+    index: number
+  ): Promise<{
     index?: number | undefined;
     error?: Error | AxiosError<unknown, any> | undefined;
   }> => {
     if (!confirm("Are you sure you want to delete this group?")) {
       return {};
     }
-    const url = api_url + "v1/channels/" + getGroupModalGroupID.value;
+    const url = api_url + "v1/channels/" + groupID;
     const sessionToken = localStorage.getItem("auth");
 
     const { error } = await deleteRequest<undefined>(url, {
@@ -353,59 +335,63 @@ export const Groups = () => {
     });
 
     if (error) {
-      alert(error);
+      if (debug.value) console.error(error);
       return { error };
     }
 
-    setPreviousGroupToActive();
-    groupsStore.removeFromGroupList(getGroupListIndex.value!);
-    return { index: getGroupListIndex.value! };
+    return { index };
   };
 
-  const AddGroupMember = async (newMember: Member) => {
+  const AddGroupMember = async (
+    group: LocalGroup,
+    members: Member[],
+    newMember: Member
+  ): Promise<{
+    updatedGroup?: LocalGroup | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
     // Disable duplicate members
-    if (members.value.findIndex((member) => member.id === newMember.id) > -1) {
-      return;
+    if (members.findIndex((member) => member.id === newMember.id) > -1) {
+      return { error: new Error("duplicate member") };
     }
-    if (groupModalData.value.type === "create") {
-      members.value.push(newMember);
-      return;
-    }
-    const url =
-      api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
+
+    const url = api_url + "v1/channels/" + group.id + "/members";
     const sessionToken = localStorage.getItem("auth");
     const body = { id: newMember.id };
 
-    const { error } = await postRequest(url, body, {
-      headers: { Authorization: sessionToken },
-    });
+    const { data, error } = await postRequest<typeof body, ServerGroup>(
+      url,
+      body,
+      {
+        headers: { Authorization: sessionToken },
+      }
+    );
 
     if (error) {
-      alert(error);
-      return;
+      if (debug.value) console.error(error);
+      return { error };
     }
 
-    if (!groupModalData.value.group) return;
+    if (!data) {
+      return { error: new Error("") };
+    }
 
-    members.value.push(newMember);
-    const updatedGroup: LocalGroup = {
-      ...groupModalData.value.group,
-      members: memberIDs.value,
-    };
-
-    groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
-    return updatedGroup;
+    const updatedGroup = serverToClientGroup(data, group.index);
+    return { updatedGroup };
   };
 
-  const RemoveGroupMember = async (memberIndex: number) => {
-    if (groupModalData.value.type === "create") {
-      members.value.splice(memberIndex, 1);
-      return;
-    }
-    const url =
-      api_url + "v1/channels/" + getGroupModalGroupID.value + "/members";
+  const RemoveGroupMember = async (
+    group: LocalGroup,
+    members: Member[],
+    memberIndex: number
+  ): Promise<{
+    updatedGroup?: LocalGroup | undefined;
+    error?: Error | AxiosError<unknown, any> | undefined;
+  }> => {
+    const url = api_url + "v1/channels/" + group.id + "/members";
     const sessionToken = localStorage.getItem("auth");
-    const id = members.value[memberIndex].id;
+    const membersCopy = members.slice();
+    const id = membersCopy[memberIndex].id;
 
     const { error } = await deleteRequest(url, {
       headers: { Authorization: sessionToken },
@@ -413,29 +399,21 @@ export const Groups = () => {
     });
 
     if (error) {
-      alert(error);
-      return;
+      if (debug.value) console.error(error);
+      return { error };
     }
 
-    if (!groupModalData.value.group) return;
-
-    members.value.splice(memberIndex, 1);
+    membersCopy.splice(memberIndex, 1);
+    const memberIDs = membersCopy.map((m) => m.id);
     const updatedGroup: LocalGroup = {
-      ...groupModalData.value.group,
-      members: memberIDs.value,
+      ...group,
+      members: memberIDs,
     };
 
-    groupsStore.updateGroupInGroupList(getGroupListIndex.value!, updatedGroup);
-    return updatedGroup;
+    return { updatedGroup };
   };
 
   return {
-    descriptionInput,
-    isModalTypeUpdate,
-    members,
-    memberIDs,
-    memberNames,
-    nameInput,
     GetSpecificGroup,
     CreateGroup,
     GetGroups,

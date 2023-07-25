@@ -1,4 +1,4 @@
-import { watch, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
 import { LocalUser, Member, ServerUser, UserSearchResult } from "../types";
@@ -13,6 +13,7 @@ import {
   serverUserToUserSearchResult,
 } from "@/utils";
 import { storeToRefs } from "pinia";
+import { AxiosError } from "axios";
 
 const api_url = import.meta.env.VITE_CLEARTRACE_API;
 const INVALID_CREDENTIALS_ERROR =
@@ -26,10 +27,6 @@ export const Users = () => {
   const { debug, user } = storeToRefs(pinia);
   const { ClearSocket } = WebSocketService();
   const router = useRouter();
-  const email = ref<string>("");
-  const firstName = ref<string>("");
-  const lastName = ref<string>("");
-  const password = ref<string>("");
 
   const HandleAuthenticationData = (sessionToken: string, user: LocalUser) => {
     if (!sessionToken) {
@@ -43,13 +40,16 @@ export const Users = () => {
     // router.push({ name: 'Home', params: { groupID: groupID } });
   };
 
-  const SignIn = async (): Promise<{
+  const SignIn = async (
+    email: string,
+    password: string
+  ): Promise<{
     sessionToken?: string;
     user?: LocalUser;
     error?: Error;
   }> => {
     const url = api_url + "v1/sessions";
-    if (!email.value || !password.value) {
+    if (!email || !password) {
       if (debug.value) {
         console.error(INVALID_CREDENTIALS_ERROR);
       }
@@ -58,8 +58,8 @@ export const Users = () => {
       };
     }
     const credentials = {
-      Email: email.value,
-      Password: password.value,
+      Email: email,
+      Password: password,
     };
 
     const { response, data, error } = await postRequest<
@@ -94,7 +94,7 @@ export const Users = () => {
       headers: { Authorization: sessionToken },
     });
     if (error) {
-      alert(error);
+      console.error(error);
       return;
     }
 
@@ -203,13 +203,16 @@ export const Users = () => {
     };
   };
 
-  const UpdateUser = async (): Promise<{
+  const UpdateUser = async (
+    firstname: string,
+    lastname: string
+  ): Promise<{
     user?: LocalUser;
     error?: Error;
   }> => {
     const url = api_url + "v1/users/me";
-    if (!firstName.value || !lastName.value) {
-      alert("Error: Invalid name change, names must not be blank");
+    if (!firstname || !lastname) {
+      console.error("Error: Invalid name change, names must not be blank");
       return {
         error: new Error("Invalid name change, names must not be blank"),
       };
@@ -217,8 +220,8 @@ export const Users = () => {
 
     const sessionToken = localStorage.getItem("auth");
     const nameChange = {
-      FirstName: firstName,
-      LastName: lastName,
+      FirstName: firstname,
+      LastName: lastname,
     };
 
     // send a get request with the above data
@@ -230,23 +233,16 @@ export const Users = () => {
       }
     );
     if (error) {
-      alert(error);
+      console.error(error);
       return { error };
     }
     if (!data) {
       return { error: new Error("") };
     }
     return { user: serverToClientUser(data) };
-
-    // Since there are no errors and the name fields are updated locally, there is no need to
-    // make a request for user information until the user returns to this page later
   };
 
   return {
-    email,
-    firstName,
-    lastName,
-    password,
     user,
     SignIn,
     SignOut,
@@ -260,33 +256,24 @@ export const Users = () => {
 export const Search = () => {
   const pinia = usePiniaStore();
   const { getUserID } = storeToRefs(pinia);
-  const awaitingSearch = ref<boolean>(false);
-  const query = ref<string>("");
   const searchResults = ref<UserSearchResult[]>([]);
-  const userIDs = ref<number[]>([]);
-  const members = ref<Member[]>([]);
 
-  watch(query, () => {
-    if (!awaitingSearch.value) {
-      setTimeout(() => {
-        SearchUsers();
-        awaitingSearch.value = false;
-      }, 1000); // 1 sec delay
-    }
-    awaitingSearch.value = true;
-  });
-
-  const SearchUsers = async () => {
+  const SearchUsers = async (
+    query: string
+  ): Promise<{
+    results?: UserSearchResult[];
+    error?: Error;
+  }> => {
     // Do not query the backend if there is nothing to querys
-    if (query.value.length === 0) {
+    if (query.length === 0) {
       // Clear results when there is no query
       searchResults.value = [];
-      return;
+      return {};
     }
     // Clear results on a new search
     searchResults.value = [];
     // Show a loading animation component/svg
-    const url = api_url + "v1/users/search/?q=" + query.value;
+    const url = api_url + "v1/users/search/?q=" + query;
     const sessionToken = localStorage.getItem("auth");
 
     const { data, error } = await getRequest<ServerUser[]>(url, {
@@ -296,13 +283,14 @@ export const Search = () => {
     });
 
     if (error) {
-      alert(error);
-      return;
+      console.error(error);
+      return { error };
     }
 
     if (!data) {
       // Hide results list if there are no results
-      return;
+      console.error("No results");
+      return { error: new Error("No results") };
     }
 
     const userSearchResults = data
@@ -311,42 +299,44 @@ export const Search = () => {
         return serverUserToUserSearchResult(user);
       });
     searchResults.value = userSearchResults;
-    return userSearchResults;
+    return { results: userSearchResults };
   };
 
-  const GetUsersFromIDs = async () => {
+  const GetUsersFromIDs = async (
+    userIDs: number[]
+  ): Promise<{
+    members?: Member[];
+    error?: Error | AxiosError<unknown, any>;
+  }> => {
     const url = api_url + "v1/users/search/";
     const sessionToken = localStorage.getItem("auth");
 
     const { data, error } = await postRequest<number[], ServerUser[]>(
       url,
-      userIDs.value,
+      userIDs,
       {
         headers: { Authorization: sessionToken },
       }
     );
 
     if (error) {
-      alert(error);
+      console.error(error);
+      return { error };
     }
 
     if (!data) {
-      alert("no users present");
-      return;
+      console.warn("no users present");
+      return { error: new Error("no users present") };
     }
 
-    const userMembers = data.map((user: ServerUser) => {
+    const members = data.map((user: ServerUser) => {
       return serverUserToMember(user);
     });
-    members.value = userMembers;
-    return userMembers;
+    return { members };
   };
 
   return {
-    query,
     searchResults,
-    users: members,
-    userIDs,
     GetUsersFromIDs,
     SearchUsers,
   };

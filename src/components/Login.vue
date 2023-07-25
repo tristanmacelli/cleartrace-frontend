@@ -80,7 +80,10 @@ import { ValidateEmail } from "@/utils";
 import { computed, ref } from "vue";
 
 const emit = defineEmits(["displaySignup"]);
-const { email, password, SignIn } = Users();
+const { SignIn } = Users();
+const email = ref<string>("");
+const password = ref<string>("");
+
 const showPassword = ref<string>("password");
 const validateEmail = ref<boolean>(false);
 const validCredentials = ref<boolean>(true);
@@ -93,7 +96,7 @@ const validEmail = computed(() => {
 });
 
 const SubmitForm = async () => {
-  const { error } = await SignIn();
+  const { error } = await SignIn(email.value, password.value);
   if (error) {
     validCredentials.value = false;
   }

@@ -2,7 +2,7 @@
   <div id="userInfo">
     <form
       id="createuser"
-      v-on:submit.prevent="UpdateUser"
+      v-on:submit.prevent="UpdateUser(firstName, lastName)"
       accept-charset="UTF-8"
     >
       <table cellspacing="0" role="presentation">
@@ -49,8 +49,11 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { Users } from "@/api/users";
+import { ref } from "vue";
 
-const { firstName, lastName, user, UpdateUser } = Users();
+const { user, UpdateUser } = Users();
+const firstName = ref<string>(user.value?.firstName || "");
+const lastName = ref<string>(user.value?.lastName || "");
 </script>
 
 <style>
