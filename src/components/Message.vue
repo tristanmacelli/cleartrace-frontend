@@ -1,7 +1,7 @@
 <template>
   <div class="flex sm:w-min" :class="{ 'justify-self-end': isAuthor }">
     <p
-      class="m-1 px-3 py-2 text-sm rounded-3xl bg-gray-300 max-w-xs sm:w-max select-none"
+      class="m-1 px-3 py-2 text-sm rounded-3xl max-w-xs sm:w-max select-none"
       :class="isAuthorMessageProperties"
     >
       <strong v-if="!isAuthor">{{
@@ -43,8 +43,9 @@ const isAuthor = computed(
 );
 
 const isAuthorMessageProperties = reactive({
-  "text-white": isAuthor,
-  "justify-self-end": isAuthor,
-  "bg-dodgerblue": isAuthor,
+  "text-white": isAuthor.value,
+  "justify-self-end": isAuthor.value,
+  "bg-dodgerblue": isAuthor.value,
+  "bg-gray-300": !isAuthor.value,
 });
 </script>
