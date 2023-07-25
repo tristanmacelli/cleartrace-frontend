@@ -191,6 +191,7 @@ export const Groups = () => {
     const memberNames = members.map((m) => m.name);
     const memberIDs = members.map((m) => m.id);
 
+    // TODO: Fix Non-null assertion
     const groupName = createServerGroupName(
       memberNames,
       getUserFullName.value!
@@ -243,6 +244,7 @@ export const Groups = () => {
     groupsStore.clearGroupList();
 
     const groups: LocalGroup[] = data.map((group, i): LocalGroup => {
+      // TODO: Fix Non-null assertion
       const name = createLocalGroupName(group.name, getUserFullName.value!);
       // Query full users present new groups that are not in userData: user[]
       return serverToClientGroup({ ...group, name }, i);

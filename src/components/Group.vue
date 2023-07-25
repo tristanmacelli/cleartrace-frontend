@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex flex-nowrap px-4 py-3 truncate rounded-md cursor-pointer"
-    :class="{ 'sm:bg-gray-100': isStoredGroup }"
+    :class="{ 'sm:bg-gray-100': isActiveGroup }"
     v-on:click="SetGroup"
   >
     <div class="w-full self-center flex flex-row">
@@ -59,7 +59,7 @@ const messageStore = useMessagesStore();
 const { getActiveGroupID } = storeToRefs(groupsStore);
 
 // If this is true we want to apply the same css rules as applied to the .group:hover class
-const isStoredGroup = computed(() => props.id == getActiveGroupID.value);
+const isActiveGroup = computed(() => props.id == getActiveGroupID.value);
 
 const latestMessage = computed(() => messageStore.getLatestMessage(props.id));
 const latestMessageDateTime = computed(() => {
@@ -73,7 +73,7 @@ const unreadMessages = computed(
 );
 
 const SetGroup = () => {
-  if (!isStoredGroup.value) {
+  if (!isActiveGroup.value) {
     const thisGroup: LocalGroup = {
       id: props.id,
       name: props.name,
@@ -92,8 +92,8 @@ const SetGroup = () => {
       location.reload();
       return;
     }
-    groupsStore.setActiveGroup(thisGroup);
     messageStore.setActiveMessageList(messageList);
+    groupsStore.setActiveGroup(thisGroup);
   }
 };
 </script>

@@ -163,10 +163,12 @@ const RemoveMember = async (memberIndex: number) => {
 };
 
 const SetPreviousGroupToActive = () => {
+  // TODO: Fix Non-null assertion
   groupsStore.setActiveGroup(previousActiveGroup.value);
   const messageList = messageStore.getMessageList(
     previousActiveGroup.value.id!
   );
+  // TODO: Fix Non-null assertion
   messageStore.setActiveMessageList(messageList!);
 };
 

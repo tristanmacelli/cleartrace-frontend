@@ -35,7 +35,7 @@ const isActiveSession = sessionToken && !authenticated.value;
 
 if (isActiveSession && router.currentRoute.value.path === "/") {
   // eslint-disable-next-line
-  if (debug.value) console.log("Returning to an active session");
+  if (debug.value) console.info("Returning to an active session");
   pinia.setAuthenticated(true);
   router.push({ path: "/home" });
   // router.push({ name: 'Home', params: { groupID: groupID } });

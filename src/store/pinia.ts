@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { LocalUser } from "../types";
 import { ComputedRef, Ref, computed, ref, watch } from "vue";
 import { Users } from "@/api/users";
-import { serverToClientUser } from "@/utils";
 
 export interface State {
   // A switch for controlling navigation
@@ -25,17 +24,14 @@ export interface State {
   setAuthenticated: (value: boolean) => void;
   setIsGroupListOpen: (value: boolean) => void;
   setIsMobile: (value: boolean) => void;
-  setScreenDimensions: (width: number, height: number) => void;
-  setSocket: () => Promise<void>;
-  clearSocket: () => Promise<void>;
-  setUser: () => Promise<void>;
+  setUser: (newUser?: LocalUser) => Promise<void>;
 }
 
 const MESSAGE_LIST_CACHE_LIMIT = 20;
 
 const usePiniaStore = defineStore("pinia", (): State => {
   const authenticated = ref<boolean>(false);
-  const debug = ref<boolean>(process.env.NODE_ENV !== "production");
+  const debug = ref<boolean>(!import.meta.env.PROD);
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
   const isGroupListOpen = ref<boolean>(true);
   const isMobile = ref<boolean>(false);
@@ -55,9 +51,11 @@ const usePiniaStore = defineStore("pinia", (): State => {
   );
 
   // Getters
-  const userInitials = computed<string>(
-    () => user.value!.firstName.charAt(0) + user.value!.lastName.charAt(0)
-  );
+  const userInitials = computed<string>(() => {
+    return user.value
+      ? user.value.firstName.charAt(0) + user.value.lastName.charAt(0)
+      : "";
+  });
 
   const getUserID = computed<number | undefined>(() => user.value?.id);
 
@@ -76,80 +74,18 @@ const usePiniaStore = defineStore("pinia", (): State => {
     isMobile.value = newValue;
   };
 
-  const setScreenDimensions = (width: number, height: number) => {
-    if (debug.value) {
-      // eslint-disable-next-line
-      console.log("setScreenDimensions triggered");
-    }
-    screen.value.width = width;
-    screen.value.height = height;
-  };
-
   // Actions
-  const setUser = async () => {
-    const { GetUser } = Users();
-    const response = await GetUser();
+  const setUser = async (newUser?: LocalUser) => {
+    if (newUser) {
+      user.value = newUser;
+      return;
+    }
+    const { GetUserById } = Users();
+    const response = await GetUserById();
 
     if (response.user) {
-      const localUser = serverToClientUser(response.user);
-      user.value = localUser;
+      user.value = response.user;
     }
-  };
-
-  const setSocket = async () => {
-    if (debug.value) {
-      // eslint-disable-next-line
-      console.log("setSocket triggered");
-    }
-    const sessionToken = localStorage.getItem("auth");
-    socket.value = new WebSocket(
-      "wss://slack.api.tristanmacelli.com/v1/ws?auth=" + sessionToken
-    );
-    socket.value.onopen = () => {
-      if (debug.value) {
-        // eslint-disable-next-line
-        console.log("Successfully connected to the echo WebSocket server!");
-      }
-    };
-    socket.value.onclose = (close) => {
-      if (debug.value) {
-        // eslint-disable-next-line
-        console.log("close: ", close);
-        if (close.wasClean) {
-          // eslint-disable-next-line
-          console.log(
-            "Successfully disconnected to the echo WebSocket server!"
-          );
-        } else {
-          // eslint-disable-next-line
-          console.log(
-            "Not able to cleanly disconnected from the WebSocket server."
-          );
-        }
-      }
-    };
-    socket.value.onerror = (error) => {
-      if (debug.value) {
-        // eslint-disable-next-line
-        console.log("error: ", error);
-        // eslint-disable-next-line
-        console.log("Error originating from the echo websocket server...");
-      }
-    };
-  };
-
-  const clearSocket = async () => {
-    if (debug.value) {
-      // eslint-disable-next-line
-      console.log("clearSocket triggered");
-    }
-    if (!socket.value) return;
-    // socket.value is defined && socket.value.readyState === WebSocket.OPEN
-    // Close WebSocket connection with Normal Closure code (1000)
-    const closeCode = 1000;
-    socket.value.close(closeCode);
-    // Eventually this should be removed
-    socket.value = undefined;
   };
 
   return {
@@ -167,10 +103,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     setAuthenticated,
     setIsGroupListOpen,
     setIsMobile,
-    setScreenDimensions,
     setUser,
-    setSocket,
-    clearSocket,
   };
 });
 

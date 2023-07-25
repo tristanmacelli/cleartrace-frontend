@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
+import { ComputedRef, Ref, computed, ref } from "vue";
 
 import { LocalMessage, MessageList } from "../types";
-import { ComputedRef, Ref, computed, ref } from "vue";
 
 export interface State {
   activeMessageList: Ref<MessageList | undefined>;
@@ -11,10 +11,18 @@ export interface State {
   setActiveMessageList: (messageList: MessageList) => void;
   addToActiveMessageList: (message: LocalMessage) => void;
   addUnreadMessage: (message: LocalMessage) => void;
+  updateMessageInMessageList: (
+    messageList: MessageList,
+    message: LocalMessage
+  ) => void;
+  removeMessageFromMessageList: (
+    messageList: MessageList,
+    index: string
+  ) => void;
   getMessageList: (channelID: string) => MessageList | undefined;
   getLatestMessage: (channelID: string) => LocalMessage | undefined;
-  addToMessageList: (messages: MessageList) => void;
-  removeFromMessageList: (index: number) => void;
+  addToMessageLists: (messages: MessageList) => void;
+  removeFromMessageLists: (index: number) => void;
   setMessageLists: (lists: MessageList[]) => void;
   clearMessageLists: () => void;
 }
@@ -32,15 +40,9 @@ const useMessagesStore = defineStore("messages", (): State => {
   );
 
   const setActiveMessageList = (messageList: MessageList) => {
-    activeMessageList.value = {
-      ...messageList,
-      unreadMessages: [],
-    };
-
-    // localStorage.setItem(
-    //   "activeMessageList",
-    //   JSON.stringify(activeMessageList.value)
-    // );
+    // In order to trigger an unreadMessages computed value, the messageList must be edited directly
+    messageList.unreadMessages = [];
+    activeMessageList.value = messageList;
   };
 
   const addToActiveMessageList = (message: LocalMessage) => {
@@ -50,7 +52,45 @@ const useMessagesStore = defineStore("messages", (): State => {
   const addUnreadMessage = (message: LocalMessage) => {
     const messageList = getMessageList(message.channelID);
 
+    messageList?.messages.push(message);
     messageList?.unreadMessages?.push(message);
+  };
+
+  // const getMessageByID = (
+  //   messageList: MessageList,
+  //   id: string
+  // ): LocalMessage | undefined => {
+  //   const index = messageList.messages.findIndex((msg) => msg.id === id);
+  //   if (index > -1) {
+  //     return messageList.messages[index];
+  //   } else {
+  //     // if (debug.value) console.log("Group not present");
+  //     console.log("Group not present");
+  //   }
+  // };
+
+  // TODO: verify the logic is sound
+  // (This is carried over from the groupsStore)
+  const updateMessageInMessageList = (
+    messageList: MessageList,
+    message: LocalMessage
+  ) => {
+    const index = messageList.messages.findIndex(
+      (msg) => msg.id === message.id
+    );
+    if (index > -1) {
+      messageList.messages[index] = message;
+    }
+  };
+
+  const removeMessageFromMessageList = (
+    messageList: MessageList,
+    messageID: string
+  ) => {
+    const index = messageList.messages.findIndex((msg) => msg.id === messageID);
+    if (index > -1) {
+      messageList.messages.splice(index, 1);
+    }
   };
 
   const getMessageList = (channelID: string): MessageList | undefined => {
@@ -72,11 +112,11 @@ const useMessagesStore = defineStore("messages", (): State => {
     }
   };
 
-  const addToMessageList = (messages: MessageList) => {
+  const addToMessageLists = (messages: MessageList) => {
     messageLists.value.push(messages);
   };
 
-  const removeFromMessageList = (index: number) => {
+  const removeFromMessageLists = (index: number) => {
     messageLists.value.splice(index, 1);
   };
 
@@ -88,9 +128,8 @@ const useMessagesStore = defineStore("messages", (): State => {
     messageLists.value = [];
   };
 
-  // const updateMessageList = (index: number, messages: ) => {
-  //   messageLists.value.splice(index, 1);
-  //   messageLists.value.splice(index, 0, group);
+  // const updateMessageList = (index: number, messageList: MessageList) => {
+  //   messageLists.value[index] = messageList;
   // };
 
   return {
@@ -101,10 +140,12 @@ const useMessagesStore = defineStore("messages", (): State => {
     setActiveMessageList,
     addToActiveMessageList,
     addUnreadMessage,
+    updateMessageInMessageList,
+    removeMessageFromMessageList,
     getMessageList,
     getLatestMessage,
-    addToMessageList,
-    removeFromMessageList,
+    addToMessageLists,
+    removeFromMessageLists,
     setMessageLists,
     clearMessageLists,
   };
