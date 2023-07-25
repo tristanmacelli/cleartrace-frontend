@@ -32,11 +32,6 @@ export interface Member {
   photoURL: string;
 }
 
-export interface GroupModal {
-  group?: LocalGroup;
-  type: string;
-}
-
 export interface LocalMessage {
   id?: string;
   channelID: string;
@@ -44,6 +39,7 @@ export interface LocalMessage {
   createdAt: Date;
   createdAtTime: string;
   creator: LocalUser;
+  editedAt?: Date;
 }
 
 export interface MessageList {
