@@ -1,53 +1,50 @@
 <template>
   <!-- https://dev.to/fayaz/making-a-navigation-drawer-sliding-sidebar-with-tailwindcss-blueprint-581l -->
-  <Transition>
-    <div
-      id="groupList"
-      v-if="isGroupListOpen"
-      class="absolute sm:static sm:right-0 z-20 w-full sm:w-64 md:w-96 h-screen border-l border-gray-300 transform ease-in-out transition-all duration-300 bg-white"
-      :class="isGroupListOpen ? 'show-groups-list' : 'hide-groups-list'"
-    >
-      <!-- TheRightMenu.vue -->
-      <div class="flex no-wrap items-center px-2 h-20">
-        <h3 class="flex-grow text-2xl ml-3">Conversations</h3>
-        <button
-          class="h-8 mx-1.5 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
-          @click="DisplayModalCreate"
-        >
-          <img
-            src="../assets/plus.svg"
-            class="p-2 overflow-hidden"
-            width="32"
-            height="32"
-            alt="A plus icon"
-          />
-        </button>
-        <Dropdown>
-          <list
-            @active-list-item="HandleListItem"
-            :positionRight="true"
-            :items="listItems"
-          ></list>
-        </Dropdown>
-      </div>
-      <!-- TheGroupList.vue -->
-      <div class="px-2 divide-y">
-        <group
-          @click="CloseGroupList"
-          v-for="group in sortedGroupList"
-          :key="group.index"
-          :id="group.id"
-          :name="group.name"
-          :description="group.description"
-          :private="group.private"
-          :members="group.members"
-          :creator="group.creator"
-          :index="group.index"
-          :createdAt="group.createdAt"
-        ></group>
-      </div>
+  <div
+    id="groupList"
+    class="absolute sm:static sm:right-0 z-20 w-full sm:w-64 md:w-96 h-screen border-l border-gray-300 bg-white transition-all duration-300"
+    :class="isGroupListOpen ? '' : 'translate-x-full overflow-hidden'"
+  >
+    <!-- TheRightMenu.vue -->
+    <div class="flex no-wrap items-center px-2 h-20">
+      <h3 class="flex-grow text-2xl ml-3">Conversations</h3>
+      <button
+        class="h-8 mx-1.5 rounded-3xl bg-gray-200 hover:bg-gray-300 focus:outline-none"
+        @click="DisplayModalCreate"
+      >
+        <img
+          src="../assets/plus.svg"
+          class="p-2 overflow-hidden"
+          width="32"
+          height="32"
+          alt="A plus icon"
+        />
+      </button>
+      <Dropdown>
+        <list
+          @active-list-item="HandleListItem"
+          :positionRight="true"
+          :items="listItems"
+        ></list>
+      </Dropdown>
     </div>
-  </Transition>
+    <!-- TheGroupList.vue -->
+    <div class="px-2 divide-y">
+      <group
+        @click="CloseGroupList"
+        v-for="group in sortedGroupList"
+        :key="group.index"
+        :id="group.id"
+        :name="group.name"
+        :description="group.description"
+        :private="group.private"
+        :members="group.members"
+        :creator="group.creator"
+        :index="group.index"
+        :createdAt="group.createdAt"
+      ></group>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -109,19 +106,3 @@ const HandleListItem = async (item: ListItem) => {
   }
 };
 </script>
-
-<!-- TODO: Remove style tag & classes -->
-<style>
-/* 
-   TailwindCSS has utilites for position, but they do not properly remove
-   the groups list element from the DOM when the user has navigated away on 
-   mobile screens
-*/
-.show-groups-list {
-  position: absolute;
-}
-
-.hide-groups-list {
-  position: static;
-}
-</style>
