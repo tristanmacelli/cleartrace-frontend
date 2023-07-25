@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
-// import { defineStore, storeToRefs } from "pinia";
-import { GroupModal, LocalGroup } from "../types";
+// import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
+import { LocalGroup } from "../types";
 import { ComputedRef, Ref, computed, ref } from "vue";
-// import usePiniaStore from "./pinia";
+import usePiniaStore from "./pinia";
 import useMessageStore from "./messages";
 import { sortTransactionListByDate } from "@/utils";
 // import { Users } from "@/api/users";
@@ -30,21 +30,13 @@ export interface State {
   // Controls logging output for state actions, mutations, & getters
   activeGroup: Ref<LocalGroup>; // TODO: Add to AppStore
   previousActiveGroup: Ref<LocalGroup>; // TODO: Add to AppStore
-  groupModalData: Ref<{
-    group?: LocalGroup;
-    type: string;
-  }>;
   groupList: Ref<LocalGroup[]>;
   sortedGroupList: Ref<LocalGroup[]>;
   // A fallback in case backend request fails on its initial attempt
   general: Ref<LocalGroup>; // TODO: Add to AppStore
   getActiveGroupID: ComputedRef<string>;
-  getGroupModalGroupID: ComputedRef<string | undefined>;
-  getGroupListIndex: ComputedRef<number | undefined>;
   getGroupByID: (id: string) => LocalGroup | undefined;
   setActiveGroup: (group: LocalGroup, initialCall?: boolean) => void;
-  setGroupModalData: (data: GroupModal) => void;
-  clearGroupModalData: () => void;
   setGroupList: (list: LocalGroup[]) => void;
   clearGroupList: () => void;
   setSortedGroupList: () => void;
@@ -56,29 +48,17 @@ export interface State {
 const useGroupsStore = defineStore("groups", (): State => {
   const activeGroup = ref<LocalGroup>(generalGroup);
   const previousActiveGroup = ref<LocalGroup>(generalGroup);
-  const groupModalData = ref<GroupModal>({
-    group: undefined,
-    type: "",
-  });
   const groupList = ref<LocalGroup[]>([]);
   const sortedGroupList = ref<LocalGroup[]>([]);
   const general = ref<LocalGroup>(generalGroup);
 
-  // const pinia = usePiniaStore();
+  const pinia = usePiniaStore();
   const messageStore = useMessageStore();
-  // const { user } = storeToRefs(pinia);
+  const { debug } = storeToRefs(pinia);
   // const { GetUserById } = Users();
 
   // Getters
   const getActiveGroupID = computed<string>(() => activeGroup.value.id);
-
-  const getGroupModalGroupID = computed<string | undefined>(
-    () => groupModalData.value.group?.id
-  );
-
-  const getGroupListIndex = computed<number | undefined>(
-    () => groupModalData.value.group?.index
-  );
 
   // const getAllLatestMessages = () => {
   //   return groupList.value.reduce((acc: LocalMessage[], group: LocalGroup) => {
@@ -114,8 +94,7 @@ const useGroupsStore = defineStore("groups", (): State => {
     if (index > -1) {
       return groupList.value[index];
     } else {
-      // if (debug.value) console.log("Group not present");
-      console.log("Group not present");
+      if (debug.value) console.error("Group not present");
     }
   };
 
@@ -154,17 +133,6 @@ const useGroupsStore = defineStore("groups", (): State => {
     previousActiveGroup.value = initialCall ? group : activeGroup.value;
     activeGroup.value = group;
     localStorage.setItem("activeGroup", JSON.stringify(activeGroup.value));
-  };
-
-  const setGroupModalData = (data: GroupModal) => {
-    groupModalData.value = data;
-  };
-
-  const clearGroupModalData = () => {
-    groupModalData.value = {
-      group: undefined,
-      type: "",
-    };
   };
 
   const setGroupList = (list: LocalGroup[]) => {
@@ -229,17 +197,12 @@ const useGroupsStore = defineStore("groups", (): State => {
   return {
     activeGroup,
     previousActiveGroup,
-    groupModalData,
     groupList,
     sortedGroupList,
     general,
     getActiveGroupID,
-    getGroupModalGroupID,
-    getGroupListIndex,
     getGroupByID,
     setActiveGroup,
-    setGroupModalData,
-    clearGroupModalData,
     setGroupList,
     clearGroupList,
     setSortedGroupList,

@@ -9,7 +9,7 @@
       </p>
       <div
         v-if="!isGeneral"
-        @click.stop="DisplayModalUpdate"
+        @click.stop="DisplayGroupDetails"
         class="self-center cursor-pointer"
       >
         <img
@@ -20,6 +20,7 @@
         />
       </div>
       <img
+        v-if="isMobile"
         src="../assets/hamburger-menu.svg"
         width="28"
         height="28"
@@ -47,7 +48,7 @@
     </div>
     <div class="w-full h-12 sm:h-14 bg-white p-3">
       <form
-        v-on:submit.prevent="SendMessage"
+        v-on:submit.prevent="HandleSendMessage"
         accept-charset="UTF-8"
         class="flex no-wrap"
       >
@@ -78,7 +79,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, watch, onMounted, onUpdated } from "vue";
+import { computed, watch, onMounted, onUpdated, ref } from "vue";
 import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
 import useMessagesStore from "@/store/messages";
@@ -86,9 +87,9 @@ import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
 import { storeToRefs } from "pinia";
 
-const { bodyInput, GetMessages, SendMessage } = Messages();
+const { GetMessages, SendMessage } = Messages();
 
-const emit = defineEmits(["displayModal"]);
+const emit = defineEmits(["displayGroupDetails"]);
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
@@ -96,16 +97,22 @@ const messageStore = useMessagesStore();
 const { debug, isMobile } = storeToRefs(pinia);
 const { activeGroup, general } = storeToRefs(groupsStore);
 const { activeMessageList } = storeToRefs(messageStore);
+const bodyInput = ref<string>("");
 const disableSendMessage = computed(() => bodyInput.value.length === 0);
 const isGeneral = computed(() => activeGroup.value.id === general.value.id);
 
 // Clears the current messages & updates
 watch(activeMessageList, async (newActiveMessageList) => {
   if (newActiveMessageList?.messages.length === 0) {
-    if (debug.value) console.log("Getting Messages");
+    if (debug.value) console.info("Getting Messages");
     await GetMessages();
   }
 });
+
+const HandleSendMessage = () => {
+  SendMessage(bodyInput.value);
+  bodyInput.value = "";
+};
 
 // Transition #groupList to the left
 const OpenGroupList = () => {
@@ -120,18 +127,8 @@ const updateScroll = (htmlElementId: string) => {
   if (element) element.scrollTop = element.scrollHeight;
 };
 
-const DisplayModalUpdate = () => {
-  const modalData = {
-    group: activeGroup.value,
-    type: "update",
-  };
-
-  groupsStore.setGroupModalData(modalData);
-  DisplayModal();
-};
-
-const DisplayModal = () => {
-  emit("displayModal");
+const DisplayGroupDetails = () => {
+  emit("displayGroupDetails", activeGroup.value);
 };
 
 onMounted(() => {

@@ -34,7 +34,6 @@
       <div class="px-2 divide-y">
         <group
           @click="CloseGroupList"
-          @display-modal="DisplayModal"
           v-for="group in sortedGroupList"
           :key="group.index"
           :id="group.id"
@@ -70,7 +69,7 @@ import { Users } from "@/api/users";
 import { ListItem } from "../types";
 import { storeToRefs } from "pinia";
 
-const emit = defineEmits(["displayModal"]);
+const emit = defineEmits(["displayCreateModal"]);
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
@@ -99,16 +98,7 @@ const CloseGroupList = () => {
 };
 
 const DisplayModalCreate = () => {
-  const modalData = {
-    group: undefined,
-    type: "create",
-  };
-  groupsStore.setGroupModalData(modalData);
-  DisplayModal();
-};
-
-const DisplayModal = () => {
-  emit("displayModal");
+  emit("displayCreateModal", "create");
 };
 
 const HandleListItem = async (item: ListItem) => {
