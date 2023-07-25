@@ -48,10 +48,14 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { Users } from "@/api/users";
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { Users } from "@/api/users";
+import usePiniaStore from "@/store/pinia";
 
-const { user, UpdateUser } = Users();
+const pinia = usePiniaStore();
+const { user } = storeToRefs(pinia);
+const { UpdateUser } = Users();
 const firstName = ref<string>(user.value?.firstName || "");
 const lastName = ref<string>(user.value?.lastName || "");
 </script>

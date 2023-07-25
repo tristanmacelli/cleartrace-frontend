@@ -14,13 +14,13 @@
       :items="searchResults"
     >
     </list>
-    <div class="grid w-12 h-12 justify-self-center">
-      <img
-        v-if="pending"
-        src="../assets/loading-spinner.svg"
-        width="48"
-        height="48"
-      />
+    <!-- The following div is a spacer to prevent the component from resizing -->
+    <div v-if="!showNoResultsMessage && !pending" class="h-12"></div>
+    <p v-if="showNoResultsMessage" class="h-12 pt-4 justify-self-center">
+      No Search Results :/
+    </p>
+    <div v-if="pending" class="grid w-12 h-12 justify-self-center">
+      <img src="../assets/loading-spinner.svg" width="48" height="48" />
     </div>
   </div>
 </template>
@@ -38,16 +38,16 @@ export default defineComponent({
 import { computed, ref, watch } from "vue";
 import List from "@/components/List.vue";
 import { Search } from "@/api/users";
-const { searchResults, SearchUsers } = Search();
+const { SearchUsers } = Search();
 
 const emit = defineEmits(["selectedUser"]);
 
 const query = ref<string>("");
-const showResults = ref(false);
+const searchResults = ref<UserSearchResult[]>([]);
 const awaitingSearch = ref<boolean>(false);
-const pending = computed(
-  () => query.value.length > 0 && searchResults.value.length === 0
-);
+const pending = computed(() => query.value.length > 0 && awaitingSearch.value);
+const showResults = ref(false);
+const showNoResultsMessage = ref(false);
 
 const DisplayResults = () => {
   showResults.value = true;
@@ -63,10 +63,15 @@ const SelectedUser = (userResult: UserSearchResult) => {
   query.value = "";
 };
 
+// Debounce search requests.
+// setTimeout delays the execution of the passed callback by the amount of milliseconds passed.
 watch(query, () => {
   if (!awaitingSearch.value) {
-    setTimeout(() => {
-      SearchUsers(query.value);
+    setTimeout(async () => {
+      // Clear results on a new search
+      searchResults.value = [];
+      const { results } = await SearchUsers(query.value);
+      if (results) searchResults.value = results;
       awaitingSearch.value = false;
     }, 1000); // 1 sec delay
   }
@@ -76,6 +81,19 @@ watch(query, () => {
 watch(query, (curVal) => {
   if (curVal != "") {
     DisplayResults();
+  }
+});
+
+watch(pending, (newPending, oldPending) => {
+  if (
+    oldPending &&
+    !newPending &&
+    searchResults.value.length === 0 &&
+    query.value.length > 0
+  ) {
+    showNoResultsMessage.value = true;
+  } else {
+    showNoResultsMessage.value = false;
   }
 });
 </script>

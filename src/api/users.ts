@@ -1,4 +1,3 @@
-import { ref } from "vue";
 import { useRouter } from "vue-router";
 import usePiniaStore from "@/store/pinia";
 import { LocalUser, Member, ServerUser, UserSearchResult } from "../types";
@@ -24,7 +23,7 @@ const INVALID_NEW_USER_ERROR = "Error: the new user data is invalid";
 export const Users = () => {
   const pinia = usePiniaStore();
   // const userStore = useUserStore();
-  const { debug, user } = storeToRefs(pinia);
+  const { debug } = storeToRefs(pinia);
   const { ClearSocket } = WebSocketService();
   const router = useRouter();
 
@@ -159,7 +158,7 @@ export const Users = () => {
     userID?: string
   ): Promise<{ user?: LocalUser; error?: Error }> => {
     const sessionToken = localStorage.getItem("auth");
-    const currentUserID = user.value?.id || localStorage.getItem("userID");
+    const currentUserID = localStorage.getItem("userID");
     // If an userID is passed, prefer that value. Otherwise, use the current user's id
     const id = userID || currentUserID;
     const url = api_url + "v1/users/" + id;
@@ -243,7 +242,6 @@ export const Users = () => {
   };
 
   return {
-    user,
     SignIn,
     SignOut,
     SignUp,
@@ -256,7 +254,6 @@ export const Users = () => {
 export const Search = () => {
   const pinia = usePiniaStore();
   const { getUserID } = storeToRefs(pinia);
-  const searchResults = ref<UserSearchResult[]>([]);
 
   const SearchUsers = async (
     query: string
@@ -266,12 +263,8 @@ export const Search = () => {
   }> => {
     // Do not query the backend if there is nothing to querys
     if (query.length === 0) {
-      // Clear results when there is no query
-      searchResults.value = [];
       return {};
     }
-    // Clear results on a new search
-    searchResults.value = [];
     // Show a loading animation component/svg
     const url = api_url + "v1/users/search/?q=" + query;
     const sessionToken = localStorage.getItem("auth");
@@ -298,7 +291,6 @@ export const Search = () => {
       .map((user: ServerUser) => {
         return serverUserToUserSearchResult(user);
       });
-    searchResults.value = userSearchResults;
     return { results: userSearchResults };
   };
 
@@ -336,7 +328,6 @@ export const Search = () => {
   };
 
   return {
-    searchResults,
     GetUsersFromIDs,
     SearchUsers,
   };
