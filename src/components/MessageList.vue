@@ -86,10 +86,13 @@ import useMessagesStore from "@/store/messages";
 import { Messages } from "@/api/messaging.service";
 import Message from "./Message.vue";
 import { storeToRefs } from "pinia";
+import { LocalGroup } from "@/types";
 
 const { GetMessages, SendMessage } = Messages();
 
-const emit = defineEmits(["displayGroupDetails"]);
+const emit = defineEmits<{
+  (e: "displayGroupDetails", group: LocalGroup): void;
+}>();
 
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();

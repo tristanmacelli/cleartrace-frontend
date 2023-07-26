@@ -40,7 +40,9 @@ import List from "@/components/List.vue";
 import { Search } from "@/api/users";
 const { SearchUsers } = Search();
 
-const emit = defineEmits(["selectedUser"]);
+const emit = defineEmits<{
+  (e: "selectedUser", user: UserSearchResult): void;
+}>();
 
 const query = ref<string>("");
 const searchResults = ref<UserSearchResult[]>([]);
