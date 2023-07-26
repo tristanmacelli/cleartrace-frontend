@@ -24,25 +24,25 @@ export const WebSocketService = () => {
   const messageStore = useMessagesStore();
   const groupsStore = useGroupsStore();
 
-  const { debug, socket, getUserFullName } = storeToRefs(pinia);
+  const { debug, getUserFullName } = storeToRefs(pinia);
   const { getActiveGroupID, groupList } = storeToRefs(groupsStore);
 
-  const SetSocket = async () => {
+  const OpenSocketConnection = async () => {
     if (debug.value) {
       // eslint-disable-next-line
       console.info("setSocket triggered");
     }
     const sessionToken = localStorage.getItem("auth");
-    socket.value = new WebSocket(`${ws_url}v1/ws?auth=${sessionToken}`);
+    const websocket = new WebSocket(`${ws_url}v1/ws?auth=${sessionToken}`);
 
-    socket.value.onopen = () => {
+    websocket.onopen = () => {
       if (debug.value) {
         // eslint-disable-next-line
         console.info("Successfully connected to the echo WebSocket server!");
       }
     };
 
-    socket.value.onmessage = (event: MessageEvent<any>) => {
+    websocket.onmessage = (event: MessageEvent<any>) => {
       if (debug.value) console.info("Message Received!");
       const receivedData: MessagingTransaction = JSON.parse(event.data);
 
@@ -53,7 +53,7 @@ export const WebSocketService = () => {
         switch (messageTransaction.type) {
           case "message-new": {
             // TODO: Fix Non-null assertion
-            newUserMessageHandler(messageTransaction.message!);
+            userMessageCreatedHandler(messageTransaction.message!);
             break;
           }
           case "message-update": {
@@ -95,7 +95,7 @@ export const WebSocketService = () => {
       }
     };
 
-    socket.value.onclose = (close) => {
+    websocket.onclose = (close) => {
       if (debug.value) {
         if (close.wasClean) {
           // eslint-disable-next-line
@@ -111,7 +111,7 @@ export const WebSocketService = () => {
       }
     };
 
-    socket.value.onerror = (error) => {
+    websocket.onerror = (error) => {
       if (debug.value) {
         // eslint-disable-next-line
         console.error("error: ", error);
@@ -119,22 +119,21 @@ export const WebSocketService = () => {
         console.error("Error originating from the echo websocket server...");
       }
     };
+
+    return websocket;
   };
 
-  const ClearSocket = async () => {
+  const CloseSocketConnection = async (websocket?: WebSocket) => {
     if (debug.value) {
-      // eslint-disable-next-line
       console.info("clearSocket triggered");
     }
-    if (!socket.value) return;
-    // socket.value is defined && socket.value.readyState === WebSocket.OPEN
+    if (!websocket) return;
+    // websocket is defined && websocket.readyState === WebSocket.OPEN
     // Close WebSocket connection with Normal Closure code (1000)
     const closeCode = 1000;
-    socket.value.close(closeCode, "user terminated session");
+    websocket.close(closeCode, "user terminated session");
     // conn.ReadMessage() returns the following from websockets.go
     // messageType: -1, msg: err: websocket: close 1000 (normal): user terminated session
-    // Eventually this should be removed
-    socket.value = undefined;
   };
 
   // https://stackoverflow.com/questions/10585355/sending-websocket-ping-pong-frame-from-browser
@@ -145,7 +144,7 @@ export const WebSocketService = () => {
   //   socket.value.send("");
   // };
 
-  const newUserMessageHandler = (message: ServerMessage) => {
+  const userMessageCreatedHandler = (message: ServerMessage) => {
     // This is "default behavior", when messages are received on the active group
     const localMessage = serverToClientMessage(message);
 
@@ -222,7 +221,7 @@ export const WebSocketService = () => {
   };
 
   return {
-    SetSocket,
-    ClearSocket,
+    OpenSocketConnection,
+    CloseSocketConnection,
   };
 };

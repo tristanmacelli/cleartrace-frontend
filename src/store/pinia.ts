@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { LocalUser } from "../types";
 import { ComputedRef, Ref, computed, ref, watch } from "vue";
-import { Users } from "@/api/users";
 
 export interface State {
   // A switch for controlling navigation
@@ -12,19 +11,19 @@ export interface State {
   // A fallback in case backend request fails on its initial attempt
   isGroupListOpen: Ref<boolean>;
   isMobile: Ref<boolean>;
+  awaitingComponentData: Ref<boolean>;
   socket: Ref<WebSocket | undefined>;
   user: Ref<LocalUser | undefined>;
-  screen: Ref<{
-    width: number;
-    height: number;
-  }>;
   userInitials: ComputedRef<string>;
   getUserID: ComputedRef<number | undefined>;
   getUserFullName: ComputedRef<string | undefined>;
   setAuthenticated: (value: boolean) => void;
   setIsGroupListOpen: (value: boolean) => void;
   setIsMobile: (value: boolean) => void;
-  setUser: (newUser?: LocalUser) => Promise<void>;
+  setSocket: (websocket: WebSocket) => void;
+  setUser: (newUser: LocalUser) => void;
+  clearSocket: () => void;
+  clearUser: () => void;
 }
 
 const MESSAGE_LIST_CACHE_LIMIT = 20;
@@ -35,13 +34,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
   const isGroupListOpen = ref<boolean>(true);
   const isMobile = ref<boolean>(false);
-  const screen = ref<{
-    width: number;
-    height: number;
-  }>({
-    width: 0,
-    height: 0,
-  });
+  const awaitingComponentData = ref<boolean>(false);
   const socket = ref<WebSocket | undefined>(undefined);
   const user = ref<LocalUser | undefined>(undefined);
 
@@ -74,18 +67,20 @@ const usePiniaStore = defineStore("pinia", (): State => {
     isMobile.value = newValue;
   };
 
-  // Actions
-  const setUser = async (newUser?: LocalUser) => {
-    if (newUser) {
-      user.value = newUser;
-      return;
-    }
-    const { GetUserById } = Users();
-    const response = await GetUserById();
+  const setSocket = (websocket: WebSocket) => {
+    socket.value = websocket;
+  };
 
-    if (response.user) {
-      user.value = response.user;
-    }
+  const setUser = (newUser: LocalUser) => {
+    user.value = newUser;
+  };
+
+  const clearSocket = () => {
+    socket.value = undefined;
+  };
+
+  const clearUser = () => {
+    user.value = undefined;
   };
 
   return {
@@ -94,16 +89,19 @@ const usePiniaStore = defineStore("pinia", (): State => {
     groupMessageListLimit,
     isGroupListOpen,
     isMobile,
+    awaitingComponentData,
     socket,
     user,
-    screen,
     userInitials,
     getUserID,
     getUserFullName,
     setAuthenticated,
     setIsGroupListOpen,
     setIsMobile,
+    setSocket,
     setUser,
+    clearSocket,
+    clearUser,
   };
 });
 

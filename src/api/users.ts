@@ -23,8 +23,8 @@ const INVALID_NEW_USER_ERROR = "Error: the new user data is invalid";
 export const Users = () => {
   const pinia = usePiniaStore();
   // const userStore = useUserStore();
-  const { debug } = storeToRefs(pinia);
-  const { ClearSocket } = WebSocketService();
+  const { debug, socket } = storeToRefs(pinia);
+  const { CloseSocketConnection } = WebSocketService();
   const router = useRouter();
 
   const HandleAuthenticationData = (sessionToken: string, user: LocalUser) => {
@@ -97,10 +97,12 @@ export const Users = () => {
       return;
     }
 
+    CloseSocketConnection(socket.value);
     localStorage.removeItem("auth");
     localStorage.removeItem("userID");
     pinia.setAuthenticated(false);
-    ClearSocket();
+    pinia.clearSocket();
+    pinia.clearUser();
     if (router.currentRoute.value.path != "/") {
       router.push({ path: "/" });
     }

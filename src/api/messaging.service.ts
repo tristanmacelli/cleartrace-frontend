@@ -297,6 +297,7 @@ export const Groups = () => {
     index?: number | undefined;
     error?: Error | AxiosError<unknown, any> | undefined;
   }> => {
+    // TODO: extract
     if (!confirm("Are you sure you want to leave this group?")) {
       return {};
     }
@@ -324,6 +325,7 @@ export const Groups = () => {
     index?: number | undefined;
     error?: Error | AxiosError<unknown, any> | undefined;
   }> => {
+    // TODO: extract
     if (!confirm("Are you sure you want to delete this group?")) {
       return {};
     }
