@@ -112,20 +112,20 @@ if (members) {
 }
 const leavableGroup = computed(() => currentMembers.value.length > 2);
 
-const awaitingGroupDetails = ref<boolean>(false);
+const awaitingGroupUpdate = ref<boolean>(false);
 
 const updateDetailsWatchHandler = (oldValue: string) => {
   // Don't update when previous was empty
   if (oldValue === "") {
     return;
   }
-  if (!awaitingGroupDetails.value) {
+  if (!awaitingGroupUpdate.value) {
     setTimeout(() => {
       UpdateGroupDetails(props.group, nameInput.value, descriptionInput.value);
-      awaitingGroupDetails.value = false;
+      awaitingGroupUpdate.value = false;
     }, 1000); // 1 sec delay
   }
-  awaitingGroupDetails.value = true;
+  awaitingGroupUpdate.value = true;
 };
 
 watch(nameInput, (_, oldValue) => updateDetailsWatchHandler(oldValue));

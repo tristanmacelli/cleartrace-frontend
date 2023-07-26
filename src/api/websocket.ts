@@ -155,7 +155,7 @@ export const WebSocketService = () => {
       messageStore.addUnreadMessage(localMessage);
     }
     groupsStore.setSortedGroupList();
-    PlaySound();
+    PlaySound("src/assets/electronic-chime.mp3");
   };
 
   const userMessageUpdatedHandler = (message: ServerMessage) => {

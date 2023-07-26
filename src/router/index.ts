@@ -113,6 +113,7 @@ router.beforeEach(async (to) => {
   const { GetAllMessages } = Messages();
   const { GetGroups } = Groups();
   const { OpenSocketConnection } = WebSocketService();
+  const { GetUserById } = Users();
 
   const { general, activeGroup } = storeToRefs(groupsStore);
   const { authenticated, awaitingComponentData } = storeToRefs(pinia);
@@ -121,19 +122,24 @@ router.beforeEach(async (to) => {
   if (to.name === "Home" && sessionToken && authenticated) {
     awaitingComponentData.value = true;
     // Load data
-    const { GetUserById } = Users();
-    const { user, error } = await GetUserById();
-
-    if (!user || error) {
-      throw error;
+    const { user, error: getUserError } = await GetUserById();
+    if (!user || getUserError) {
+      throw getUserError;
     }
-
     pinia.setUser(user);
-    // To render the group names without current user in the group name, the user must be set first
-    await GetGroups();
 
+    // To render the group names without current user in the group name, the user must be set first
+    const { error: getGroupsError } = await GetGroups();
+    if (getGroupsError) {
+      throw getGroupsError;
+    }
     // To get all messages, the group list must be populated. Then, this method populates the messageList for all groups
-    await GetAllMessages();
+    const getAllMessagesResponse = await GetAllMessages();
+    getAllMessagesResponse.map(({ error }) => {
+      if (error) {
+        throw error;
+      }
+    });
     // const uniqueUsers = await userStore.getUniqueUsers(); // This populates uniqueUsers
 
     // GetGroups & GetAllMessages must be called beforehand in order for this block to work.

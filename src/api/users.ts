@@ -27,7 +27,7 @@ export const Users = () => {
   const { CloseSocketConnection } = WebSocketService();
   const router = useRouter();
 
-  const HandleAuthenticationData = (sessionToken: string, user: LocalUser) => {
+  const PostAuthenticationActions = (sessionToken: string, user: LocalUser) => {
     if (!sessionToken) {
       return;
     }
@@ -37,6 +37,18 @@ export const Users = () => {
     pinia.setUser(user);
     router.push({ path: "/home" });
     // router.push({ name: 'Home', params: { groupID: groupID } });
+  };
+
+  const PostSignOutActions = () => {
+    CloseSocketConnection(socket.value);
+    localStorage.removeItem("auth");
+    localStorage.removeItem("userID");
+    pinia.setAuthenticated(false);
+    pinia.clearSocket();
+    pinia.clearUser();
+    if (router.currentRoute.value.path != "/") {
+      router.push({ path: "/" });
+    }
   };
 
   const SignIn = async (
@@ -77,7 +89,7 @@ export const Users = () => {
     if (!response || !data) return {};
 
     const user = serverToClientUser(data);
-    HandleAuthenticationData(response.headers["authorization"], user);
+    PostAuthenticationActions(response.headers["authorization"], user);
     return {
       sessionToken: response.headers["authorization"],
       user,
@@ -94,18 +106,9 @@ export const Users = () => {
     });
     if (error) {
       console.error(error);
-      return;
+      throw error;
     }
-
-    CloseSocketConnection(socket.value);
-    localStorage.removeItem("auth");
-    localStorage.removeItem("userID");
-    pinia.setAuthenticated(false);
-    pinia.clearSocket();
-    pinia.clearUser();
-    if (router.currentRoute.value.path != "/") {
-      router.push({ path: "/" });
-    }
+    PostSignOutActions();
   };
 
   const SignUp = async (
@@ -143,12 +146,13 @@ export const Users = () => {
       if (debug.value) {
         console.error(INVALID_NEW_USER_ERROR);
       }
+      // TODO: Return error & show message: "Server error, please try again later"
       return {};
     }
     if (!response || !data) return {};
 
     const newUser = serverToClientUser(data);
-    HandleAuthenticationData(response.headers["authorization"], newUser);
+    PostAuthenticationActions(response.headers["authorization"], newUser);
     return {
       sessionToken: response.headers["authorization"],
       user: newUser,

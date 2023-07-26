@@ -1,4 +1,3 @@
-export const PlaySound = () => {
-  const audio = new Audio("src/assets/electronic-chime.mp3");
-  audio.play();
+export const PlaySound = (path: string) => {
+  new Audio(path).play();
 };
