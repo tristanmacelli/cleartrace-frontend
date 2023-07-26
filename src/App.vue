@@ -1,13 +1,15 @@
 <template>
-  <Suspense>
-    <div id="app">
+  <div id="app">
+    <Suspense>
       <router-view />
-    </div>
-  </Suspense>
+    </Suspense>
+    <FullScreenLoading v-if="awaitingComponentData" />
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { storeToRefs } from "pinia";
 
 export default defineComponent({
   name: "app",
@@ -15,31 +17,17 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { onErrorCaptured, onMounted, ref } from "vue";
-import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { onErrorCaptured, onMounted } from "vue";
 import usePiniaStore from "@/store/pinia";
+import FullScreenLoading from "@/components/FullScreenLoading.vue";
 
 const pinia = usePiniaStore();
-const { authenticated, debug } = storeToRefs(pinia);
-const router = useRouter();
-const error = ref<Error>();
+const { awaitingComponentData, debug } = storeToRefs(pinia);
 
-onErrorCaptured((caughtError) => {
-  error.value = caughtError;
+onErrorCaptured((caughtError, instance, info) => {
+  if (debug) console.error(caughtError, instance, info);
   return true;
 });
-
-const sessionToken = localStorage.getItem("auth");
-const isActiveSession = sessionToken && !authenticated.value;
-
-if (isActiveSession && router.currentRoute.value.path === "/") {
-  // eslint-disable-next-line
-  if (debug.value) console.info("Returning to an active session");
-  pinia.setAuthenticated(true);
-  router.push({ path: "/home" });
-  // router.push({ name: 'Home', params: { groupID: groupID } });
-}
 
 onMounted(() => {
   // Ensure mobile screens are detected properly on component mount.
