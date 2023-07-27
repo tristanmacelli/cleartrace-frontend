@@ -144,7 +144,7 @@ router.beforeEach(async (to) => {
 
     // GetGroups & GetAllMessages must be called beforehand in order for this block to work.
     // This is intended to populate the active group's messageList.
-    const previousActiveGroup = getStoredActiveGroup();
+    const previousActiveGroup = getStoredActiveGroup(user);
 
     if (previousActiveGroup && previousActiveGroup.members.includes(user.id)) {
       groupsStore.setActiveGroup(previousActiveGroup);

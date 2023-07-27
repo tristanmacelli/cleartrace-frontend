@@ -1,4 +1,4 @@
-import { LocalGroup } from "@/types";
+import { LocalGroup, LocalUser } from "@/types";
 
 const spaceAfterCommas = (str: string): string => {
   return str.replace(/,/g, ", ");
@@ -38,11 +38,16 @@ export const createLocalGroupName = (
   return spaceAfterCommas(name.substring(0, startIndex - 2));
 };
 
-export const getStoredActiveGroup = (): LocalGroup | null => {
+export const getStoredActiveGroup = (user: LocalUser): LocalGroup | null => {
   const activeGroupJSON = localStorage.getItem("activeGroup");
 
-  if (activeGroupJSON && activeGroupJSON != "undefined") {
-    return JSON.parse(activeGroupJSON);
+  if (!activeGroupJSON || activeGroupJSON == "undefined") {
+    return null;
   }
-  return null;
+  const activeGroup: LocalGroup = JSON.parse(activeGroupJSON);
+
+  if (activeGroup.members.findIndex((m) => m === user.id) === -1) {
+    return null;
+  }
+  return activeGroup;
 };

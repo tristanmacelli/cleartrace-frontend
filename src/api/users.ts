@@ -89,7 +89,11 @@ export const Users = () => {
     if (!response || !data) return {};
 
     const user = serverToClientUser(data);
+    // if (!user.verified) {
+    // return message "email needs verification"
+    // else {
     PostAuthenticationActions(response.headers["authorization"], user);
+    // }
     return {
       sessionToken: response.headers["authorization"],
       user,
@@ -152,6 +156,8 @@ export const Users = () => {
     if (!response || !data) return {};
 
     const newUser = serverToClientUser(data);
+    // if (!user.verified && SignUp) return message "verification email sent to the address provided"
+    // remove the call to PostAuthenticationActions once email verification is set up
     PostAuthenticationActions(response.headers["authorization"], newUser);
     return {
       sessionToken: response.headers["authorization"],
