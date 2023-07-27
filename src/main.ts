@@ -17,14 +17,14 @@ app.mount("#app");
 const piniaStore = usePiniaStore();
 
 app.config.errorHandler = (err, vm) => {
-  if (piniaStore.debug) console.log(err, vm);
+  if (piniaStore.debug) console.warn(err, vm);
   // handle error
   // `info` is a Vue-specific error info, e.g. which lifecycle hook
   // the error was found in
 };
 
 app.config.warnHandler = (msg, vm, trace) => {
-  if (piniaStore.debug) console.log(msg, vm, trace);
+  if (piniaStore.debug) console.error(msg, vm, trace);
   // `trace` is the component hierarchy trace
 };
 
