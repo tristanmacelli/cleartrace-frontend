@@ -109,7 +109,7 @@ export const Users = () => {
       headers: { Authorization: sessionToken },
     });
     if (error) {
-      console.error(error);
+      if (debug.value) console.error(error);
       throw error;
     }
     PostSignOutActions();
@@ -180,7 +180,7 @@ export const Users = () => {
     });
 
     if (error) {
-      console.error(`Error retrieving user: ${error}`);
+      if (debug.value) console.error(`Error retrieving user: ${error}`);
       return { error };
     }
     if (!data) return { error: new Error("No User Found") };
@@ -203,7 +203,7 @@ export const Users = () => {
     });
 
     if (error) {
-      console.error(`Error retrieving user: ${error}`);
+      if (debug.value) console.error(`Error retrieving user: ${error}`);
       return { error };
     }
     if (!data) return { error: new Error("No User Found") };
@@ -223,7 +223,9 @@ export const Users = () => {
   }> => {
     const url = api_url + "v1/users/me";
     if (!firstname || !lastname) {
-      console.error("Error: Invalid name change, names must not be blank");
+      if (debug.value) {
+        console.error("Error: Invalid name change, names must not be blank");
+      }
       return {
         error: new Error("Invalid name change, names must not be blank"),
       };
@@ -244,7 +246,7 @@ export const Users = () => {
       }
     );
     if (error) {
-      console.error(error);
+      if (debug.value) console.error(error);
       return { error };
     }
     if (!data) {
@@ -265,7 +267,7 @@ export const Users = () => {
 
 export const Search = () => {
   const pinia = usePiniaStore();
-  const { getUserID } = storeToRefs(pinia);
+  const { debug, getUserID } = storeToRefs(pinia);
 
   const SearchUsers = async (
     query: string
@@ -288,13 +290,13 @@ export const Search = () => {
     });
 
     if (error) {
-      console.error(error);
+      if (debug.value) console.error(error);
       return { error };
     }
 
     if (!data) {
       // Hide results list if there are no results
-      console.error("No results");
+      if (debug.value) console.error("No results");
       return { error: new Error("No results") };
     }
 
@@ -324,12 +326,12 @@ export const Search = () => {
     );
 
     if (error) {
-      console.error(error);
+      if (debug.value) console.error(error);
       return { error };
     }
 
     if (!data) {
-      console.warn("no users present");
+      if (debug.value) console.warn("no users present");
       return { error: new Error("no users present") };
     }
 

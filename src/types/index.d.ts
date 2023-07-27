@@ -50,6 +50,12 @@ export interface Member {
   photoURL: string;
 }
 
+export interface UserSearchResult {
+  id: number;
+  text: string;
+  img: string;
+}
+
 export interface LocalMessage {
   id?: string;
   channelID: string;
@@ -73,12 +79,6 @@ export interface ServerMessage {
   createdAt: Date;
   creator: ServerUser;
   editedAt: Date;
-}
-
-export interface UserSearchResult {
-  id: number;
-  text: string;
-  img: string;
 }
 
 export interface LocalUser {

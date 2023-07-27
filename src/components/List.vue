@@ -44,13 +44,13 @@ const currentItem = ref(0);
 const itemRefs = ref<HTMLInputElement[]>([]);
 
 const NextItem = () => {
-  if (debug.value) console.log("Calling NextItem");
+  if (debug.value) console.info("Calling NextItem");
   if (currentItem.value < props.items.length - 1) {
     currentItem.value++;
   }
 };
 const PrevItem = () => {
-  if (debug.value) console.log("Calling PrevItem");
+  if (debug.value) console.info("Calling PrevItem");
   if (currentItem.value > 0) {
     currentItem.value--;
   }

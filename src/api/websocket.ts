@@ -29,7 +29,6 @@ export const WebSocketService = () => {
 
   const OpenSocketConnection = async () => {
     if (debug.value) {
-      // eslint-disable-next-line
       console.info("setSocket triggered");
     }
     const sessionToken = localStorage.getItem("auth");
@@ -37,7 +36,6 @@ export const WebSocketService = () => {
 
     websocket.onopen = () => {
       if (debug.value) {
-        // eslint-disable-next-line
         console.info("Successfully connected to the echo WebSocket server!");
       }
     };
@@ -96,26 +94,21 @@ export const WebSocketService = () => {
     };
 
     websocket.onclose = (close) => {
-      if (debug.value) {
-        if (close.wasClean) {
-          // eslint-disable-next-line
-          console.info(
-            "Successfully disconnected to the echo WebSocket server!"
-          );
-        } else {
-          // eslint-disable-next-line
-          console.error(
-            "Not able to cleanly disconnected from the WebSocket server."
-          );
-        }
+      if (!debug.value) {
+        return;
+      }
+      if (close.wasClean) {
+        console.info("Successfully disconnected to the echo WebSocket server!");
+      } else {
+        console.error(
+          "Not able to cleanly disconnected from the WebSocket server."
+        );
       }
     };
 
     websocket.onerror = (error) => {
       if (debug.value) {
-        // eslint-disable-next-line
         console.error("error: ", error);
-        // eslint-disable-next-line
         console.error("Error originating from the echo websocket server...");
       }
     };

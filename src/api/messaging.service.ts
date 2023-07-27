@@ -162,7 +162,7 @@ export const Groups = () => {
       headers: { Authorization: sessionToken },
     });
     if (error) {
-      console.error(error);
+      if (debug.value) console.error(error);
       return { error };
     }
     if (!data)
@@ -183,7 +183,7 @@ export const Groups = () => {
     error?: Error | AxiosError<unknown, any> | undefined;
   }> => {
     if (members.length === 0) {
-      console.error("Invalid New Group Input");
+      if (debug.value) console.error("Invalid New Group Input");
       return { error: new Error("Invalid New Group Input") };
     }
     const url = api_url + "v1/channels";
@@ -215,7 +215,7 @@ export const Groups = () => {
     );
 
     if (error) {
-      console.error(error);
+      if (debug.value) console.error(error);
       return { error };
     }
     if (!data) return {};
