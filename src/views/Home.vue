@@ -64,7 +64,6 @@ const error = ref<Error>();
 onErrorCaptured((capturedError, instance, info) => {
   // If it's not possible to retrieve the current user/socket, the user should be signed out
   // and returned to the landing page where they can log in.
-  console.log(`Home.ts:71`);
   if (!user || !socket) SignOut();
   error.value = capturedError;
   if (debug) console.error(capturedError, instance, info);

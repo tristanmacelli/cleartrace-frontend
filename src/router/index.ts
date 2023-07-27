@@ -182,7 +182,6 @@ router.onError((_error, to) => {
   const { SignOut } = Users();
 
   if (to.name === "Home") {
-    console.log(`router/index.ts:178`);
     awaitingComponentData.value = false;
     SignOut();
   }
