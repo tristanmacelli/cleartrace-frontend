@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import { LocalUser } from "../types";
-import { ComputedRef, Ref, computed, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, readonly, ref, watch } from "vue";
 
 export interface State {
   // A switch for controlling navigation
   authenticated: Ref<boolean>;
   // Controls logging output for state actions, mutations, & getters
-  debug: Ref<boolean>;
+  debug: Readonly<Ref<boolean>>;
   groupMessageListLimit: Ref<number>;
   // A fallback in case backend request fails on its initial attempt
   isGroupListOpen: Ref<boolean>;
@@ -30,7 +30,8 @@ const MESSAGE_LIST_CACHE_LIMIT = 20;
 
 const usePiniaStore = defineStore("pinia", (): State => {
   const authenticated = ref<boolean>(false);
-  const debug = ref<boolean>(!import.meta.env.PROD);
+  const noUseDebug = ref<boolean>(!import.meta.env.PROD);
+  const debug = readonly(noUseDebug);
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
   const isGroupListOpen = ref<boolean>(true);
   const isMobile = ref<boolean>(false);

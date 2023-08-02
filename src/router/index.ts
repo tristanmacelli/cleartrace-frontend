@@ -1,5 +1,10 @@
 import { nextTick } from "vue";
-import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
+import {
+  RouteLocationNormalized,
+  RouteRecordRaw,
+  createRouter,
+  createWebHistory,
+} from "vue-router";
 import { storeToRefs } from "pinia";
 import Account from "../views/Account.vue";
 import Landing from "../views/Landing.vue";
@@ -75,7 +80,7 @@ const router = createRouter({
 
 const DEFAULT_TITLE = "Cleartrace";
 
-router.beforeEach((to) => {
+const activeSessionRedirect = (to: RouteLocationNormalized) => {
   const pinia = usePiniaStore();
   const { authenticated, debug } = storeToRefs(pinia);
   const sessionToken = localStorage.getItem("auth");
@@ -90,11 +95,11 @@ router.beforeEach((to) => {
     pinia.setAuthenticated(true);
     return { name: "Home" };
   }
-});
+};
 
 // This handles page refreshes or navigating back to the website
 // during an active/expired session
-router.beforeEach((to) => {
+const requiresAuthCheckRedirect = (to: RouteLocationNormalized) => {
   const pinia = usePiniaStore();
   const sessionToken = localStorage.getItem("auth");
 
@@ -103,10 +108,11 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth && (!sessionToken || !pinia.authenticated)) {
     return { name: "Landing" };
   }
-});
+};
 
-// Loads home view data prior to
-router.beforeEach(async (to) => {
+// Loads home view data prior to confirming navigation (allows the application to return to the landing in case of a
+// data fetching error)
+const loadHomeViewData = async (to: RouteLocationNormalized) => {
   const pinia = usePiniaStore();
   const groupsStore = useGroupsStore();
   const messageStore = useMessagesStore();
@@ -164,7 +170,13 @@ router.beforeEach(async (to) => {
     pinia.setSocket(websocket);
     awaitingComponentData.value = false;
   }
-});
+};
+
+router.beforeEach(activeSessionRedirect);
+
+router.beforeEach(requiresAuthCheckRedirect);
+
+router.beforeEach(loadHomeViewData);
 
 // After every route change vue updates the page title based on a value provided
 // by the route object otherwise, if no value was provided, it uses DEFAULT_TITLE
@@ -176,10 +188,11 @@ router.afterEach((to) => {
   });
 });
 
-router.onError((_error, to) => {
+router.onError((error, to) => {
   const pinia = usePiniaStore();
-  const { awaitingComponentData } = storeToRefs(pinia);
+  const { awaitingComponentData, debug } = storeToRefs(pinia);
   const { SignOut } = Users();
+  if (debug.value) console.error(`router ${error}`);
 
   if (to.name === "Home") {
     awaitingComponentData.value = false;

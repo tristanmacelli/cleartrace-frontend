@@ -34,6 +34,7 @@ export const WebSocketService = () => {
     const sessionToken = localStorage.getItem("auth");
     const websocket = new WebSocket(`${ws_url}v1/ws?auth=${sessionToken}`);
 
+    // TODO: Consider moving event handlers to separate file with group & message handler functions
     websocket.onopen = () => {
       if (debug.value) {
         console.info("Successfully connected to the echo WebSocket server!");
@@ -103,6 +104,9 @@ export const WebSocketService = () => {
         console.error(
           "Not able to cleanly disconnected from the WebSocket server."
         );
+        // TODO: Since the close was not clean it's very likely the client did not initiate the close, attempt to
+        // reconnect
+        // TODO: add a clientClosedWebsocket boolean to pinia as a double-check
       }
     };
 
@@ -111,6 +115,8 @@ export const WebSocketService = () => {
         console.error("error: ", error);
         console.error("Error originating from the echo websocket server...");
       }
+      // TODO: Attempt to reconnect
+      // TODO: add a clientClosedWebsocket boolean to pinia as a double-check
     };
 
     return websocket;
