@@ -152,7 +152,7 @@ const loadHomeViewData = async (to: RouteLocationNormalized) => {
     // This is intended to populate the active group's messageList.
     const previousActiveGroup = getStoredActiveGroup(user);
 
-    if (previousActiveGroup && previousActiveGroup.members.includes(user.id)) {
+    if (previousActiveGroup) {
       groupsStore.setActiveGroup(previousActiveGroup);
     } else {
       const hydratedGeneralGroup = groupsStore.getGroupByID(general.value.id);

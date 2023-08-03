@@ -46,6 +46,7 @@ export const getStoredActiveGroup = (user: LocalUser): LocalGroup | null => {
   }
   const activeGroup: LocalGroup = JSON.parse(activeGroupJSON);
 
+  // Check to see if the user is in this group
   if (activeGroup.members.findIndex((m) => m === user.id) === -1) {
     return null;
   }

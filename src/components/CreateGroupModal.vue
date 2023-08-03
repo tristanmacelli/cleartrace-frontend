@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { storeToRefs } from "pinia";
 
 export default defineComponent({
   name: "createGroupModal",
@@ -37,13 +38,18 @@ import { ref } from "vue";
 import GroupMember from "@/components/GroupMember.vue";
 import UserSearch from "@/components/UserSearch.vue";
 import Modal from "@/components/Modal.vue";
+import usePiniaStore from "@/store/pinia";
 import useGroupsStore from "@/store/groups";
+import useMessageStore from "@/store/messages";
 import { Groups } from "@/api/messaging.service";
-import { Member, UserSearchResult } from "@/types";
-import { userSearchResultToMember } from "@/utils";
+import { Member, MessageList, UserSearchResult } from "@/types";
+import { createLocalGroupName, userSearchResultToMember } from "@/utils";
 
 const { CreateGroup } = Groups();
+const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
+const messageStore = useMessageStore();
+const { debug, getUserFullName } = storeToRefs(pinia);
 
 const emit = defineEmits(["hideModal"]);
 const currentMembers = ref<Member[]>([]);
@@ -69,9 +75,23 @@ const HideModal = () => {
 const SubmitForm = async () => {
   const { newGroup, error } = await CreateGroup(currentMembers.value);
   if (!newGroup || error) {
+    if (debug.value) console.error("Error creating new group");
     // TODO: do something to the DOM
   } else {
-    groupsStore.addToGroupList(newGroup);
+    const localName = createLocalGroupName(
+      newGroup.name,
+      getUserFullName.value!
+    );
+    const localGroup = { ...newGroup, name: localName };
+    groupsStore.addToGroupList(localGroup);
+    groupsStore.setSortedGroupList();
+    groupsStore.setActiveGroup(localGroup);
+    const newMessageList: MessageList = {
+      channelID: newGroup.id,
+      messages: [],
+      unreadMessages: [],
+    };
+    messageStore.setActiveMessageList(newMessageList);
     HideModal();
   }
 };

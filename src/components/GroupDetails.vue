@@ -86,8 +86,8 @@ const { GetUsersFromIDs } = Search();
 const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
 const messageStore = useMessageStore();
-const { getUserID } = storeToRefs(pinia);
-const { previousActiveGroup } = storeToRefs(groupsStore);
+const { debug, getUserID } = storeToRefs(pinia);
+const { activeGroup, previousActiveGroup } = storeToRefs(groupsStore);
 
 const props = defineProps<{
   group: LocalGroup;
@@ -165,9 +165,7 @@ const RemoveMember = async (memberIndex: number) => {
 const SetPreviousGroupToActive = () => {
   // TODO: Fix Non-null assertion
   groupsStore.setActiveGroup(previousActiveGroup.value);
-  const messageList = messageStore.getMessageList(
-    previousActiveGroup.value.id!
-  );
+  const messageList = messageStore.getMessageList(activeGroup.value.id!);
   // TODO: Fix Non-null assertion
   messageStore.setActiveMessageList(messageList!);
 };
@@ -184,9 +182,11 @@ const SubmitForm = async (type: string) => {
         props.group.index
       );
       if (!index || error) {
+        if (debug.value) console.error("Error leaving group");
         // TODO: do something to the DOM
       } else {
         groupsStore.removeFromGroupList(props.group.index);
+        groupsStore.setSortedGroupList();
         SetPreviousGroupToActive();
       }
       break;
@@ -197,9 +197,11 @@ const SubmitForm = async (type: string) => {
         props.group.index
       );
       if (!index || error) {
+        if (debug.value) console.error("Error deleting group");
         // TODO: do something to the DOM
       } else {
         groupsStore.removeFromGroupList(props.group.index);
+        groupsStore.setSortedGroupList();
         SetPreviousGroupToActive();
       }
       break;

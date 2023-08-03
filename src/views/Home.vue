@@ -59,13 +59,11 @@ const { SignOut } = Users();
 const displayGroupDetails = ref(false);
 const displayCreateGroupModal = ref(false);
 const modalGroup = ref<LocalGroup>();
-const error = ref<Error>();
 
 onErrorCaptured((capturedError, instance, info) => {
   // If it's not possible to retrieve the current user/socket, the user should be signed out
   // and returned to the landing page where they can log in.
   if (!user || !socket) SignOut();
-  error.value = capturedError;
   if (debug) console.error(capturedError, instance, info);
   return true;
 });

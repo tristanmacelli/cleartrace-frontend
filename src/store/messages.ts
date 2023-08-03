@@ -64,8 +64,8 @@ const useMessagesStore = defineStore("messages", (): State => {
   //   if (index > -1) {
   //     return messageList.messages[index];
   //   } else {
-  //     // if (debug.value) console.log("Group not present");
-  //     console.log("Group not present");
+  //     // if (debug.value) console.log("Message not present");
+  //     console.log("Message not present");
   //   }
   // };
 
