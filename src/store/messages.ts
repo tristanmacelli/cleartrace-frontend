@@ -5,10 +5,12 @@ import { LocalMessage, MessageList } from "../types";
 
 export interface State {
   activeMessageList: Ref<MessageList | undefined>;
+  previousActiveMessageList: Ref<MessageList | undefined>;
   messageLists: Ref<MessageList[]>;
   getActiveMessageListId: ComputedRef<string | undefined>;
   getActiveMessageListLength: ComputedRef<number | undefined>;
   setActiveMessageList: (messageList: MessageList) => void;
+  setPreviousAsActiveMessageList: () => void;
   addToActiveMessageList: (message: LocalMessage) => void;
   addUnreadMessage: (message: LocalMessage) => void;
   updateMessageInMessageList: (
@@ -30,6 +32,7 @@ export interface State {
 const useMessagesStore = defineStore("messages", (): State => {
   const messageLists = ref<MessageList[]>([]);
   const activeMessageList = ref<MessageList>();
+  const previousActiveMessageList = ref<MessageList>();
 
   const getActiveMessageListId = computed<string | undefined>(
     () => activeMessageList.value?.channelID
@@ -40,9 +43,14 @@ const useMessagesStore = defineStore("messages", (): State => {
   );
 
   const setActiveMessageList = (messageList: MessageList) => {
+    previousActiveMessageList.value = activeMessageList.value;
     // In order to trigger an unreadMessages computed value, the messageList must be edited directly
     messageList.unreadMessages = [];
     activeMessageList.value = messageList;
+  };
+
+  const setPreviousAsActiveMessageList = () => {
+    setActiveMessageList(previousActiveMessageList.value!);
   };
 
   const addToActiveMessageList = (message: LocalMessage) => {
@@ -135,9 +143,11 @@ const useMessagesStore = defineStore("messages", (): State => {
   return {
     messageLists,
     activeMessageList,
+    previousActiveMessageList,
     getActiveMessageListId,
     getActiveMessageListLength,
     setActiveMessageList,
+    setPreviousAsActiveMessageList,
     addToActiveMessageList,
     addUnreadMessage,
     updateMessageInMessageList,

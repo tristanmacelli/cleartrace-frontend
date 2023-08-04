@@ -37,6 +37,7 @@ export interface State {
   getActiveGroupID: ComputedRef<string>;
   getGroupByID: (id: string) => LocalGroup | undefined;
   setActiveGroup: (group: LocalGroup, initialCall?: boolean) => void;
+  setPreviousAsActiveGroup: () => void;
   setGroupList: (list: LocalGroup[]) => void;
   clearGroupList: () => void;
   setSortedGroupList: () => void;
@@ -135,6 +136,10 @@ const useGroupsStore = defineStore("groups", (): State => {
     localStorage.setItem("activeGroup", JSON.stringify(activeGroup.value));
   };
 
+  const setPreviousAsActiveGroup = () => {
+    setActiveGroup(previousActiveGroup.value);
+  };
+
   const setGroupList = (list: LocalGroup[]) => {
     groupList.value = list;
   };
@@ -203,6 +208,7 @@ const useGroupsStore = defineStore("groups", (): State => {
     getActiveGroupID,
     getGroupByID,
     setActiveGroup,
+    setPreviousAsActiveGroup,
     setGroupList,
     clearGroupList,
     setSortedGroupList,

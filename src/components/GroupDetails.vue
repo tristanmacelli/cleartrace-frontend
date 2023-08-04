@@ -87,7 +87,6 @@ const pinia = usePiniaStore();
 const groupsStore = useGroupsStore();
 const messageStore = useMessageStore();
 const { debug, getUserID } = storeToRefs(pinia);
-const { activeGroup, previousActiveGroup } = storeToRefs(groupsStore);
 
 const props = defineProps<{
   group: LocalGroup;
@@ -95,7 +94,9 @@ const props = defineProps<{
 const emit = defineEmits(["hideModal"]);
 
 // Form Input
+// eslint-disable-next-line vue/no-setup-props-destructure
 const descriptionInput = ref(props.group.description);
+// eslint-disable-next-line vue/no-setup-props-destructure
 const nameInput = ref(props.group.name);
 
 const currentMembers = ref<Member[]>([]);
@@ -105,6 +106,7 @@ const showSearchComponent = computed(() => {
   return !inputDisabled && currentMembers.value.length > 1;
 });
 // More DOM Control
+// eslint-disable-next-line vue/no-setup-props-destructure
 const { members } = await GetUsersFromIDs(props.group.members);
 if (members) {
   // Remove current user from the current member list
@@ -163,11 +165,8 @@ const RemoveMember = async (memberIndex: number) => {
 };
 
 const SetPreviousGroupToActive = () => {
-  // TODO: Fix Non-null assertion
-  groupsStore.setActiveGroup(previousActiveGroup.value);
-  const messageList = messageStore.getMessageList(activeGroup.value.id!);
-  // TODO: Fix Non-null assertion
-  messageStore.setActiveMessageList(messageList!);
+  groupsStore.setPreviousAsActiveGroup();
+  messageStore.setPreviousAsActiveMessageList();
 };
 
 const HideModal = () => {
