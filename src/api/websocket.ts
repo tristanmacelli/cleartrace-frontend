@@ -112,7 +112,11 @@ export const WebSocketService = () => {
         // Prevents reconnect attempts when the client manually closes the connection
         if (pinia.clientClosedSocket) return;
 
-        setTimeout(OpenSocketConnection, retryDelay);
+        pinia.clearSocket();
+        setTimeout(
+          async () => pinia.setSocket(await OpenSocketConnection()),
+          retryDelay
+        );
         retryDelay *= 2;
         if (retryDelay > 8000) retryDelay = 250;
       }
