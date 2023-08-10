@@ -27,6 +27,8 @@ export const WebSocketService = () => {
   const { debug, getUserFullName } = storeToRefs(pinia);
   const { getActiveGroupID, groupList } = storeToRefs(groupsStore);
 
+  let retryDelay = 250;
+
   const OpenSocketConnection = async () => {
     if (debug.value) {
       console.info("setSocket triggered");
@@ -94,19 +96,25 @@ export const WebSocketService = () => {
       }
     };
 
-    websocket.onclose = (close) => {
-      if (!debug.value) {
-        return;
-      }
+    websocket.onclose = (close: CloseEvent) => {
       if (close.wasClean) {
-        console.info("Successfully disconnected to the echo WebSocket server!");
+        if (!debug.value) {
+          console.info(
+            "Successfully disconnected to the echo WebSocket server!"
+          );
+        }
       } else {
-        console.error(
-          "Not able to cleanly disconnected from the WebSocket server."
-        );
-        // TODO: Since the close was not clean it's very likely the client did not initiate the close, attempt to
-        // reconnect
-        // TODO: add a clientClosedWebsocket boolean to pinia as a double-check
+        if (debug.value) {
+          console.error(
+            `Not able to cleanly disconnected from the WebSocket server: ${close.code}`
+          );
+        }
+        // Prevents reconnect attempts when the client manually closes the connection
+        if (pinia.clientClosedSocket) return;
+
+        setTimeout(OpenSocketConnection, retryDelay);
+        retryDelay *= 2;
+        if (retryDelay > 8000) retryDelay = 250;
       }
     };
 
@@ -115,8 +123,6 @@ export const WebSocketService = () => {
         console.error("error: ", error);
         console.error("Error originating from the echo websocket server...");
       }
-      // TODO: Attempt to reconnect
-      // TODO: add a clientClosedWebsocket boolean to pinia as a double-check
     };
 
     return websocket;

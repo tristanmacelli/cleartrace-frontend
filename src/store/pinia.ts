@@ -5,6 +5,8 @@ import { ComputedRef, Ref, computed, readonly, ref, watch } from "vue";
 export interface State {
   // A switch for controlling navigation
   authenticated: Ref<boolean>;
+  // Prevents reconnect attempts when the client manually closes the connection
+  clientClosedSocket: Ref<boolean>;
   // Controls logging output for state actions, mutations, & getters
   debug: Readonly<Ref<boolean>>;
   groupMessageListLimit: Ref<number>;
@@ -31,6 +33,7 @@ const MESSAGE_LIST_CACHE_LIMIT = 20;
 const usePiniaStore = defineStore("pinia", (): State => {
   const authenticated = ref<boolean>(false);
   const noUseDebug = ref<boolean>(!import.meta.env.PROD);
+  const clientClosedSocket = ref<boolean>(false);
   const debug = readonly(noUseDebug);
   const groupMessageListLimit = ref<number>(MESSAGE_LIST_CACHE_LIMIT);
   const isGroupListOpen = ref<boolean>(true);
@@ -86,6 +89,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
 
   return {
     authenticated,
+    clientClosedSocket,
     debug,
     groupMessageListLimit,
     isGroupListOpen,
