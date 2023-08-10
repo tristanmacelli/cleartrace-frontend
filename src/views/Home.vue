@@ -25,6 +25,7 @@
       v-if="displayCreateGroupModal"
       @hide-modal="HideCreateGroupModal"
     />
+    <FullScreenDisconnected v-if="socketReconnecting" />
   </div>
 </template>
 
@@ -44,6 +45,7 @@ import { storeToRefs } from "pinia";
 import CreateGroupModal from "@/components/CreateGroupModal.vue";
 import GroupList from "@/components/GroupList.vue";
 import MessageList from "@/components/MessageList.vue";
+import FullScreenDisconnected from "@/components/FullScreenDisconnected.vue";
 import { Users } from "@/api/users";
 import usePiniaStore from "@/store/pinia";
 // import useUserStore from "@/store/users";
@@ -54,7 +56,7 @@ const GroupDetails = defineAsyncComponent(
 
 const pinia = usePiniaStore();
 // const userStore = useUserStore();
-const { debug, user, socket } = storeToRefs(pinia);
+const { debug, user, socket, socketReconnecting } = storeToRefs(pinia);
 const { SignOut } = Users();
 const displayGroupDetails = ref(false);
 const displayCreateGroupModal = ref(false);

@@ -15,6 +15,7 @@ export interface State {
   isMobile: Ref<boolean>;
   awaitingComponentData: Ref<boolean>;
   socket: Ref<WebSocket | undefined>;
+  socketReconnecting: Ref<boolean>;
   user: Ref<LocalUser | undefined>;
   userInitials: ComputedRef<string>;
   getUserID: ComputedRef<number | undefined>;
@@ -40,6 +41,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
   const isMobile = ref<boolean>(false);
   const awaitingComponentData = ref<boolean>(false);
   const socket = ref<WebSocket | undefined>(undefined);
+  const socketReconnecting = ref<boolean>(false);
   const user = ref<LocalUser | undefined>(undefined);
 
   // This ensures that the groupsList renders properly when the screen is resized
@@ -96,6 +98,7 @@ const usePiniaStore = defineStore("pinia", (): State => {
     isMobile,
     awaitingComponentData,
     socket,
+    socketReconnecting,
     user,
     userInitials,
     getUserID,

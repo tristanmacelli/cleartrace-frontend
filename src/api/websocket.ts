@@ -24,7 +24,7 @@ export const WebSocketService = () => {
   const messageStore = useMessagesStore();
   const groupsStore = useGroupsStore();
 
-  const { debug, getUserFullName } = storeToRefs(pinia);
+  const { debug, getUserFullName, socketReconnecting } = storeToRefs(pinia);
   const { getActiveGroupID, groupList } = storeToRefs(groupsStore);
 
   let retryDelay = 250;
@@ -41,6 +41,7 @@ export const WebSocketService = () => {
       if (debug.value) {
         console.info("Successfully connected to the echo WebSocket server!");
       }
+      socketReconnecting.value = false;
     };
 
     websocket.onmessage = (event: MessageEvent<any>) => {
@@ -112,6 +113,7 @@ export const WebSocketService = () => {
         // Prevents reconnect attempts when the client manually closes the connection
         if (pinia.clientClosedSocket) return;
 
+        socketReconnecting.value = true;
         pinia.clearSocket();
         setTimeout(
           async () => pinia.setSocket(await OpenSocketConnection()),
